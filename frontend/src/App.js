@@ -1,97 +1,60 @@
 import React, {useState, useCallback} from 'react';
 import axios from 'axios';
-import {Button, CircularProgress, Input} from "@material-ui/core";
+import {Button, CircularProgress, Input} from '@material-ui/core';
+
+const api = axios.create({
+    baseURL: 'http://localhost:3000/api/',
+});
 
 function App() {
-    const [inputSentence, setInputSentence] = useState("");
+    const [inputSentence, setInputSentence] = useState('');
     const [loading, setLoading] = useState(false);
-    const [distilbertData, setDistilbertData] = useState(null);
-    const [nsfwData, setNsfwData] = useState(null);
-    const [moderationData, setModerationData] = useState(null);
-    const [contactInfoData, setContactInfoData] = useState(null);
-    const [addressesData, setAddressesData] = useState(null);
-
-    // const staticInputSentence = "This sentence hits all bad categories. Sex, i hate you, lets fight, you are ugly, suicidal thoughts, children, throat is cut and bleeding. Marcus Iversen (351) 321 4455"
+    const [data, setData] = useState({
+        distilbert: null,
+        nsfw: null,
+        moderation: null,
+        contactInfo: null,
+        addresses: null,
+    });
 
     const handleInputChange = (event) => {
         setInputSentence(event.target.value);
-        console.log(inputSentence)
-    }
+    };
 
-    const fetchDistilbertResult = useCallback(async () => {
+    const fetchData = useCallback(async (endpoint) => {
         setLoading(true);
         try {
-            const result = await axios.post('http://localhost:3000/api/distilbert',
-                {'inputs': inputSentence});
-            setDistilbertData(result.data);
+            const result = await api.post(endpoint, {inputs: inputSentence});
+            setData((prevData) => ({...prevData, [endpoint]: result.data}));
         } catch (error) {
-            console.error("Error fetching Distilbert data:", error);
+            console.error(`Error fetching ${endpoint} data:`, error);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     }, [inputSentence]);
-
-    const fetchNSFWData = useCallback(async () => {
-        setLoading(true)
-        try {
-            const result = await axios.post('http://localhost:3000/api/nsfw',
-                {'inputs': inputSentence});
-            setNsfwData(result.data);
-        } catch (error) {
-            console.error("Error fetching NSFW data:", error);
-        }
-    }, [inputSentence])
-
-    const fetchModerationData = useCallback(async () => {
-        setLoading(true)
-        try {
-            const result = await axios.post('http://localhost:3000/api/moderation',
-                {'inputs': inputSentence});
-            setModerationData(result.data);
-        } catch (error) {
-            console.error("Error fetching Moderation data:", error);
-        }
-    }, [inputSentence])
-
-    const fetchContactInfoData = useCallback(async () => {
-        setLoading(true)
-        try {
-            const result = await axios.post('http://localhost:3000/api/contactInfo',
-                {'inputs': inputSentence});
-            setContactInfoData(result.data);
-        } catch (error) {
-            console.error("Error fetching ContactInfo data:", error);
-
-        }
-
-    }, [inputSentence])
-
-    const fetchAddressesData = useCallback(async () => {
-        setLoading(true)
-        try {
-            const result = await axios.post('http://localhost:3000/api/addresses',
-                {'inputs': inputSentence});
-            setAddressesData(result.data);
-        } catch (error) {
-            console.error("Error fetching Address data:", error);
-
-        }
-
-    }, [inputSentence])
 
     return (
         <div>
             <div style={{paddingLeft: 25}}>
                 <h2>Write a sentence and do a moderation check</h2>
                 <div>
-                    <Input type="text" value={inputSentence} onChange={handleInputChange}
-                           style={{width: 1000}}/>
-                    <Button style={{backgroundColor: 'yellow', color: 'black'}} onClick={() => {
-                        fetchDistilbertResult()
-                        fetchNSFWData()
-                        fetchModerationData()
-                        fetchContactInfoData()
-                        fetchAddressesData()
-                    }}>
+                    <Input
+                        type="text"
+                        value={inputSentence}
+                        onChange={handleInputChange}
+                        onBlur={handleInputChange}
+                        style={{width: 1000}}
+                    />
+                    <Button
+                        style={{backgroundColor: 'yellow', color: 'black'}}
+                        onClick={() => {
+                            fetchData('distilbert')
+                            fetchData('nsfw');
+                            fetchData('moderation');
+                            fetchData('contactInfo');
+                            fetchData('addresses');
+                        }}
+                    >
                         Moderation Search
                     </Button>
                 </div>
@@ -99,31 +62,48 @@ function App() {
 
                 {loading && <CircularProgress/>}
                 <br/>
-                <Button style={{backgroundColor: 'blue', color: 'white'}}
-                        onClick={fetchDistilbertResult}>Distilbert</Button>
-                {distilbertData && <pre>{JSON.stringify(distilbertData, null, 2)}</pre>}
+                <Button
+                    style={{backgroundColor: 'blue', color: 'white'}}
+                    onClick={() => fetchData('distilbert')}
+                >
+                    Distilbert
+                </Button>
+                {data.distilbert && <pre>{JSON.stringify(data.distilbert, null, 2)}</pre>}
 
+                <Button
+                    style={{backgroundColor: 'red', color: 'white'}}
+                    onClick={() => fetchData('nsfw')}
+                >
+                    NSFW
+                </Button>
+                {data.nsfw && <pre>{JSON.stringify(data.nsfw, null, 2)}</pre>}
 
-                <Button style={{backgroundColor: 'red', color: 'white'}} onClick={fetchNSFWData}>NSFW</Button>
-                {nsfwData && <pre>{JSON.stringify(nsfwData, null, 2)}</pre>}
+                <Button
+                    style={{backgroundColor: 'orange', color: 'white'}}
+                    onClick={() => fetchData('moderation')}
+                >
+                    Moderation
+                </Button>
+                {data.moderation && <pre>{JSON.stringify(data.moderation, null, 2)}</pre>}
 
-                <Button style={{backgroundColor: 'orange', color: 'white'}}
-                        onClick={fetchModerationData}>Moderation</Button>
-                {moderationData && <pre>{JSON.stringify(moderationData, null, 2)}</pre>}
+                <Button
+                    style={{backgroundColor: 'green', color: 'white'}}
+                    onClick={() => fetchData('contactInfo')}
+                >
+                    Contact Info
+                </Button>
+                {data.contactInfo && <pre>{JSON.stringify(data.contactInfo, null, 2)}</pre>}
 
-                <Button style={{backgroundColor: 'green', color: 'white'}} onClick={fetchContactInfoData}>Contact
-                    Info</Button>
-                {contactInfoData && <pre>{JSON.stringify(contactInfoData, null, 2)}</pre>}
-
-                <Button style={{backgroundColor: 'purple', color: 'white'}} onClick={fetchAddressesData}>Address
-                    Info</Button>
-                {addressesData && <pre>{JSON.stringify(addressesData, null, 2)}</pre>}
+                <Button
+                    style={{backgroundColor: 'purple', color: 'white'}}
+                    onClick={() => fetchData('addresses')}
+                >
+                    Address Info
+                </Button>
+                {data.addresses && <pre>{JSON.stringify(data.addresses, null, 2)}</pre>}
             </div>
         </div>
-
     );
-
 }
-
 
 export default App;

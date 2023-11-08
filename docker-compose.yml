@@ -1,0 +1,42 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:14-alpine
+    ports:
+      - 5433:5432
+    volumes:
+      - ~/apps/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=myawesomepassword
+      - POSTGRES_USER=myawesomeuser
+      - POSTGRES_DB=myawesomedb
+    networks:
+      - my_network
+
+  pgadmin4:
+    ports:
+      - 80:80
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@demo.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    image: dpage/pgadmin4
+    networks:
+      - my_network
+
+  frontend:
+    ports:
+      - 3001:3000
+    build: ./frontend
+    networks:
+      - my_network
+
+  backend:
+    ports:
+      - 3000:3000
+    build: ./server
+    networks:
+      - my_network
+
+networks:
+  my_network:

@@ -18,8 +18,12 @@ services:
     ports:
       - 3000:3000
     build: ./server
+    environment:
+      - DATABASE_URL=postgres://textmoderation:texmopassword123@db:5432/textmoderationdb
     volumes:
       - ./server/src:/app/src:delegated
+      - ./server/drizzle:/app/drizzle:delegated
+      - ./server/db:/app/db:delegated
     networks:
       - my_network
 
@@ -27,6 +31,8 @@ services:
     ports:
       - 3001:3000
     build: ./frontend
+    environment:
+      - VITE_API_URL=http://backend:3000/
     volumes:
       - ./frontend/src:/app/src:delegated
       - ./frontend/public:/app/public:delegated

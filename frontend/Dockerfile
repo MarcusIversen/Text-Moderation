@@ -1,12 +1,9 @@
-FROM node:20
+FROM node:21
 WORKDIR /app
 COPY package*.json .
 RUN npm i
 COPY src ./src
 COPY public ./public
-
-
-RUN ls -lla
-
+COPY index.html ./index.html
 EXPOSE 3000
-CMD [ "npm" , "start" ]
+CMD [ "npm" , "run" , "dev" ]

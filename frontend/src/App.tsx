@@ -1,9 +1,12 @@
-import React, {useState, useCallback} from 'react';
-import axios from 'axios';
+import axios from "axios";
+import {Button, CircularProgress, Input} from "@mui/material";
+import * as React from "react";
+import {useCallback, useState} from "react";
 
 const api = axios.create({
-    baseURL: 'http://localhost:3000/api/',
+    baseURL: 'http://127.0.0.1:3000/api/',
 });
+
 
 function App() {
     const [inputSentence, setInputSentence] = useState('');
@@ -16,9 +19,13 @@ function App() {
         addresses: null,
     });
 
-    const handleInputChange = (event) => {
+    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setInputSentence(event.target.value);
     };
+
+  const handleInputBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+    setInputSentence(event.target.value);
+  };
 
     const fetchData = useCallback(async (endpoint) => {
         setLoading(true);
@@ -41,7 +48,7 @@ function App() {
                             type="text"
                             value={inputSentence}
                             onChange={handleInputChange}
-                            onBlur={handleInputChange}
+                            onBlur={handleInputBlur}
                             style={{width: 1000}}
                         />
                         <Button

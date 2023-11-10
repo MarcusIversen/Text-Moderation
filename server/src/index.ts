@@ -2,6 +2,7 @@ import * as dotenv from 'dotenv';
 import axios from 'axios';
 import express from 'express';
 import cors from 'cors';
+import { Request, Response } from 'express';
 
 dotenv.config();
 const app = express();
@@ -10,7 +11,8 @@ app.use(express.json());
 
 const HF_ACCESS_TOKEN = process.env.HF_ACCESS_TOKEN;
 
-const createModelEndpoint = (modelUrl) => async (req, res) => {
+
+const createModelEndpoint = (modelUrl: string) => async (req: Request, res: Response) => {
     const headers = {
         Authorization: `Bearer ${HF_ACCESS_TOKEN}`,
         'Content-Type': 'application/json',
@@ -22,7 +24,9 @@ const createModelEndpoint = (modelUrl) => async (req, res) => {
         const result = await axios.post(modelUrl, data, { headers });
         res.json(result.data);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        const asError = error as Error;
+
+        res.status(500).json({ message: asError.message });
     }
 };
 

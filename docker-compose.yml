@@ -4,7 +4,7 @@ services:
   db:
     image: postgres:14-alpine
     ports:
-      - 5433:5432
+      - "5433:5432"
     volumes:
       - ~/apps/postgres:/var/lib/postgresql/data
     environment:
@@ -16,7 +16,7 @@ services:
 
   backend:
     ports:
-      - 3000:3000
+      - "3000:3000"
     build: ./server
     environment:
       - DATABASE_URL=postgres://textmoderation:texmopassword123@db:5432/textmoderationdb
@@ -29,10 +29,10 @@ services:
 
   frontend:
     ports:
-      - 3001:3000
+      - "3001:3000"
     build: ./frontend
     environment:
-      - VITE_API_URL=http://backend:3000/
+      - VITE_API_URL=http://localhost:3000/
     volumes:
       - ./frontend/src:/app/src:delegated
       - ./frontend/public:/app/public:delegated

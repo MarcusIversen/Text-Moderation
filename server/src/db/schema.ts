@@ -1,4 +1,4 @@
-import {serial, integer, timestamp, pgTable, varchar, pgEnum, bigint, doublePrecision} from "drizzle-orm/pg-core";
+import {serial, integer, timestamp, pgTable, varchar, pgEnum, doublePrecision} from "drizzle-orm/pg-core";
 
 // User Table
 export const user = pgTable("User", {
@@ -13,7 +13,7 @@ export const user = pgTable("User", {
 
 // Status and Step Enums
 export const statusType = pgEnum("status_type", ["pending", "approved", "rejected"]);
-export const stepType = pgEnum("step_type", ["step1", "step2", "step3"]);
+export const stepType = pgEnum("step_type", ["BadWord", "AIModeration", "ManualModeration"]);
 
 // TextInput Table
 export const textInput = pgTable("TextInput", {
@@ -31,7 +31,7 @@ export const textInput = pgTable("TextInput", {
 });
 
 // Type Enum
-export const typeEnum = pgEnum("type_enum", ["badWord", "PersonalInfo", "negative", "nsfw", "hate", "threatening", "violence"]);
+export const typeEnum = pgEnum("type_enum", ["badWord", "PersonalInfo", "negative", "nsfw", "hate", "threatening", "violence", "racism"]);
 
 // Log Table
 export const log = pgTable("Log", {

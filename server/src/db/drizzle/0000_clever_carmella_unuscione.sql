@@ -5,13 +5,13 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- CREATE TYPE "step_type" AS ENUM('step1', 'step2', 'step3');
+ CREATE TYPE "step_type" AS ENUM('BadWord', 'AIModeration', 'ManualModeration');
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- CREATE TYPE "type_enum" AS ENUM('badWord', 'PersonalInfo', 'negative', 'nsfw', 'hate', 'threatening', 'violence');
+ CREATE TYPE "type_enum" AS ENUM('badWord', 'PersonalInfo', 'negative', 'nsfw', 'hate', 'threatening', 'violence', 'racism');
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

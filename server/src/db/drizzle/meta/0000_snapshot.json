@@ -1,5 +1,5 @@
 {
-  "id": "05ae81ef-809a-4b0e-9ce1-57b4ee3f6832",
+  "id": "1471615a-721d-44f9-8a36-35db2e392d67",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -229,9 +229,9 @@
     "step_type": {
       "name": "step_type",
       "values": {
-        "step1": "step1",
-        "step2": "step2",
-        "step3": "step3"
+        "BadWord": "BadWord",
+        "AIModeration": "AIModeration",
+        "ManualModeration": "ManualModeration"
       }
     },
     "type_enum": {
@@ -243,7 +243,8 @@
         "nsfw": "nsfw",
         "hate": "hate",
         "threatening": "threatening",
-        "violence": "violence"
+        "violence": "violence",
+        "racism": "racism"
       }
     }
   },

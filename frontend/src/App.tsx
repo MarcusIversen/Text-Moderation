@@ -1,4 +1,3 @@
-import './App.css'
 import axios from "axios";
 import {Button, CircularProgress, Input} from "@mui/material";
 import * as React from "react";
@@ -19,6 +18,7 @@ function App() {
     moderation: null,
     contactInfo: null,
     addresses: null,
+    "check-bad-words": null
   });
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,7 +29,10 @@ function App() {
     setInputSentence(event.target.value);
   };
 
-  const fetchData = useCallback(async (endpoint : string) => {
+  const fetchPost = useCallback(async (endpoint: string) => {
+    if (inputSentence === '' || inputSentence == ' ') {
+      return;
+    }
     setLoading(true);
     try {
       const result = await api.post(endpoint, {inputs: inputSentence});
@@ -40,6 +43,20 @@ function App() {
       setLoading(false);
     }
   }, [inputSentence]);
+
+
+  const fetchGet = useCallback(async (endpoint: string, params = {sentence: inputSentence}) => {
+    setLoading(true);
+    try {
+      const result = await api.get(endpoint, {params});
+      setData((prevData) => ({...prevData, [endpoint]: result.data}));
+    } catch (error) {
+      console.error(`Error fetching ${endpoint} data:`, error);
+    } finally {
+      setLoading(false);
+    }
+  }, [inputSentence]);
+
 
   return (
       <>
@@ -56,11 +73,11 @@ function App() {
             <Button
                 style={{backgroundColor: 'yellow', color: 'black'}}
                 onClick={() => {
-                  fetchData('distilbert')
-                  fetchData('nsfw');
-                  fetchData('moderation');
-                  fetchData('contactInfo');
-                  fetchData('addresses');
+                  fetchGet('check-bad-words')
+                  fetchPost('distilbert')
+                  fetchPost('nsfw');
+                  fetchPost('moderation');
+                  fetchPost('contactInfo');
                 }}
             >
               Moderation Search
@@ -71,8 +88,15 @@ function App() {
           {loading && <CircularProgress/>}
           <br/>
           <Button
+              style={{backgroundColor: 'purple', color: 'white'}}
+              onClick={() => fetchGet('check-bad-words', {sentence: inputSentence})}
+          >
+            Check Bad Words
+          </Button>
+          {data['check-bad-words'] && <pre>{JSON.stringify(data['check-bad-words'], null, 2)}</pre>}
+          <Button
               style={{backgroundColor: 'blue', color: 'white'}}
-              onClick={() => fetchData('distilbert')}
+              onClick={() => fetchPost('distilbert')}
           >
             Distilbert
           </Button>
@@ -80,7 +104,7 @@ function App() {
 
           <Button
               style={{backgroundColor: 'red', color: 'white'}}
-              onClick={() => fetchData('nsfw')}
+              onClick={() => fetchPost('nsfw')}
           >
             NSFW
           </Button>
@@ -88,7 +112,7 @@ function App() {
 
           <Button
               style={{backgroundColor: 'orange', color: 'white'}}
-              onClick={() => fetchData('moderation')}
+              onClick={() => fetchPost('moderation')}
           >
             Moderation
           </Button>
@@ -96,19 +120,13 @@ function App() {
 
           <Button
               style={{backgroundColor: 'green', color: 'white'}}
-              onClick={() => fetchData('contactInfo')}
+              onClick={() => fetchPost('contactInfo')}
           >
             Contact Info
           </Button>
           {data.contactInfo && <pre>{JSON.stringify(data.contactInfo, null, 2)}</pre>}
 
-          <Button
-              style={{backgroundColor: 'purple', color: 'white'}}
-              onClick={() => fetchData('addresses')}
-          >
-            Address Info
-          </Button>
-          {data.addresses && <pre>{JSON.stringify(data.addresses, null, 2)}</pre>}
+
         </div>
       </>
 

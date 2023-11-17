@@ -8,7 +8,7 @@ const api = axios.create({
 });
 
 
-function App() {
+function Home() {
 
   const [inputSentence, setInputSentence] = useState('');
   const [loading, setLoading] = useState(false);
@@ -133,4 +133,4 @@ function App() {
   );
 }
 
-export default App;
+export default Home;

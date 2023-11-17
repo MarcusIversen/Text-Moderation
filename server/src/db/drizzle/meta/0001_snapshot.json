@@ -1,6 +1,6 @@
 {
-  "id": "67eb0a00-01e7-4ea5-b4b2-e3838722b9b7",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "9445a869-1f25-4f06-9420-71b224a6a391",
+  "prevId": "67eb0a00-01e7-4ea5-b4b2-e3838722b9b7",
   "version": "5",
   "dialect": "pg",
   "tables": {
@@ -170,31 +170,37 @@
           "name": "username",
           "type": "varchar",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "password": {
           "name": "password",
           "type": "varchar",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
         },
         "firstName": {
           "name": "firstName",
           "type": "varchar",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "lastName": {
           "name": "lastName",
           "type": "varchar",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "updated_at": {
           "name": "updated_at",

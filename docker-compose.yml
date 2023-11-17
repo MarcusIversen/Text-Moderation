@@ -26,6 +26,8 @@ services:
       - ./server/db:/app/db:delegated
     networks:
       - my_network
+    depends_on:
+      - db
 
   frontend:
     ports:
@@ -39,7 +41,6 @@ services:
     networks:
       - my_network
     depends_on:
-      - db
       - backend
 
 networks:

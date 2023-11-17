@@ -11,56 +11,59 @@ import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-
-function Copyright(props: any) {
-  return (
-      <Typography variant="body2" color="text.secondary" align="center" {...props}>
-        {new Date().getFullYear()}
-        {' Copyright © '}
-        <Link color="inherit" href="https://github.com/MarcusIversen">
-          https://github.com/MarcusIversen
-        </Link>{' '}
-      </Typography>
-  );
-}
-
-const defaultTheme = createTheme({
-  palette: {
-    mode: 'dark',
-    primary: {
-      main: '#4facc3',
-    }
-  },
-  components: {
-    MuiCssBaseline: {
-      styleOverrides: `  
-        body {  
-          background: linear-gradient(to left, #000000, #0a3d62);  
-          height: 100vh; 
-          overflow: hidden; 
-          margin: 0;  
-          background-repeat: no-repeat;  
-          background-attachment: fixed;  
-        }  
-      `,
-    },
-  },
-});
+import { ThemeProvider } from '@mui/material/styles';
+import {defaultTheme} from "../../assets/theme.ts";
+import {Copyright} from "../../components/copyright.tsx";
+import {UserService} from "../../services/UserService.ts";
+import {useNavigate} from "react-router-dom";
+import {useState} from "react";
+import {Alert, CircularProgress, Snackbar} from "@mui/material";
 
 export default function Login() {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+
+  const navigate = useNavigate();
+  const userService = new UserService();
+
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+
+    try {
+      setLoading(true);
+
+      const formData = new FormData(event.currentTarget);
+      const { email, password } = Object.fromEntries(formData);
+
+      if (!email || !password) {
+        throw new Error('Email or password is incorrect, please try again');
+      }
+
+      console.log("response: " , email as string, " , " , password as string)
+      console.log("you did not pass it")
+
+      await userService.login({
+        email: email as string,
+        password: password as string,
+      });
+
+      console.log("you did pass it")
+      // Redirect or perform any action after successful login
+      navigate('/home');
+    } catch (error) {
+      setLoading(false);
+      // @ts-ignore
+      setErrorMessage(error.message);
+      console.error(error);
+    }
   };
 
   return (
       <ThemeProvider theme={defaultTheme}>
-        <Container component="main" maxWidth="xs">
+        <Container component="main" maxWidth="xs" style={{overflow: "hidden"}}>
           <CssBaseline />
           <Box sx={{
             marginTop: 6,
@@ -105,15 +108,22 @@ export default function Login() {
                   id="password"
                   autoComplete="current-password"
               />
+              {errorMessage && (
+                  <Grid item xs={12} marginTop={2}>
+                    <Alert severity="error">{errorMessage}</Alert>
+                  </Grid>
+              )}
               <FormControlLabel
                   control={<Checkbox value="remember" color="primary" />}
                   label="Remember me"
               />
+              {loading && <CircularProgress size={32} style={{marginTop: 10, marginLeft: 35}}/>}
+
               <Button
                   type="submit"
                   fullWidth
                   variant="contained"
-                  sx={{ marginTop: 3, marginBottom: 2, backgroundColor: 'primary.main' }}
+                  sx={{ marginTop: 1, marginBottom: 2, backgroundColor: 'primary.main' }}
               >
                 Sign In
               </Button>
@@ -134,6 +144,14 @@ export default function Login() {
           <Box sx={{ marginTop: 6, marginBottom: 4 }}>
             <Copyright />
           </Box>
+          <Snackbar
+              open={openSnackbar}
+              autoHideDuration={3500}
+              onClose={() => {
+                navigate("/login")
+                setOpenSnackbar(false)}}
+              message="You have been signed in and will be redirected to login"
+          />
         </Container>
       </ThemeProvider>
   );

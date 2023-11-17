@@ -11,13 +11,13 @@ import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import { ThemeProvider } from '@mui/material/styles';
+import {ThemeProvider} from '@mui/material/styles';
 import {defaultTheme} from "../../assets/theme.ts";
 import {Copyright} from "../../components/copyright.tsx";
 import {UserService} from "../../services/UserService.ts";
 import {useNavigate} from "react-router-dom";
 import {useState} from "react";
-import {Alert, CircularProgress, Snackbar} from "@mui/material";
+import {Alert, CircularProgress} from "@mui/material";
 
 export default function Login() {
 
@@ -26,7 +26,6 @@ export default function Login() {
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [openSnackbar, setOpenSnackbar] = useState(false);
 
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -36,27 +35,26 @@ export default function Login() {
       setLoading(true);
 
       const formData = new FormData(event.currentTarget);
-      const { email, password } = Object.fromEntries(formData);
+      const {email, password} = Object.fromEntries(formData);
 
       if (!email || !password) {
-        throw new Error('Email or password is incorrect, please try again');
+        setLoading(false)
+        setErrorMessage('Email or password is incorrect, please try again');
       }
 
-      console.log("response: " , email as string, " , " , password as string)
-      console.log("you did not pass it")
 
       await userService.login({
         email: email as string,
         password: password as string,
       });
 
-      console.log("you did pass it")
-      // Redirect or perform any action after successful login
-      navigate('/home');
+      setTimeout(() => {
+        setLoading(false);
+        navigate("/home")
+      }, 2000);
     } catch (error) {
       setLoading(false);
-      // @ts-ignore
-      setErrorMessage(error.message);
+      setErrorMessage('Email or password is incorrect, please try again');
       console.error(error);
     }
   };
@@ -64,14 +62,14 @@ export default function Login() {
   return (
       <ThemeProvider theme={defaultTheme}>
         <Container component="main" maxWidth="xs" style={{overflow: "hidden"}}>
-          <CssBaseline />
+          <CssBaseline/>
           <Box sx={{
             marginTop: 6,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
           }}>
-            <img src={"../public/Logo.png"} alt={"description"} style={{width: "120%", height: "120%"}}/>
+            <img src={"../public/Logo.png"} alt={"description"} style={{width: "110%", height: "110%"}}/>
           </Box>
           <Box
               sx={{
@@ -81,13 +79,13 @@ export default function Login() {
                 alignItems: 'center',
               }}
           >
-            <Avatar sx={{ margin: 1, backgroundColor: 'primary.main' }}>
-              <LockOutlinedIcon />
+            <Avatar sx={{margin: 1, backgroundColor: 'primary.main'}}>
+              <LockOutlinedIcon/>
             </Avatar>
             <Typography component="h1" variant="h5">
               Sign in
             </Typography>
-            <Box component="form" onSubmit={handleSubmit} noValidate sx={{ marginTop: 1 }}>
+            <Box component="form" onSubmit={handleSubmit} noValidate sx={{marginTop: 1}}>
               <TextField
                   margin="normal"
                   required
@@ -114,16 +112,16 @@ export default function Login() {
                   </Grid>
               )}
               <FormControlLabel
-                  control={<Checkbox value="remember" color="primary" />}
+                  control={<Checkbox value="remember" color="primary"/>}
                   label="Remember me"
               />
-              {loading && <CircularProgress size={32} style={{marginTop: 10, marginLeft: 35}}/>}
+              {loading && <CircularProgress size={32} style={{marginTop: 5, marginLeft: 200}}/>}
 
               <Button
                   type="submit"
                   fullWidth
                   variant="contained"
-                  sx={{ marginTop: 1, marginBottom: 2, backgroundColor: 'primary.main' }}
+                  sx={{marginTop: 1, marginBottom: 2, backgroundColor: 'primary.main'}}
               >
                 Sign In
               </Button>
@@ -141,17 +139,10 @@ export default function Login() {
               </Grid>
             </Box>
           </Box>
-          <Box sx={{ marginTop: 6, marginBottom: 4 }}>
-            <Copyright />
+          <Box sx={{marginTop: 6, marginBottom: 4}}>
+            <Copyright/>
           </Box>
-          <Snackbar
-              open={openSnackbar}
-              autoHideDuration={3500}
-              onClose={() => {
-                navigate("/login")
-                setOpenSnackbar(false)}}
-              message="You have been signed in and will be redirected to login"
-          />
+
         </Container>
       </ThemeProvider>
   );

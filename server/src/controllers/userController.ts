@@ -114,6 +114,9 @@ export class UserController {
 
       const token = await this.userService.login(email, password);
 
+
+      console.log(token);
+
       if (!token) {
         res.status(401).json({ error: 'Invalid email or password' });
         return;

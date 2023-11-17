@@ -85,7 +85,7 @@ export default function SignUp() {
             flexDirection: 'column',
             alignItems: 'center',
           }}>
-            <img src={"../public/Logo.png"} alt={"description"} style={{width: "120%", height: "120%"}}/>
+            <img src={"../public/Logo.png"} alt={"description"} style={{width: "110%", height: "120%"}}/>
           </Box>
           <Box
               sx={{

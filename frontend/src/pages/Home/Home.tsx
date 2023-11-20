@@ -2,13 +2,18 @@ import axios from "axios";
 import {Button, CircularProgress, Input} from "@mui/material";
 import * as React from "react";
 import {useCallback, useState} from "react";
+import {useNavigate} from "react-router-dom";
 
 const api = axios.create({
   baseURL: `http://localhost:3000/api/`,
 });
 
 
-function Home() {
+
+
+export default function Home() {
+
+  const navigate = useNavigate();
 
   const [inputSentence, setInputSentence] = useState('');
   const [loading, setLoading] = useState(false);
@@ -28,6 +33,16 @@ function Home() {
   const handleInputBlur = (event: React.FocusEvent<HTMLInputElement>) => {
     setInputSentence(event.target.value);
   };
+
+  const logOut = () => {
+    setLoading(true)
+    localStorage.clear();
+    setTimeout(() => {
+      setLoading(false)
+      navigate("/login");
+    }, 2000);
+  }
+
 
   const fetchPost = useCallback(async (endpoint: string) => {
     if (inputSentence === '' || inputSentence == ' ') {
@@ -61,6 +76,11 @@ function Home() {
   return (
       <>
         <div style={{paddingLeft: 25}}>
+          <Button
+              style={{backgroundColor: 'Teal', color: 'black'}}
+              onClick={() => logOut()}>
+            Log out
+          </Button>
           <h2>Write a sentence and do a moderation check</h2>
           <div>
             <Input
@@ -133,4 +153,3 @@ function Home() {
   );
 }
 
-export default Home;

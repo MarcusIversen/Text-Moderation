@@ -114,9 +114,6 @@ export class UserController {
 
       const token = await this.userService.login(email, password);
 
-
-      console.log(token);
-
       if (!token) {
         res.status(401).json({ error: 'Invalid email or password' });
         return;
@@ -128,7 +125,7 @@ export class UserController {
         expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 1 week
       });
 
-      res.status(200).json({ message: 'Logged in successfully.' });
+      res.status(200).json({ token, message: 'Logged in successfully.' });
     } catch (error) {
       console.error('Error logging in:', error);
       res.status(500).json({ error: 'Internal Server Error' });

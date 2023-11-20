@@ -16,17 +16,47 @@ import {defaultTheme} from "../../assets/theme.ts";
 import {Copyright} from "../../components/copyright.tsx";
 import {UserService} from "../../services/UserService.ts";
 import {useNavigate} from "react-router-dom";
-import {useState} from "react";
+import {ChangeEvent, useEffect, useState} from "react";
 import {Alert, CircularProgress} from "@mui/material";
+import {jwtDecode} from "jwt-decode";
+import "./Login.css";
 
 export default function Login() {
 
   const navigate = useNavigate();
   const userService = new UserService();
 
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
+
+  useEffect(() => {
+    const token = localStorage.getItem('storedToken');
+
+    if (token) {
+      const decodedToken = jwtDecode(token);
+
+      // @ts-ignore
+      setEmail(decodedToken.email);
+      setPassword("passwordfill");
+      setRememberMe(true);
+
+      setLoading(true);
+
+      setTimeout(() => {
+        setLoading(false);
+        navigate("/home");
+      }, 2000);
+    }
+  }, []);
+
+
+  const handleCheckboxChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setRememberMe(event.target.checked);
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -38,19 +68,22 @@ export default function Login() {
       const {email, password} = Object.fromEntries(formData);
 
       if (!email || !password) {
-        setLoading(false)
+        setLoading(false);
         setErrorMessage('Email or password is incorrect, please try again');
       }
 
-
-      await userService.login({
+      const token = await userService.login({
         email: email as string,
         password: password as string,
       });
 
+      if (rememberMe) {
+        localStorage.setItem("token", token.token);
+      }
+
       setTimeout(() => {
         setLoading(false);
-        navigate("/home")
+        navigate("/home");
       }, 2000);
     } catch (error) {
       setLoading(false);
@@ -59,33 +92,22 @@ export default function Login() {
     }
   };
 
+
   return (
       <ThemeProvider theme={defaultTheme}>
         <Container component="main" maxWidth="xs" style={{overflow: "hidden"}}>
           <CssBaseline/>
-          <Box sx={{
-            marginTop: 6,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}>
-            <img src={"../public/Logo.png"} alt={"description"} style={{width: "110%", height: "110%"}}/>
+          <Box className={"containerBox"}>
+            <img src={"../public/Logo.png"} alt={"description"} className={"logoImg"}/>
           </Box>
-          <Box
-              sx={{
-                marginTop: 6,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-              }}
-          >
-            <Avatar sx={{margin: 1, backgroundColor: 'primary.main'}}>
+          <Box className={"containerBox"}>
+            <Avatar className="avatar" sx={{backgroundColor: 'primary.main'}}>
               <LockOutlinedIcon/>
             </Avatar>
             <Typography component="h1" variant="h5">
               Sign in
             </Typography>
-            <Box component="form" onSubmit={handleSubmit} noValidate sx={{marginTop: 1}}>
+            <Box component="form" className="formBox" onSubmit={handleSubmit} noValidate>
               <TextField
                   margin="normal"
                   required
@@ -95,6 +117,8 @@ export default function Login() {
                   name="email"
                   autoComplete="email"
                   autoFocus
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)} // Handle changes to the email field
               />
               <TextField
                   margin="normal"
@@ -105,26 +129,35 @@ export default function Login() {
                   type="password"
                   id="password"
                   autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
               />
               {errorMessage && (
-                  <Grid item xs={12} marginTop={2}>
+                  <Grid item xs={12} className="errorMessageGrid">
                     <Alert severity="error">{errorMessage}</Alert>
                   </Grid>
               )}
               <FormControlLabel
-                  control={<Checkbox value="remember" color="primary"/>}
+                  control={<Checkbox value="remember"
+                                     color="primary"
+                                     checked={rememberMe}
+                                     onChange={handleCheckboxChange}/>}
                   label="Remember me"
               />
-              {loading && <CircularProgress size={32} style={{marginTop: 5, marginLeft: 200}}/>}
+              {loading && <CircularProgress size={32} style={{marginLeft: 200, marginTop: 10}}/>}
 
-              <Button
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  sx={{marginTop: 1, marginBottom: 2, backgroundColor: 'primary.main'}}
-              >
-                Sign In
-              </Button>
+              <Grid className="submitButtonGrid">
+                <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    className="submitButton"
+                    sx={{backgroundColor: 'primary.main'}}
+                >
+                  Sign In
+                </Button>
+              </Grid>
+
               <Grid container>
                 <Grid item xs>
                   <Link href="/create-new-password" variant="body2">
@@ -139,7 +172,7 @@ export default function Login() {
               </Grid>
             </Box>
           </Box>
-          <Box sx={{marginTop: 6, marginBottom: 4}}>
+          <Box className="copyrightBox">
             <Copyright/>
           </Box>
 

@@ -11,13 +11,14 @@ import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import { ThemeProvider} from '@mui/material/styles';
+import {ThemeProvider} from '@mui/material/styles';
 import {useState} from "react";
 import {Alert, CircularProgress, Snackbar} from "@mui/material";
 import {useNavigate} from "react-router-dom";
 import {defaultTheme} from "../../assets/theme.ts";
 import {Copyright} from "../../components/copyright.tsx";
 import {UserService} from "../../services/UserService.ts";
+import "./SignUp.css"
 
 
 export default function SignUp() {
@@ -42,7 +43,7 @@ export default function SignUp() {
       setLoading(true);
 
       const formData = new FormData(event.currentTarget);
-      const { firstName, lastName, email, username, password, passwordRepeat } = Object.fromEntries(formData);
+      const {firstName, lastName, email, username, password, passwordRepeat} = Object.fromEntries(formData);
 
       if (!firstName || !lastName || !email || !username) {
         throw new Error('Please fill out all fields');
@@ -79,23 +80,11 @@ export default function SignUp() {
       <ThemeProvider theme={defaultTheme}>
         <Container component="main" maxWidth="xs">
           <CssBaseline/>
-          <Box sx={{
-            marginTop: 6,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}>
-            <img src={"../public/Logo.png"} alt={"description"} style={{width: "110%", height: "120%"}}/>
+          <Box className="containerBox">
+            <img src={"../public/Logo.png"} alt={"description"} className={"logoImg"}/>
           </Box>
-          <Box
-              sx={{
-                marginTop: 2,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-              }}
-          >
-            <Avatar sx={{margin: 1, backgroundColor: 'primary.main'}}>
+          <Box className="containerBox">
+            <Avatar className="avatar" sx={{backgroundColor: 'primary.main'}}>
               <LockOutlinedIcon/>
             </Avatar>
             <Typography component="h1" variant="h5">
@@ -173,12 +162,12 @@ export default function SignUp() {
               </Grid>
               <Grid item xs={12}>
                 {errorMessage && (
-                    <Grid item xs={12} marginTop={2}>
+                    <Grid item xs={12} className="errorMessageGrid">
                       <Alert severity="error">{errorMessage}</Alert>
                     </Grid>
                 )}
 
-                <Typography>
+                <Typography className="formControlTypography">
                   <FormControlLabel
                       control={
                         <Checkbox
@@ -189,24 +178,22 @@ export default function SignUp() {
                         />}
                       label={"I agree to the"}
                   />
-                  <Link marginLeft={-1.5} marginTop={0.9}
+                  <Link marginLeft={-1.5} marginTop={1}
                         href={"https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley"} target="_blank">
                     Terms and Conditions
                   </Link>
-                  {loading && <CircularProgress size={32} style={{marginTop: 10, marginLeft: 35}}/>}
+                  {loading && <CircularProgress size={32} className="circularProgress"/>}
                 </Typography>
-                <Grid marginLeft={50}>
-
-                </Grid>
               </Grid>
-              <Button
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  sx={{marginTop: 3, marginBottom: 2}}
-              >
-                Sign Up
-              </Button>
+              <Grid className="submitButtonGrid">
+                <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                >
+                  Sign Up
+                </Button>
+              </Grid>
               <Grid container justifyContent="flex-end">
                 <Grid item>
                   <Link href="/Login" variant="body2">
@@ -216,13 +203,16 @@ export default function SignUp() {
               </Grid>
             </Box>
           </Box>
-          <Copyright sx={{marginTop: 5}}/>
+          <Box className="copyrightBox">
+          <Copyright/>
+          </Box>
           <Snackbar
               open={openSnackbar}
               autoHideDuration={3500}
               onClose={() => {
                 navigate("/login")
-                setOpenSnackbar(false)}}
+                setOpenSnackbar(false)
+              }}
               message="You have been signed up and will be redirected to login"
           />
         </Container>

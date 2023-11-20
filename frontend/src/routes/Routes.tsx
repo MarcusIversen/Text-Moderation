@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from '../pages/Login/Login.tsx';
 import SignUp from '../pages/SignUp/SignUp.tsx';
 import Home from '../pages/Home/Home.tsx';
+import ForgotPassword from "../pages/ForgotPassword/ForgotPassword.tsx";
 import * as React from "react";
 
 const RoutesComponent: React.FC = () => {
@@ -12,7 +13,7 @@ const RoutesComponent: React.FC = () => {
         <Route path="login" element={<Login />} />
         <Route path="sign-up" element={<SignUp />} />
         <Route path="home" element={<Home />} />
-        {/* Add more routes as needed */}
+        <Route path="create-new-password" element={<ForgotPassword />} />
       </Routes>
   );
 };

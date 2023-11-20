@@ -1,5 +1,5 @@
 DO $$ BEGIN
- CREATE TYPE "status_type" AS ENUM('pending', 'approved', 'rejected');
+CREATE TYPE "status_type" AS ENUM('pending', 'approved', 'rejected');
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS "User" (
 	"ID" serial NOT NULL,
 	"username" varchar,
 	"password" varchar,
+	"email" varchar,
 	"firstName" varchar,
 	"lastName" varchar,
 	"created_at" timestamp,

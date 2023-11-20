@@ -1,13 +1,15 @@
 import {serial, integer, timestamp, pgTable, varchar, pgEnum, doublePrecision} from "drizzle-orm/pg-core";
 
+
 // User Table
 export const user = pgTable("User", {
   id: serial("ID").unique(),
-  username: varchar("username"),
-  password: varchar("password"),
-  firstName: varchar("firstName"),
-  lastName: varchar("lastName"),
-  createdAt: timestamp("created_at"),
+  username: varchar("username").notNull(),
+  password: varchar("password").notNull(),
+  email: varchar("email").notNull(),
+  firstName: varchar("firstName").notNull(),
+  lastName: varchar("lastName").notNull(),
+  createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at"),
 });
 

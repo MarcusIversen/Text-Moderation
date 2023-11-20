@@ -17,7 +17,7 @@ import {Copyright} from "../../components/copyright.tsx";
 import {UserService} from "../../services/UserService.ts";
 import {useNavigate} from "react-router-dom";
 import {ChangeEvent, useEffect, useState} from "react";
-import {Alert, CircularProgress} from "@mui/material";
+import {Alert, CircularProgress, Snackbar} from "@mui/material";
 import {jwtDecode} from "jwt-decode";
 import "./Login.css";
 
@@ -31,10 +31,12 @@ export default function Login() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+
 
 
   useEffect(() => {
-    const token = localStorage.getItem('storedToken');
+    const token = localStorage.getItem('token');
 
     if (token) {
       const decodedToken = jwtDecode(token);
@@ -45,11 +47,13 @@ export default function Login() {
       setRememberMe(true);
 
       setLoading(true);
+      setOpenSnackbar(true);
 
       setTimeout(() => {
         setLoading(false);
+        setOpenSnackbar(false)
         navigate("/home");
-      }, 2000);
+      }, 3500);
     }
   }, []);
 
@@ -98,7 +102,7 @@ export default function Login() {
         <Container component="main" maxWidth="xs" style={{overflow: "hidden"}}>
           <CssBaseline/>
           <Box className={"containerBox"}>
-            <img src={"../public/Logo.png"} alt={"description"} className={"logoImg"}/>
+            <img src={"../Logo.png"} alt={"description"} className={"logoImg"}/>
           </Box>
           <Box className={"containerBox"}>
             <Avatar className="avatar" sx={{backgroundColor: 'primary.main'}}>
@@ -175,7 +179,15 @@ export default function Login() {
           <Box className="copyrightBox">
             <Copyright/>
           </Box>
-
+          <Snackbar
+              open={openSnackbar}
+              autoHideDuration={3500}
+              onClose={() => {
+                navigate("/home")
+                setOpenSnackbar(false)
+              }}
+              message="You have been remembered, and will now be signed in"
+          />
         </Container>
       </ThemeProvider>
   );

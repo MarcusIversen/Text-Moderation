@@ -81,7 +81,7 @@ export default function SignUp() {
         <Container component="main" maxWidth="xs">
           <CssBaseline/>
           <Box className="containerBox">
-            <img src={"../public/Logo.png"} alt={"description"} className={"logoImg"}/>
+            <img src={"../Logo.png"} alt={"description"} className={"logoImg"}/>
           </Box>
           <Box className="containerBox">
             <Avatar className="avatar" sx={{backgroundColor: 'primary.main'}}>

@@ -6,6 +6,9 @@ export const defaultTheme = createTheme({
     primary: {
       main: '#4facc3',
     },
+    secondary: {
+      main: '#c74059'
+    }
   },
   components: {
     MuiCssBaseline: {

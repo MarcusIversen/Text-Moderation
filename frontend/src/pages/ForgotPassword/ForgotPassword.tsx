@@ -4,13 +4,13 @@ import * as React from "react"
 import {useNavigate} from "react-router-dom";
 
 export default function ForgotPassword() {
+  const navigate = useNavigate();
 
 
   return (
       <>
         <div>
           <Button onClick={() => {
-            const navigate = useNavigate();
             navigate("/login")
           }}>
             Not implemented yet! Go back

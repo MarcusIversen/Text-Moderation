@@ -6,8 +6,9 @@
 }
 
 .logoImg {
-    width: 110%;
-    height: 120%;
+    padding-top: 120px;
+    width: 50%;
+    height: auto;
 }
 
 .avatar {

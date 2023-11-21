@@ -14,7 +14,7 @@ export const Home: React.FunctionComponent = () => {
   const navigate = useNavigate();
   const cookies = new Cookies();
 
-  const [inputSentence, setInputSentence] = useState('');
+  const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState({
     distilbert: null,
@@ -22,15 +22,15 @@ export const Home: React.FunctionComponent = () => {
     moderation: null,
     contactInfo: null,
     addresses: null,
-    "check-bad-words": null
+    "moderation/bad-words-check": null
   });
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInputSentence(event.target.value);
+    setInput(event.target.value);
   };
 
   const handleInputBlur = (event: React.FocusEvent<HTMLInputElement>) => {
-    setInputSentence(event.target.value);
+    setInput(event.target.value);
   };
 
   const logOut = () => {
@@ -45,32 +45,20 @@ export const Home: React.FunctionComponent = () => {
 
 
   const fetchPost = useCallback(async (endpoint: string) => {
-    if (inputSentence === '' || inputSentence == ' ') {
+    if (input === '' || input == ' ') {
       return;
     }
     setLoading(true);
     try {
-      const result = await api.post(endpoint, {inputs: inputSentence});
+      const result = await api.post(endpoint, {inputs: input});
       setData((prevData) => ({...prevData, [endpoint]: result.data}));
     } catch (error) {
       console.error(`Error fetching ${endpoint} data:`, error);
     } finally {
       setLoading(false);
     }
-  }, [inputSentence]);
+  }, [input]);
 
-
-  const fetchGet = useCallback(async (endpoint: string, params = {sentence: inputSentence}) => {
-    setLoading(true);
-    try {
-      const result = await api.get(endpoint, {params});
-      setData((prevData) => ({...prevData, [endpoint]: result.data}));
-    } catch (error) {
-      console.error(`Error fetching ${endpoint} data:`, error);
-    } finally {
-      setLoading(false);
-    }
-  }, [inputSentence]);
 
 
   return (
@@ -85,7 +73,7 @@ export const Home: React.FunctionComponent = () => {
           <div>
             <Input
                 type="text"
-                value={inputSentence}
+                value={input}
                 onChange={handleInputChange}
                 onBlur={handleInputBlur}
                 style={{width: 1000}}
@@ -93,7 +81,7 @@ export const Home: React.FunctionComponent = () => {
             <Button
                 style={{backgroundColor: 'yellow', color: 'black'}}
                 onClick={() => {
-                  fetchGet('check-bad-words')
+                  fetchPost('moderation/bad-words-check')
                   fetchPost('distilbert')
                   fetchPost('nsfw');
                   fetchPost('moderation');
@@ -109,11 +97,11 @@ export const Home: React.FunctionComponent = () => {
           <br/>
           <Button
               style={{backgroundColor: 'purple', color: 'white'}}
-              onClick={() => fetchGet('check-bad-words', {sentence: inputSentence})}
+              onClick={() => fetchPost('moderation/bad-words-check')}
           >
             Check Bad Words
           </Button>
-          {data['check-bad-words'] && <pre>{JSON.stringify(data['check-bad-words'], null, 2)}</pre>}
+          {data['moderation/bad-words-check'] && <pre>{JSON.stringify(data['moderation/bad-words-check'], null, 2)}</pre>}
           <Button
               style={{backgroundColor: 'blue', color: 'white'}}
               onClick={() => fetchPost('distilbert')}

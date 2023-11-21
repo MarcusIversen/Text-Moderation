@@ -78,11 +78,11 @@ export default function SignUp() {
 
   return (
       <ThemeProvider theme={defaultTheme}>
+        <Container style={{ display: 'flex', justifyContent: 'center' }}>
+          <img src={"../Logo.png"} alt={"description"} className={"logoImg"}/>
+        </Container>
         <Container component="main" maxWidth="xs">
           <CssBaseline/>
-          <Box className="containerBox">
-            <img src={"../Logo.png"} alt={"description"} className={"logoImg"}/>
-          </Box>
           <Box className="containerBox">
             <Avatar className="avatar" sx={{backgroundColor: 'primary.main'}}>
               <LockOutlinedIcon/>

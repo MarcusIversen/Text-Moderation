@@ -118,11 +118,11 @@ export const Login: React.FunctionComponent = () => {
 
   return (
       <ThemeProvider theme={defaultTheme}>
-        <Container component="main" maxWidth="xs" style={{overflow: "hidden"}}>
+        <Container style={{ display: 'flex', justifyContent: 'center' }}>
+          <img src={"../Logo.png"} alt={"description"} className={"logoImg"}/>
+        </Container>
+        <Container component="main" maxWidth="xs" style={{overflow: "hidden", marginTop: -40}}>
           <CssBaseline/>
-          <Box className={"containerBox"}>
-            <img src={"../Logo.png"} alt={"description"} className={"logoImg"}/>
-          </Box>
           <Box className={"containerBox"}>
             <Avatar className="avatar" sx={{backgroundColor: 'primary.main'}}>
               <LockOutlinedIcon/>
@@ -194,9 +194,9 @@ export const Login: React.FunctionComponent = () => {
                 </Grid>
               </Grid>
             </Box>
-          </Box>
-          <Box className="copyrightBox">
-            <Copyright/>
+            <Box className="copyrightBox">
+              <Copyright/>
+            </Box>
           </Box>
           <Snackbar
               open={openSnackbar}

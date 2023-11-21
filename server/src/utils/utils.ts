@@ -14,7 +14,7 @@ export const delay = (args: { waitSeconds: number }): Promise<void> => {
 };
 
 export const withRetry =
-    ({ retryAttempt = 0, maxRetries = 5, lastErrorMessage }: WithRetryArgs = {}): ((fn: Promise<any>) => Promise<any>) =>
+    ({ retryAttempt = 0, maxRetries = 10, lastErrorMessage }: WithRetryArgs = {}): ((fn: Promise<any>) => Promise<any>) =>
         async <T>(fn: Promise<T>): Promise<T> => {
           console.log(`Try number: ${retryAttempt}`);
 

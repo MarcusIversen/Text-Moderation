@@ -11,7 +11,7 @@ export interface TextInputDTO {
   userId: number;
   content?: string;
   status?: "pending" | "approved" | "rejected";
-  createdAt?: Date;
+  createdAt: Date;
   updatedAt?: Date;
   step?: "BadWord" | "AIModeration" | "ManualModeration";
   wordListScore?: number;

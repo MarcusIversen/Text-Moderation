@@ -29,11 +29,12 @@ export class UserService {
     return result[0]?.insertedId;
   }
 
-  async updateUser(userId: number, userData: UserDTO): Promise<UserDTO | null> {
+  async updateUser(userId: number, userDTO: UserDTO): Promise<UserDTO | null> {
+    const hashedPassword = await bcrypt.hash(userDTO.password, 10);
     // Update the user
     await db
         .update(user)
-        .set({...userData, updatedAt: new Date()})
+        .set({...userDTO, password: hashedPassword, updatedAt: new Date()})
         .where(eq(user.id, userId))
         .execute();
 
@@ -57,7 +58,7 @@ export class UserService {
   }
 
   async generateToken(user: UserDTO): Promise<string> {
-    const secretKey = process.env.SECRET_KEY; // Get secret key from environment variables or your config
+    const secretKey = process.env.SECRET_KEY;
 
     if (!secretKey) {
       throw new Error('Missing secret key');

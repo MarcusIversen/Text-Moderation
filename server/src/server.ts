@@ -2,9 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import {setupDatabase} from "./db/setup";
 import {
-  badWordsListEndpoint,
   modelEndpoint,
-  wordCheckEndpoint
 } from "./api/endpoints";
 import userRoutes from "./routes/userRoutes";
 
@@ -14,9 +12,6 @@ export const setupApplication = async () => {
   app.use(express.json());
 
   app.use('/api', userRoutes);
-
-  app.get('/api/check-bad-words', wordCheckEndpoint());
-  app.get('/api/bad-words', badWordsListEndpoint());
 
   app.post('/api/distilbert', modelEndpoint('https://api-inference.huggingface.co/models/distilbert-base-uncased-finetuned-sst-2-english'));
   app.post('/api/nsfw', modelEndpoint('https://api-inference.huggingface.co/models/michellejieli/inappropriate_text_classifier'));

@@ -1,27 +1,29 @@
 import fs from 'fs';
 import path from 'path';
 
-export function getBadWordsList() {
-  const filePath = path.join(__dirname, 'badWords.txt');
-  const fileContent = fs.readFileSync(filePath, 'utf-8');
-  return fileContent.split('\n').map(word => word.trim());
-}
-
-export function hasBadWords(sentence: string) {
-  const badWords = getBadWordsList();
-  const wordsInSentence = sentence.toLowerCase().split(' ');
-
-  for (let word of wordsInSentence) {
-    if (badWords.includes(word)) {
-      return true;
-    }
+export class WordModerationService {
+  getBadWordsList() {
+    const filePath = path.join(__dirname, 'badWords.txt');
+    const fileContent = fs.readFileSync(filePath, 'utf-8');
+    return fileContent.split('\n').map(word => word.trim());
   }
-  return false;
-}
 
-export function getBadWordsInSentence(sentence:string) {
-  const badWords = getBadWordsList();
-  const wordsInSentence = sentence.toLowerCase().split(' ');
+  async hasBadWords(textInput: string) {
+    const badWords = this.getBadWordsList();
+    const wordsFromInput = textInput.toLowerCase().split(' ');
 
-  return wordsInSentence.filter(word => badWords.includes(word));
+    for (let word of wordsFromInput) {
+      if (badWords.includes(word)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  async getBadWordsFromInput(textInput: string) {
+    const badWords = this.getBadWordsList();
+    const wordsFromInput = textInput.toLowerCase().split(' ');
+
+    return wordsFromInput.filter(word => badWords.includes(word));
+  }
 }

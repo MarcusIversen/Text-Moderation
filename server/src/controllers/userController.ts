@@ -119,12 +119,6 @@ export class UserController {
         return;
       }
 
-      // Set token as httpOnly cookie
-      res.cookie('token', token, {
-        httpOnly: true,
-        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 1 week
-      });
-
       res.status(200).json({ token, message: 'Logged in successfully.' });
     } catch (error) {
       console.error('Error logging in:', error);

@@ -20,11 +20,13 @@ import {ChangeEvent, useEffect, useState} from "react";
 import {Alert, CircularProgress, Snackbar} from "@mui/material";
 import {jwtDecode} from "jwt-decode";
 import "./Login.css";
+import Cookies from "universal-cookie";
 
-export default function Login() {
+export const Login: React.FunctionComponent = () => {
 
   const navigate = useNavigate();
   const userService = new UserService();
+  const cookies = new Cookies();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -34,12 +36,16 @@ export default function Login() {
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
 
-
   useEffect(() => {
     const token = localStorage.getItem('token');
+    const cookie = cookies.get("AuthCookie");
 
-    if (token) {
+    if (token || token && cookie) {
       const decodedToken = jwtDecode(token);
+
+      if (!cookie) {
+        setAuthCookieWithExpiryDate(token)
+      }
 
       // @ts-ignore
       setEmail(decodedToken.email);
@@ -54,9 +60,17 @@ export default function Login() {
         setOpenSnackbar(false)
         navigate("/home");
       }, 3500);
+    } else if (cookie || cookie && !token) {
+      navigate("/home");
     }
   }, []);
 
+
+  function setAuthCookieWithExpiryDate(token: string) {
+    let date = new Date();
+    date.setTime(date.getTime() + (45 * 60 * 1000)); // 45 minutes from now
+    cookies.set("AuthCookie", token, {expires: date});
+  }
 
   const handleCheckboxChange = (event: ChangeEvent<HTMLInputElement>) => {
     setRememberMe(event.target.checked);
@@ -84,6 +98,11 @@ export default function Login() {
       if (rememberMe) {
         localStorage.setItem("token", token.token);
       }
+
+      if (token) {
+        setAuthCookieWithExpiryDate(token.token)
+      }
+
 
       setTimeout(() => {
         setLoading(false);

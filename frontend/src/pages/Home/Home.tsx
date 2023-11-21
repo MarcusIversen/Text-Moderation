@@ -3,17 +3,16 @@ import {Button, CircularProgress, Input} from "@mui/material";
 import * as React from "react";
 import {useCallback, useState} from "react";
 import {useNavigate} from "react-router-dom";
+import Cookies from "universal-cookie";
 
 const api = axios.create({
   baseURL: `http://localhost:3000/api/`,
 });
 
-
-
-
-export default function Home() {
+export const Home: React.FunctionComponent = () => {
 
   const navigate = useNavigate();
+  const cookies = new Cookies();
 
   const [inputSentence, setInputSentence] = useState('');
   const [loading, setLoading] = useState(false);
@@ -37,6 +36,7 @@ export default function Home() {
   const logOut = () => {
     setLoading(true)
     localStorage.clear();
+    cookies.remove("AuthCookie");
     setTimeout(() => {
       setLoading(false)
       navigate("/login");

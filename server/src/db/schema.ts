@@ -15,21 +15,25 @@ export const user = pgTable("User", {
 
 // Status and Step Enums
 export const statusType = pgEnum("status_type", ["pending", "approved", "rejected"]);
-export const stepType = pgEnum("step_type", ["BadWord", "AIModeration", "ManualModeration"]);
+export const stepType = pgEnum("step_type", ["1: BadWord", "2: AIModeration", "3: ManualModeration"] );
+export const stepStatusType = pgEnum("stepStatus_type", ["pending", "approved", "rejected", "previouslyRejected"])
 
 // TextInput Table
 export const textInput = pgTable("TextInput", {
   id: serial("ID").unique(),
-  userId: integer("userID").references(() => user.id),
-  content: varchar("content"),
-  status: statusType("status"),
-  createdAt: timestamp("created_at"),
-  updatedAt: timestamp("updated_at"),
-  step: stepType("step"),
-  wordListScore: doublePrecision("wordListScore"),
-  personalIdentifiableInfoScore: doublePrecision("personalIdentifiableInfoScore"),
-  nsfwScore: doublePrecision("nsfwScore"),
-  distilbertScore: doublePrecision("distilbertScore"),
+  userId: integer("userID").references(() => user.id).notNull(),
+  textInput: varchar("textInput").notNull(),
+  status: statusType("status").notNull(),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+  step: stepType("step").notNull(),
+  badWordStep: stepStatusType("badWordStep").notNull(),
+  aiModerationStep: stepStatusType("aiModerationStep").notNull(),
+  manualModerationStep: stepStatusType("manualModerationStep").notNull(),
+  wordListScore: doublePrecision("wordListScore").notNull(),
+  personalIdentifiableInfoScore: doublePrecision("personalIdentifiableInfoScore").notNull(),
+  nsfwScore: doublePrecision("nsfwScore").notNull(),
+  distilbertScore: doublePrecision("distilbertScore").notNull(),
 });
 
 // Type Enum

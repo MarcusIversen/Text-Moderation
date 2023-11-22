@@ -1,4 +1,5 @@
 export interface UserDTO {
+  id?: number;
   username: string;
   password: string;
   email: string;
@@ -7,13 +8,12 @@ export interface UserDTO {
 }
 
 export interface TextInputDTO {
-  id?: number;
   userId: number;
-  content?: string;
-  status?: "pending" | "approved" | "rejected";
+  content: string;
+  status: "pending" | "approved" | "rejected";
   createdAt: Date;
   updatedAt?: Date;
-  step?: "BadWord" | "AIModeration" | "ManualModeration";
+  step: "1: BadWord" | "2: AIModeration" | "3: ManualModeration";
   wordListScore?: number;
   personalIdentifiableInfoScore?: number;
   nsfwScore?: number;

@@ -1,5 +1,5 @@
 {
-  "id": "67eb0a00-01e7-4ea5-b4b2-e3838722b9b7",
+  "id": "2fc7d833-0072-489e-b3c9-50b0a9380f28",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -72,61 +72,79 @@
           "name": "userID",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
-        "content": {
-          "name": "content",
+        "textInput": {
+          "name": "textInput",
           "type": "varchar",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "status": {
           "name": "status",
           "type": "status_type",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "step": {
           "name": "step",
           "type": "step_type",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
+        },
+        "badWordStep": {
+          "name": "badWordStep",
+          "type": "stepStatus_type",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "aiModerationStep": {
+          "name": "aiModerationStep",
+          "type": "stepStatus_type",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "manualModerationStep": {
+          "name": "manualModerationStep",
+          "type": "stepStatus_type",
+          "primaryKey": false,
+          "notNull": true
         },
         "wordListScore": {
           "name": "wordListScore",
           "type": "double precision",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "personalIdentifiableInfoScore": {
           "name": "personalIdentifiableInfoScore",
           "type": "double precision",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "nsfwScore": {
           "name": "nsfwScore",
           "type": "double precision",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "distilbertScore": {
           "name": "distilbertScore",
           "type": "double precision",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         }
       },
       "indexes": {},
@@ -170,31 +188,37 @@
           "name": "username",
           "type": "varchar",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "password": {
           "name": "password",
           "type": "varchar",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
         },
         "firstName": {
           "name": "firstName",
           "type": "varchar",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "lastName": {
           "name": "lastName",
           "type": "varchar",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "updated_at": {
           "name": "updated_at",
@@ -226,12 +250,21 @@
         "rejected": "rejected"
       }
     },
+    "stepStatus_type": {
+      "name": "stepStatus_type",
+      "values": {
+        "pending": "pending",
+        "approved": "approved",
+        "rejected": "rejected",
+        "previouslyRejected": "previouslyRejected"
+      }
+    },
     "step_type": {
       "name": "step_type",
       "values": {
-        "BadWord": "BadWord",
-        "AIModeration": "AIModeration",
-        "ManualModeration": "ManualModeration"
+        "1: BadWord": "1: BadWord",
+        "2: AIModeration": "2: AIModeration",
+        "3: ManualModeration": "3: ManualModeration"
       }
     },
     "type_enum": {

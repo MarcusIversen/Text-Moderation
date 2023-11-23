@@ -6,7 +6,8 @@
   "scripts": {
     "start": "tsx watch --clear-screen=false src/index.ts",
     "dev": "nodemon --exec tsx src/index.ts",
-    "generate": "drizzle-kit generate:pg"
+    "generate": "drizzle-kit generate:pg",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",

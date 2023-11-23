@@ -17,3 +17,7 @@ jobs:
       - name: Typecheck server
         run: npm run typecheck
         working-directory: ./server
+
+      - name: Typecheck frontend
+        run: npm run typecheck
+        working-directory: ./frontend

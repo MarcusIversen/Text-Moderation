@@ -23,6 +23,10 @@ jobs:
         run: npm run lint
         working-directory: ./frontend
 
+      - name: run Prettier
+        run: npm run prettier
+        working-directory: ./frontend
+
   validate_server:
     name: validate server
     runs-on: ubuntu-latest
@@ -44,4 +48,8 @@ jobs:
 
       - name: Eslint check
         run: npm run lint
+        working-directory: ./server
+
+      - name: run Prettier
+        run: npm run prettier
         working-directory: ./server

@@ -33,7 +33,7 @@ export const delay = (args: { waitSeconds: number }): Promise<void> => {
  * @param lastErrorMessage
  */
 export const withRetry =
-    ({retryAttempt = 0, maxRetries = 10, lastErrorMessage}: WithRetryArgs = {}): ((fn: Promise<any>) => Promise<any>) =>
+    ({retryAttempt = 0, maxRetries = 10, lastErrorMessage}: WithRetryArgs = {}) =>
         async <T>(fn: Promise<T>): Promise<T> => {
           console.log(`Try number: ${retryAttempt}`);
 
@@ -56,7 +56,7 @@ export const withRetry =
  * Uses perhaps util to retry until it gets response from model
  * @param modelUrl
  */
-export const modelEndpoint = (modelUrl: any) => async (req: Request, res: Response) => {
+export const modelEndpoint = (modelUrl: string) => async (req: Request, res: Response) => {
   const headers = {
     Authorization: `Bearer ${HF_ACCESS_TOKEN}`,
     'Content-Type': 'application/json',
@@ -124,7 +124,7 @@ export async function hasBadWords(textInput: string) {
       .split(/[,\s]+/)
       .map(word => word.replace(/[^\w]/g, ''));
 
-  for (let word of wordsFromInput) {
+  for (const word of wordsFromInput) {
     if (badWords.includes(word)) {
       return true;
     }

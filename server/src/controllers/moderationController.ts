@@ -1,7 +1,5 @@
 import {Request, Response} from "express";
 import {ModerationService} from "../services/moderationService";
-import {TextInputDTO} from "../dto/DTOs";
-import {user} from "../db/schema";
 import {getBadWordsFromInput, getBadWordsList, hasBadWords} from "../utils/utils";
 
 
@@ -15,7 +13,7 @@ export class ModerationController {
 
 
   async processTextInput(req: Request, res: Response): Promise<void> {
-    const { userId, content }: TextInputDTO = req.body;
+    const { userId, content } = req.body as {userId: number, content: string};
 
     if (!content || typeof content !== 'string') {
       res.status(400).json({ error: 'Invalid or missing input parameter' });
@@ -25,7 +23,7 @@ export class ModerationController {
     try {
       const textData = await this.moderationService.createTextInput(userId, content);
       const moderationResult = await this.moderationService.badWordStep(textData);
-      if(moderationResult.status === 'rejected') {
+      if(moderationResult?.status === 'rejected') {
         res.status(400).json({message: 'Text rejected due to bad words', content: moderationResult.moderatedText, userId: userId});
         return;
       }
@@ -44,7 +42,7 @@ export class ModerationController {
       //     return;
       // }
 
-      res.status(200).json({message: 'Text input created and approved', content: moderationResult.moderatedText, userId: userId});
+      res.status(200).json({message: 'Text input created and approved', content: moderationResult?.moderatedText, userId: userId});
     } catch (error) {
       console.error('Error :' , error);
     }
@@ -69,12 +67,12 @@ export class ModerationController {
     }
 
     res.json({"response: ": "TextInput contains no bad words"});
-  };
+  }
 
 
   async getBadWordsList(req: Request, res: Response){
     const badWordsList = getBadWordsList();
     return res.json({badWordsList});
-  };
+  }
 
 }

@@ -41,3 +41,7 @@ jobs:
       - name: Typecheck server
         run: npm run typecheck
         working-directory: ./server
+
+      - name: Eslint check
+        run: npm run lint
+        working-directory: ./server

@@ -75,7 +75,7 @@ export class UserService {
   }
 
 
-  async login(email: string, password: string): Promise<String | null> {
+  async login(email: string, password: string): Promise<string | null> {
     const result = await db
         .select()
         .from(user)

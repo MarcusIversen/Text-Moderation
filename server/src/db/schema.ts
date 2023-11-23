@@ -14,7 +14,7 @@ export const user = pgTable("User", {
 });
 
 // Status and Step Enums
-export const statusType = pgEnum("status_type", ["pending", "approved", "rejected"]);
+export const statusType = pgEnum("status_type", ["pending", "approved", "rejected", "unclassifiable"]);
 export const stepType = pgEnum("step_type", ["1: BadWord", "2: AIModeration", "3: ManualModeration"] );
 export const stepStatusType = pgEnum("stepStatus_type", ["pending", "approved", "rejected", "previouslyRejected"])
 
@@ -37,13 +37,16 @@ export const textInput = pgTable("TextInput", {
 });
 
 // Type Enum
-export const typeEnum = pgEnum("type_enum", ["badWord", "PersonalInfo", "negative", "nsfw", "hate", "threatening", "violence", "racism"]);
+export const typeEnum = pgEnum("type_enum", ["badWord", "AI", "Manual"]);
+
+export const  moderationTypeEnum= pgEnum("moderation_type_enum", ["badWord", "negative", "nsfw", "sexual", "hate", "violence", "harassment", "harassment", "sexual/minors", "hate/threatening", "violence/graphic", "personalInfo" ]);
 
 // Log Table
 export const log = pgTable("Log", {
-  id: serial("ID"),
-  textInputId: integer("TextInputID").references(() => textInput.id),
-  type: typeEnum("log_type"),
-  createdAt: timestamp("created_at"),
-  updatedAt: timestamp("updated_at"),
+  id: serial("ID").unique(),
+  textInputId: integer("TextInputID").references(() => textInput.id).notNull(),
+  type: typeEnum("log_type").notNull(),
+  moderationTags: moderationTypeEnum("moderation_type").notNull(),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
 });

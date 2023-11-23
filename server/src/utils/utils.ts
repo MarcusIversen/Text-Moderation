@@ -1,5 +1,8 @@
 import path from "path";
 import fs from "fs";
+import {Request, Response} from "express";
+import {HF_ACCESS_TOKEN} from "../config/config";
+import axios from "axios";
 
 
 interface WithRetryArgs {
@@ -47,6 +50,39 @@ export const withRetry =
               )
           );
         };
+
+/**
+ * Method for creating the endpoint for using huggingface model
+ * Uses perhaps util to retry until it gets response from model
+ * @param modelUrl
+ */
+export const modelEndpoint = (modelUrl: any) => async (req: Request, res: Response) => {
+  const headers = {
+    Authorization: `Bearer ${HF_ACCESS_TOKEN}`,
+    'Content-Type': 'application/json',
+  };
+
+  const data = { inputs: req.body.inputs };
+  const [myError, myValue] = await
+      perhaps(withRetry({})(axios.post(modelUrl, data, {headers})));
+
+  if (myError) {
+    res.status(500).json({
+      error: myError.message
+    })
+    return;
+  }
+
+  if (!myValue) {
+    res.status(404).json({
+      error: 'Not found'
+    })
+    return;
+  }
+
+  res.json(myValue.data);
+  return;
+};
 
 
 /**
@@ -101,3 +137,5 @@ export function getBadWordsList() {
   const fileContent = fs.readFileSync(filePath, 'utf-8');
   return fileContent.split('\n').map(word => word.trim());
 }
+
+

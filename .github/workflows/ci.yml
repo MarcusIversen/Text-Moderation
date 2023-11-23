@@ -10,6 +10,10 @@ jobs:
         with:
           node-version: 20
 
+      - name: npm install
+        run: npm install
+        working-directory: ./server
+
       - name: Typecheck server
         run: npm run typecheck
         working-directory: ./server

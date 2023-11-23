@@ -16,17 +16,21 @@ import {defaultTheme} from "../../assets/theme.ts";
 import {Copyright} from "../../components/copyright.tsx";
 import {UserService} from "../../services/UserService.ts";
 import {useNavigate} from "react-router-dom";
-import {ChangeEvent, useEffect, useState} from "react";
+import {ChangeEvent, useCallback, useEffect, useMemo, useState} from "react";
 import {Alert, CircularProgress, Snackbar} from "@mui/material";
-import {jwtDecode} from "jwt-decode";
+import {JwtPayload, jwtDecode} from "jwt-decode";
 import "./Login.css";
 import Cookies from "universal-cookie";
 
+interface TokenPayload extends JwtPayload {
+  email: string;
+}
+
 export const Login: React.FunctionComponent = () => {
 
-  const navigate = useNavigate();
   const userService = new UserService();
-  const cookies = new Cookies();
+  const navigate = useNavigate()
+  const cookies = useMemo(() => new Cookies(), []);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -36,18 +40,23 @@ export const Login: React.FunctionComponent = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
 
+  const setAuthCookieWithExpiryDate = useCallback((token: string) => {
+    const date = new Date();
+    date.setTime(date.getTime() + (45 * 60 * 1000)); // 45 minutes from now
+    cookies.set("AuthCookie", token, {expires: date});
+  }, [cookies]);
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     const cookie = cookies.get("AuthCookie");
 
     if (token || token && cookie) {
-      const decodedToken = jwtDecode(token);
+      const decodedToken = jwtDecode<TokenPayload>(token);
 
       if (!cookie) {
         setAuthCookieWithExpiryDate(token)
       }
 
-      // @ts-ignore
       setEmail(decodedToken.email);
       setPassword("passwordfill");
       setRememberMe(true);
@@ -63,14 +72,8 @@ export const Login: React.FunctionComponent = () => {
     } else if (cookie || cookie && !token) {
       navigate("/home");
     }
-  }, []);
+  }, [navigate, cookies, setAuthCookieWithExpiryDate]);
 
-
-  function setAuthCookieWithExpiryDate(token: string) {
-    let date = new Date();
-    date.setTime(date.getTime() + (45 * 60 * 1000)); // 45 minutes from now
-    cookies.set("AuthCookie", token, {expires: date});
-  }
 
   const handleCheckboxChange = (event: ChangeEvent<HTMLInputElement>) => {
     setRememberMe(event.target.checked);
@@ -118,7 +121,7 @@ export const Login: React.FunctionComponent = () => {
 
   return (
       <ThemeProvider theme={defaultTheme}>
-        <Container style={{ display: 'flex', justifyContent: 'center' }}>
+        <Container style={{display: 'flex', justifyContent: 'center'}}>
           <img src={"../Logo.png"} alt={"description"} className={"logoImg"}/>
         </Container>
         <Container component="main" maxWidth="xs" style={{overflow: "hidden", marginTop: -40}}>

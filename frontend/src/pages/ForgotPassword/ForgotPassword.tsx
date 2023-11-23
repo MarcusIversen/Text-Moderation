@@ -1,9 +1,8 @@
 import Button from "@mui/material/Button";
-// @ts-ignore
 import * as React from "react"
 import {useNavigate} from "react-router-dom";
 
-export default function ForgotPassword() {
+export const ForgotPassword: React.FunctionComponent = ()  => {
   const navigate = useNavigate();
 
 

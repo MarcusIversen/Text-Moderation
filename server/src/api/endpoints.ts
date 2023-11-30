@@ -3,7 +3,7 @@ import {perhaps, withRetry} from "../utils/utils";
 import axios from "axios";
 import {HF_ACCESS_TOKEN} from "../config/config";
 
-export const modelEndpoint = (modelUrl: any) => async (req: Request, res: Response) => {
+export const modelEndpoint = (modelUrl: string) => async (req: Request, res: Response) => {
   const headers = {
     Authorization: `Bearer ${HF_ACCESS_TOKEN}`,
     'Content-Type': 'application/json',

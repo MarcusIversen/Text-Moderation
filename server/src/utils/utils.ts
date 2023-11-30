@@ -30,7 +30,7 @@ export const delay = (args: { waitSeconds: number }): Promise<void> => {
  * @param lastErrorMessage
  */
 export const withRetry =
-    ({retryAttempt = 0, maxRetries = 10, lastErrorMessage}: WithRetryArgs = {}): ((fn: Promise<any>) => Promise<any>) =>
+    ({retryAttempt = 0, maxRetries = 10, lastErrorMessage}: WithRetryArgs = {}) =>
         async <T>(fn: Promise<T>): Promise<T> => {
           console.log(`Try number: ${retryAttempt}`);
 
@@ -88,7 +88,7 @@ export async function hasBadWords(textInput: string) {
       .split(/[,\s]+/)
       .map(word => word.replace(/[^\w]/g, ''));
 
-  for (let word of wordsFromInput) {
+  for (const word of wordsFromInput) {
     if (badWords.includes(word)) {
       return true;
     }

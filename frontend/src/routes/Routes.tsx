@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import SignUp from '../pages/SignUp/SignUp.tsx';
-import ForgotPassword from "../pages/ForgotPassword/ForgotPassword.tsx";
+import {ForgotPassword} from "../pages/ForgotPassword/ForgotPassword.tsx";
 import * as React from "react";
 import AuthGuard from "./AuthGuard.tsx";
 import {Login} from "../pages/Login/Login.tsx";

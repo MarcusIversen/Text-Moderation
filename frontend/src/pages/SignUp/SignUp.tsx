@@ -69,7 +69,7 @@ export default function SignUp() {
       }, 2000);
     } catch (error) {
       setLoading(false);
-      // @ts-ignore
+      // @ts-expect-error to expect error
       setErrorMessage(error.message);
       console.error(error);
     }

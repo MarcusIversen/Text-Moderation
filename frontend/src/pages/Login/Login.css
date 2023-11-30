@@ -1,32 +1,35 @@
 .containerBox {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .avatar {
-  margin: 8px;
+    margin: 8px;
 }
 
 .formBox {
-  margin-top: 5px;
+    margin-top: 5px;
 }
 
 .logoImg {
-  padding-top: 120px;
-  width: 50%;
-  height: auto;
+    padding-top: 120px;
+    width: 50%;
+    height: auto;
 }
 
 .errorMessageGrid {
-  padding-top: 6px;
+    padding-top: 6px;
 }
 
+
 .submitButtonGrid {
-  padding-top: 8px;
-  padding-bottom: 20px;
+    padding-top: 8px;
+    padding-bottom: 20px;
 }
 
 .copyrightBox {
-  padding-bottom: 20px;
+    padding-bottom: 20px;
 }
+
+

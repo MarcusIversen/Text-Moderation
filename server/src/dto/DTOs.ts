@@ -1,5 +1,3 @@
-import { textInput } from "../db/schema";
-
 export interface UserDTO {
   id?: number;
   username: string;
@@ -9,26 +7,23 @@ export interface UserDTO {
   lastName: string;
 }
 
-export type TextInputSelectModel = typeof textInput.$inferSelect; //Model for select via textInput Schema
-export type TextInputInsertModel = typeof textInput.$inferInsert; //Model for insert via textInput Schema
-
-export type TextInputSelectData = Pick<
-  TextInputSelectModel,
-  "userId" | "textInput" | "id"
->;
+export interface TextInputDTO {
+  userId: number;
+  content: string;
+  status: "pending" | "approved" | "rejected";
+  createdAt: Date;
+  updatedAt?: Date;
+  step: "1: BadWord" | "2: AIModeration" | "3: ManualModeration";
+  wordListScore?: number;
+  personalIdentifiableInfoScore?: number;
+  nsfwScore?: number;
+  distilbertScore?: number;
+}
 
 export interface LogDTO {
   id?: number;
   textInputId: number;
-  type?:
-    | "badWord"
-    | "PersonalInfo"
-    | "negative"
-    | "nsfw"
-    | "hate"
-    | "threatening"
-    | "violence"
-    | "racism";
+  type?: "badWord" | "PersonalInfo" | "negative" | "nsfw" | "hate" | "threatening" | "violence" | "racism";
   createdAt?: Date;
   updatedAt?: Date;
 }

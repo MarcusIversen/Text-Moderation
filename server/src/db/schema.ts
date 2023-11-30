@@ -1,12 +1,5 @@
-import {
-  serial,
-  integer,
-  timestamp,
-  pgTable,
-  varchar,
-  pgEnum,
-  doublePrecision,
-} from "drizzle-orm/pg-core";
+import {serial, integer, timestamp, pgTable, varchar, pgEnum, doublePrecision} from "drizzle-orm/pg-core";
+
 
 // User Table
 export const user = pgTable("User", {
@@ -21,30 +14,14 @@ export const user = pgTable("User", {
 });
 
 // Status and Step Enums
-export const statusType = pgEnum("status_type", [
-  "pending",
-  "approved",
-  "rejected",
-  "unclassifiable",
-]);
-export const stepType = pgEnum("step_type", [
-  "1: BadWord",
-  "2: AIModeration",
-  "3: ManualModeration",
-]);
-export const stepStatusType = pgEnum("stepStatus_type", [
-  "pending",
-  "approved",
-  "rejected",
-  "previouslyRejected",
-]);
+export const statusType = pgEnum("status_type", ["pending", "approved", "rejected"]);
+export const stepType = pgEnum("step_type", ["1: BadWord", "2: AIModeration", "3: ManualModeration"] );
+export const stepStatusType = pgEnum("stepStatus_type", ["pending", "approved", "rejected", "previouslyRejected"])
 
 // TextInput Table
 export const textInput = pgTable("TextInput", {
   id: serial("ID").unique(),
-  userId: integer("userID")
-    .references(() => user.id)
-    .notNull(),
+  userId: integer("userID").references(() => user.id).notNull(),
   textInput: varchar("textInput").notNull(),
   status: statusType("status").notNull(),
   createdAt: timestamp("created_at").notNull(),
@@ -54,39 +31,19 @@ export const textInput = pgTable("TextInput", {
   aiModerationStep: stepStatusType("aiModerationStep").notNull(),
   manualModerationStep: stepStatusType("manualModerationStep").notNull(),
   wordListScore: doublePrecision("wordListScore").notNull(),
-  personalIdentifiableInfoScore: doublePrecision(
-    "personalIdentifiableInfoScore",
-  ).notNull(),
+  personalIdentifiableInfoScore: doublePrecision("personalIdentifiableInfoScore").notNull(),
   nsfwScore: doublePrecision("nsfwScore").notNull(),
   distilbertScore: doublePrecision("distilbertScore").notNull(),
 });
 
 // Type Enum
-export const typeEnum = pgEnum("type_enum", ["badWord", "AI", "Manual"]);
-
-export const moderationTypeEnum = pgEnum("moderation_type_enum", [
-  "badWord",
-  "negative",
-  "nsfw",
-  "sexual",
-  "hate",
-  "violence",
-  "harassment",
-  "harassment",
-  "sexual/minors",
-  "hate/threatening",
-  "violence/graphic",
-  "personalInfo",
-]);
+export const typeEnum = pgEnum("type_enum", ["badWord", "PersonalInfo", "negative", "nsfw", "hate", "threatening", "violence", "racism"]);
 
 // Log Table
 export const log = pgTable("Log", {
-  id: serial("ID").unique(),
-  textInputId: integer("TextInputID")
-    .references(() => textInput.id)
-    .notNull(),
-  type: typeEnum("log_type").notNull(),
-  moderationTags: moderationTypeEnum("moderation_type").notNull(),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
+  id: serial("ID"),
+  textInputId: integer("TextInputID").references(() => textInput.id),
+  type: typeEnum("log_type"),
+  createdAt: timestamp("created_at"),
+  updatedAt: timestamp("updated_at"),
 });

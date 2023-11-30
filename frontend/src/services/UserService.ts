@@ -20,7 +20,7 @@ export class UserService {
 
   register = async (userData: UserDTO) => {
     try {
-      const response = await this.api.post("/users/register", userData);
+      const response = await this.api.post('/users/register', userData);
       return response.data;
     } catch (error) {
       console.error(error);
@@ -30,7 +30,7 @@ export class UserService {
 
   login = async (credentials: LoginDTO) => {
     try {
-      const response = await this.api.post("/users/login", credentials);
+      const response = await this.api.post('/users/login', credentials);
       return response.data;
     } catch (error) {
       console.error(error);

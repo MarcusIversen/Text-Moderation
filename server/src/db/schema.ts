@@ -43,8 +43,8 @@ export const stepStatusType = pgEnum("stepStatus_type", [
 export const textInput = pgTable("TextInput", {
   id: serial("ID").unique(),
   userId: integer("userID")
-      .references(() => user.id)
-      .notNull(),
+    .references(() => user.id)
+    .notNull(),
   textInput: varchar("textInput").notNull(),
   status: statusType("status").notNull(),
   createdAt: timestamp("created_at").notNull(),
@@ -55,7 +55,7 @@ export const textInput = pgTable("TextInput", {
   manualModerationStep: stepStatusType("manualModerationStep").notNull(),
   wordListScore: doublePrecision("wordListScore").notNull(),
   personalIdentifiableInfoScore: doublePrecision(
-      "personalIdentifiableInfoScore",
+    "personalIdentifiableInfoScore",
   ).notNull(),
   nsfwScore: doublePrecision("nsfwScore").notNull(),
   distilbertScore: doublePrecision("distilbertScore").notNull(),
@@ -83,8 +83,8 @@ export const moderationTypeEnum = pgEnum("moderation_type_enum", [
 export const log = pgTable("Log", {
   id: serial("ID").unique(),
   textInputId: integer("TextInputID")
-      .references(() => textInput.id)
-      .notNull(),
+    .references(() => textInput.id)
+    .notNull(),
   type: typeEnum("log_type").notNull(),
   moderationTags: moderationTypeEnum("moderation_type").notNull(),
   createdAt: timestamp("created_at").notNull(),

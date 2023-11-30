@@ -1,20 +1,18 @@
-import {user} from "../db/schema";
-import {CONNECTION_STRING} from "../config/config";
-import {drizzle} from "drizzle-orm/postgres-js";
+import { user } from "../db/schema";
+import { CONNECTION_STRING } from "../config/config";
+import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import {UserDTO} from "../dto/DTOs";
-import {eq} from "drizzle-orm";
-import bcrypt from "bcrypt"
-import jwt from "jsonwebtoken"
+import { UserDTO } from "../dto/DTOs";
+import { eq } from "drizzle-orm";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
-
-const sql = postgres(CONNECTION_STRING, {max: 1})
+const sql = postgres(CONNECTION_STRING, { max: 1 });
 const db = drizzle(sql);
 
 export class UserService {
-
   async getUserById(userId: number): Promise<UserDTO | null> {
-    const result = await db.select().from(user).where(eq(user.id, userId))
+    const result = await db.select().from(user).where(eq(user.id, userId));
 
     return result[0] || null;
   }
@@ -22,9 +20,9 @@ export class UserService {
   async createUser(userDTO: UserDTO): Promise<number | undefined> {
     const hashedPassword = await bcrypt.hash(userDTO.password, 10);
     const result = await db
-        .insert(user)
-        .values({...userDTO, password: hashedPassword, createdAt: new Date()})
-        .returning({insertedId: user.id});
+      .insert(user)
+      .values({ ...userDTO, password: hashedPassword, createdAt: new Date() })
+      .returning({ insertedId: user.id });
 
     return result[0]?.insertedId;
   }
@@ -33,26 +31,23 @@ export class UserService {
     const hashedPassword = await bcrypt.hash(userDTO.password, 10);
     // Update the user
     await db
-        .update(user)
-        .set({...userDTO, password: hashedPassword, updatedAt: new Date()})
-        .where(eq(user.id, userId))
-        .execute();
+      .update(user)
+      .set({ ...userDTO, password: hashedPassword, updatedAt: new Date() })
+      .where(eq(user.id, userId))
+      .execute();
 
     // Fetch the updated user
     const updatedUserResult = await db
-        .select()
-        .from(user)
-        .where(eq(user.id, userId))
-        .execute();
+      .select()
+      .from(user)
+      .where(eq(user.id, userId))
+      .execute();
 
     return updatedUserResult[0] || null;
   }
 
   async deleteUser(userId: number): Promise<UserDTO | null> {
-    const result = await db
-        .delete(user)
-        .where(eq(user.id, userId))
-        .execute();
+    const result = await db.delete(user).where(eq(user.id, userId)).execute();
 
     return result[0] || null;
   }
@@ -61,7 +56,7 @@ export class UserService {
     const secretKey = process.env.SECRET_KEY;
 
     if (!secretKey) {
-      throw new Error('Missing secret key');
+      throw new Error("Missing secret key");
     }
 
     const payload = {
@@ -71,16 +66,15 @@ export class UserService {
       lastName: user.lastName,
     };
 
-    return jwt.sign(payload, secretKey, {expiresIn: '7d'});
+    return jwt.sign(payload, secretKey, { expiresIn: "7d" });
   }
-
 
   async login(email: string, password: string): Promise<string | null> {
     const result = await db
-        .select()
-        .from(user)
-        .where(eq(user.email, email))
-        .execute();
+      .select()
+      .from(user)
+      .where(eq(user.email, email))
+      .execute();
 
     const selectedUser = result[0];
 
@@ -96,6 +90,4 @@ export class UserService {
 
     return this.generateToken(selectedUser);
   }
-
-
 }

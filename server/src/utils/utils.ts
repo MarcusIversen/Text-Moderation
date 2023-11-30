@@ -1,14 +1,15 @@
 import path from "path";
 import fs from "fs";
 
-
 interface WithRetryArgs {
   retryAttempt?: number;
   maxRetries?: number;
   lastErrorMessage?: string;
 }
 
-export async function perhaps<T>(promise: Promise<T>): Promise<[Error | null, T] | [Error, null]> {
+export async function perhaps<T>(
+  promise: Promise<T>,
+): Promise<[Error | null, T] | [Error, null]> {
   try {
     const result = await promise;
     return [null, result];
@@ -30,24 +31,27 @@ export const delay = (args: { waitSeconds: number }): Promise<void> => {
  * @param lastErrorMessage
  */
 export const withRetry =
-    ({retryAttempt = 0, maxRetries = 10, lastErrorMessage}: WithRetryArgs = {}): ((fn: Promise<any>) => Promise<any>) =>
-        async <T>(fn: Promise<T>): Promise<T> => {
-          console.log(`Try number: ${retryAttempt}`);
+  ({
+    retryAttempt = 0,
+    maxRetries = 10,
+    lastErrorMessage,
+  }: WithRetryArgs = {}) =>
+  async <T>(fn: Promise<T>): Promise<T> => {
+    console.log(`Try number: ${retryAttempt}`);
 
-          if (retryAttempt > maxRetries) {
-            throw new Error(lastErrorMessage ?? 'Retry failed too many times...');
-          }
+    if (retryAttempt > maxRetries) {
+      throw new Error(lastErrorMessage ?? "Retry failed too many times...");
+    }
 
-          return fn.catch((err: Error) =>
-              delay({waitSeconds: 1 * retryAttempt + 1}).then(() =>
-                  withRetry({
-                    retryAttempt: retryAttempt + 1,
-                    lastErrorMessage: err.message,
-                  })(fn)
-              )
-          );
-        };
-
+    return fn.catch((err: Error) =>
+      delay({ waitSeconds: 1 * retryAttempt + 1 }).then(() =>
+        withRetry({
+          retryAttempt: retryAttempt + 1,
+          lastErrorMessage: err.message,
+        })(fn),
+      ),
+    );
+  };
 
 /**
  * Method for displaying the bad words found in input, in an array.
@@ -56,18 +60,17 @@ export const withRetry =
  * @param textInput
  */
 export async function getBadWordsFromInput(textInput: string) {
-
   if (!textInput) {
     return [];
   }
 
   const badWords = getBadWordsList();
   const wordsFromInput = textInput
-      .toLowerCase()
-      .split(/[,\s]+/)
-      .map(word => word.replace(/[^\w]/g, ''));
+    .toLowerCase()
+    .split(/[,\s]+/)
+    .map((word) => word.replace(/[^\w]/g, ""));
 
-  return wordsFromInput.filter(word => badWords.includes(word));
+  return wordsFromInput.filter((word) => badWords.includes(word));
 }
 
 /**
@@ -77,18 +80,17 @@ export async function getBadWordsFromInput(textInput: string) {
  * @param textInput
  */
 export async function hasBadWords(textInput: string) {
-
   if (!textInput) {
     return false;
   }
 
   const badWords = getBadWordsList();
   const wordsFromInput = textInput
-      .toLowerCase()
-      .split(/[,\s]+/)
-      .map(word => word.replace(/[^\w]/g, ''));
+    .toLowerCase()
+    .split(/[,\s]+/)
+    .map((word) => word.replace(/[^\w]/g, ""));
 
-  for (let word of wordsFromInput) {
+  for (const word of wordsFromInput) {
     if (badWords.includes(word)) {
       return true;
     }
@@ -97,7 +99,7 @@ export async function hasBadWords(textInput: string) {
 }
 
 export function getBadWordsList() {
-  const filePath = path.join(__dirname, 'badWords.txt');
-  const fileContent = fs.readFileSync(filePath, 'utf-8');
-  return fileContent.split('\n').map(word => word.trim());
+  const filePath = path.join(__dirname, "badWords.txt");
+  const fileContent = fs.readFileSync(filePath, "utf-8");
+  return fileContent.split("\n").map((word) => word.trim());
 }

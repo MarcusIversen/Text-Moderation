@@ -1,0 +1,55 @@
+on: push
+jobs:
+  validate_frontend:
+    name: validate frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: npm install frontend
+        run: npm install
+        working-directory: ./frontend
+
+      - name: Typecheck frontend
+        run: npm run typecheck
+        working-directory: ./frontend
+
+      - name: Eslint check
+        run: npm run lint
+        working-directory: ./frontend
+
+      - name: Prettier frontend
+        run: npm run prettier
+        working-directory: ./frontend
+
+  validate_server:
+    name: validate server
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: npm install server
+        run: npm install
+        working-directory: ./server
+
+      - name: Typecheck server
+        run: npm run typecheck
+        working-directory: ./server
+
+      - name: Eslint check
+        run: npm run lint
+        working-directory: ./server
+        
+      - name: Prettier server
+        run: npm run prettier
+        working-directory: ./server

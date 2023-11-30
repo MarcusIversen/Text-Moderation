@@ -1,5 +1,5 @@
 {
-  "id": "2fc7d833-0072-489e-b3c9-50b0a9380f28",
+  "id": "9879fd5e-cd94-4676-999a-9d92a4da7217",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -18,25 +18,31 @@
           "name": "TextInputID",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "log_type": {
           "name": "log_type",
           "type": "type_enum",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
+        },
+        "moderation_type": {
+          "name": "moderation_type",
+          "type": "moderation_type_enum",
+          "primaryKey": false,
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         }
       },
       "indexes": {},
@@ -56,7 +62,15 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {
+        "Log_ID_unique": {
+          "name": "Log_ID_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "ID"
+          ]
+        }
+      }
     },
     "TextInput": {
       "name": "TextInput",
@@ -242,12 +256,29 @@
     }
   },
   "enums": {
+    "moderation_type_enum": {
+      "name": "moderation_type_enum",
+      "values": {
+        "badWord": "badWord",
+        "negative": "negative",
+        "nsfw": "nsfw",
+        "sexual": "sexual",
+        "hate": "hate",
+        "violence": "violence",
+        "harassment": "harassment",
+        "sexual/minors": "sexual/minors",
+        "hate/threatening": "hate/threatening",
+        "violence/graphic": "violence/graphic",
+        "personalInfo": "personalInfo"
+      }
+    },
     "status_type": {
       "name": "status_type",
       "values": {
         "pending": "pending",
         "approved": "approved",
-        "rejected": "rejected"
+        "rejected": "rejected",
+        "unclassifiable": "unclassifiable"
       }
     },
     "stepStatus_type": {
@@ -271,13 +302,8 @@
       "name": "type_enum",
       "values": {
         "badWord": "badWord",
-        "PersonalInfo": "PersonalInfo",
-        "negative": "negative",
-        "nsfw": "nsfw",
-        "hate": "hate",
-        "threatening": "threatening",
-        "violence": "violence",
-        "racism": "racism"
+        "AI": "AI",
+        "Manual": "Manual"
       }
     }
   },

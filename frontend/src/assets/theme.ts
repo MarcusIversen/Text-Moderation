@@ -1,14 +1,14 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme } from "@mui/material/styles";
 
 export const defaultTheme = createTheme({
   palette: {
-    mode: 'dark',
+    mode: "dark",
     primary: {
-      main: '#4facc3',
+      main: "#4facc3",
     },
     secondary: {
-      main: '#c74059'
-    }
+      main: "#c74059",
+    },
   },
   components: {
     MuiCssBaseline: {

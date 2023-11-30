@@ -1,5 +1,11 @@
 DO $$ BEGIN
- CREATE TYPE "status_type" AS ENUM('pending', 'approved', 'rejected');
+ CREATE TYPE "moderation_type_enum" AS ENUM('badWord', 'negative', 'nsfw', 'sexual', 'hate', 'violence', 'harassment', 'sexual/minors', 'hate/threatening', 'violence/graphic', 'personalInfo');
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ CREATE TYPE "status_type" AS ENUM('pending', 'approved', 'rejected', 'unclassifiable');
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -17,17 +23,19 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- CREATE TYPE "type_enum" AS ENUM('badWord', 'PersonalInfo', 'negative', 'nsfw', 'hate', 'threatening', 'violence', 'racism');
+ CREATE TYPE "type_enum" AS ENUM('badWord', 'AI', 'Manual');
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "Log" (
 	"ID" serial NOT NULL,
-	"TextInputID" integer,
-	"log_type" "type_enum",
-	"created_at" timestamp,
-	"updated_at" timestamp
+	"TextInputID" integer NOT NULL,
+	"log_type" "type_enum" NOT NULL,
+	"moderation_type" "moderation_type_enum" NOT NULL,
+	"created_at" timestamp NOT NULL,
+	"updated_at" timestamp NOT NULL,
+	CONSTRAINT "Log_ID_unique" UNIQUE("ID")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "TextInput" (

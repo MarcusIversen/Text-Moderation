@@ -8,13 +8,6 @@
       "when": 1700659514513,
       "tag": "0000_outgoing_fixer",
       "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1700731924276,
-      "tag": "0001_silent_magma",
-      "breakpoints": true
     }
   ]
 }

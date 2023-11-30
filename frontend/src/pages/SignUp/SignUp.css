@@ -1,43 +1,43 @@
 .containerBox {
-  padding-top: 30px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+    padding-top: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .logoImg {
-  padding-top: 120px;
-  width: 50%;
-  height: auto;
+    padding-top: 120px;
+    width: 50%;
+    height: auto;
 }
 
 .avatar {
-  margin: 8px;
+    margin: 8px;
 }
 
 .formBox {
-  margin-top: 5px;
+    margin-top: 5px;
 }
 
 .errorMessageGrid {
-  padding-top: 6px;
+    padding-top: 6px;
 }
 
 .circularProgress {
-  margin-top: 10px;
-  margin-left: 35px;
+    margin-top: 10px;
+    margin-left: 35px;
 }
 
-.formControlTypography {
-  padding-top: 20px;
+.formControlTypography{
+    padding-top: 20px;
 }
 
 .submitButtonGrid {
-  padding-top: 8px;
-  padding-bottom: 10px;
+    padding-top: 8px;
+    padding-bottom: 10px;
 }
 
 .copyrightBox {
-  padding-top: 30px;
-  padding-bottom: 20px;
+    padding-top: 30px;
+    padding-bottom: 20px;
 }

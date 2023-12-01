@@ -1,5 +1,8 @@
 import path from "path";
 import fs from "fs";
+import { Request, Response } from "express";
+import { HF_ACCESS_TOKEN } from "../config/config";
+import axios from "axios";
 
 interface WithRetryArgs {
   retryAttempt?: number;
@@ -44,13 +47,43 @@ export const withRetry =
     }
 
     return fn.catch((err: Error) =>
-      delay({ waitSeconds: 1 * retryAttempt + 1 }).then(() =>
+      delay({ waitSeconds: 2 * retryAttempt + 1 }).then(() =>
         withRetry({
           retryAttempt: retryAttempt + 1,
           lastErrorMessage: err.message,
         })(fn),
       ),
     );
+  };
+
+export const modelEndpoint =
+  (modelUrl: string) => async (req: Request, res: Response) => {
+    const headers = {
+      Authorization: `Bearer ${HF_ACCESS_TOKEN}`,
+      "Content-Type": "application/json",
+    };
+
+    const data = { inputs: req.body.inputs };
+    const [myError, myValue] = await perhaps(
+      withRetry({})(axios.post(modelUrl, data, { headers })),
+    );
+
+    if (myError) {
+      res.status(500).json({
+        error: myError.message,
+      });
+      return;
+    }
+
+    if (!myValue) {
+      res.status(404).json({
+        error: "Not found",
+      });
+      return;
+    }
+
+    res.json(myValue.data);
+    return;
   };
 
 /**

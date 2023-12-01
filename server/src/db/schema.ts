@@ -25,7 +25,6 @@ export const statusType = pgEnum("status_type", [
   "pending",
   "approved",
   "rejected",
-  "unclassifiable",
 ]);
 export const stepType = pgEnum("step_type", [
   "1: BadWord",
@@ -36,6 +35,7 @@ export const stepStatusType = pgEnum("stepStatus_type", [
   "pending",
   "approved",
   "rejected",
+  "unclassifiable",
   "previouslyRejected",
 ]);
 
@@ -54,11 +54,9 @@ export const textInput = pgTable("TextInput", {
   aiModerationStep: stepStatusType("aiModerationStep").notNull(),
   manualModerationStep: stepStatusType("manualModerationStep").notNull(),
   wordListScore: doublePrecision("wordListScore").notNull(),
-  personalIdentifiableInfoScore: doublePrecision(
-    "personalIdentifiableInfoScore",
-  ).notNull(),
   nsfwScore: doublePrecision("nsfwScore").notNull(),
-  distilbertScore: doublePrecision("distilbertScore").notNull(),
+  distilbertScore: doublePrecision("negativeDistilbertScore").notNull(),
+  contactInfoScore: doublePrecision("contactInfoScore").notNull(),
 });
 
 // Type Enum

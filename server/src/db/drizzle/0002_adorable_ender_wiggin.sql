@@ -1,0 +1,1 @@
+ALTER TYPE "stepStatus_type" ADD VALUE 'unclassifiable';

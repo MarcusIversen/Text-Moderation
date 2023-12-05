@@ -1,5 +1,5 @@
-import path from "path";
-import fs from "fs";
+import * as path from "path";
+import * as fs from "fs";
 
 interface WithRetryArgs {
   retryAttempt?: number;
@@ -8,7 +8,7 @@ interface WithRetryArgs {
 }
 
 export async function perhaps<T>(
-  promise: Promise<T>,
+    promise: Promise<T>,
 ): Promise<[Error | null, T] | [Error, null]> {
   try {
     const result = await promise;
@@ -31,27 +31,27 @@ export const delay = (args: { waitSeconds: number }): Promise<void> => {
  * @param lastErrorMessage
  */
 export const withRetry =
-  ({
-    retryAttempt = 0,
-    maxRetries = 10,
-    lastErrorMessage,
-  }: WithRetryArgs = {}) =>
-  async <T>(fn: Promise<T>): Promise<T> => {
-    console.log(`Try number: ${retryAttempt}`);
+    ({
+       retryAttempt = 0,
+       maxRetries = 10,
+       lastErrorMessage,
+     }: WithRetryArgs = {}) =>
+        async <T>(fn: Promise<T>): Promise<T> => {
+          console.log(`Try number: ${retryAttempt}`);
 
-    if (retryAttempt > maxRetries) {
-      throw new Error(lastErrorMessage ?? "Retry failed too many times...");
-    }
+          if (retryAttempt > maxRetries) {
+            throw new Error(lastErrorMessage ?? "Retry failed too many times...");
+          }
 
-    return fn.catch((err: Error) =>
-      delay({ waitSeconds: 1 * retryAttempt + 1 }).then(() =>
-        withRetry({
-          retryAttempt: retryAttempt + 1,
-          lastErrorMessage: err.message,
-        })(fn),
-      ),
-    );
-  };
+          return fn.catch((err: Error) =>
+              delay({ waitSeconds: 1 * retryAttempt + 1 }).then(() =>
+                  withRetry({
+                    retryAttempt: retryAttempt + 1,
+                    lastErrorMessage: err.message,
+                  })(fn),
+              ),
+          );
+        };
 
 /**
  * Method for displaying the bad words found in input, in an array.
@@ -66,9 +66,9 @@ export async function getBadWordsFromInput(textInput: string) {
 
   const badWords = getBadWordsList();
   const wordsFromInput = textInput
-    .toLowerCase()
-    .split(/[,\s]+/)
-    .map((word) => word.replace(/[^\w]/g, ""));
+      .toLowerCase()
+      .split(/[,\s]+/)
+      .map((word) => word.replace(/[^\w]/g, ""));
 
   return wordsFromInput.filter((word) => badWords.includes(word));
 }
@@ -86,9 +86,9 @@ export async function hasBadWords(textInput: string) {
 
   const badWords = getBadWordsList();
   const wordsFromInput = textInput
-    .toLowerCase()
-    .split(/[,\s]+/)
-    .map((word) => word.replace(/[^\w]/g, ""));
+      .toLowerCase()
+      .split(/[,\s]+/)
+      .map((word) => word.replace(/[^\w]/g, ""));
 
   for (const word of wordsFromInput) {
     if (badWords.includes(word)) {

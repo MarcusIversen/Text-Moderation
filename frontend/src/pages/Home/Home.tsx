@@ -1,149 +1,45 @@
-import axios from "axios";
-import { Button, CircularProgress, Input } from "@mui/material";
-import * as React from "react";
-import { useCallback, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Cookies from "universal-cookie";
+import React from "react";
+import { Box, CssBaseline, TextField, Typography, IconButton } from "@mui/material";
+import SendIcon from "@mui/icons-material/Send";
+import { ThemeProvider } from "@mui/material/styles";
+import { defaultTheme } from "../../assets/theme.ts";
+import { SideBar } from "../../components/SideBar.tsx";
 
-const api = axios.create({
-  baseURL: `http://localhost:3000/api/`,
-});
+const logoImage = "../IconLogo.png"; // Update the path to your logo image
 
 export const Home: React.FunctionComponent = () => {
-  const navigate = useNavigate();
-  const cookies = new Cookies();
-
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [data, setData] = useState({
-    distilbert: null,
-    nsfw: null,
-    moderation: null,
-    contactInfo: null,
-    addresses: null,
-    "moderation/bad-words-check": null,
-  });
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInput(event.target.value);
-  };
-
-  const handleInputBlur = (event: React.FocusEvent<HTMLInputElement>) => {
-    setInput(event.target.value);
-  };
-
-  const logOut = () => {
-    setLoading(true);
-    localStorage.clear();
-    cookies.remove("AuthCookie");
-    setTimeout(() => {
-      setLoading(false);
-      navigate("/login");
-    }, 2000);
-  };
-
-  const fetchPost = useCallback(
-    async (endpoint: string) => {
-      if (input === "" || input == " ") {
-        return;
-      }
-      setLoading(true);
-      try {
-        const result = await api.post(endpoint, { inputs: input });
-        setData((prevData) => ({ ...prevData, [endpoint]: result.data }));
-      } catch (error) {
-        console.error(`Error fetching ${endpoint} data:`, error);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [input],
-  );
-
   return (
-    <>
-      <div style={{ paddingLeft: 25 }}>
-        <Button
-          style={{ backgroundColor: "Teal", color: "black" }}
-          onClick={() => logOut()}
-        >
-          Log out
-        </Button>
-        <h2>Write a sentence and do a moderation check</h2>
-        <div>
-          <Input
-            type="text"
-            value={input}
-            onChange={handleInputChange}
-            onBlur={handleInputBlur}
-            style={{ width: 1000 }}
-          />
-          <Button
-            style={{ backgroundColor: "yellow", color: "black" }}
-            onClick={() => {
-              fetchPost("moderation/bad-words-check");
-              fetchPost("distilbert");
-              fetchPost("nsfw");
-              fetchPost("moderation");
-              fetchPost("contactInfo");
-            }}
-          >
-            Moderation Search
-          </Button>
-        </div>
-        <br />
-
-        {loading && <CircularProgress />}
-        <br />
-        <Button
-          style={{ backgroundColor: "purple", color: "white" }}
-          onClick={() => fetchPost("moderation/bad-words-check")}
-        >
-          Check Bad Words
-        </Button>
-        {data["moderation/bad-words-check"] && (
-          <pre>
-            {JSON.stringify(data["moderation/bad-words-check"], null, 2)}
-          </pre>
-        )}
-        <Button
-          style={{ backgroundColor: "blue", color: "white" }}
-          onClick={() => fetchPost("distilbert")}
-        >
-          Distilbert
-        </Button>
-        {data.distilbert && (
-          <pre>{JSON.stringify(data.distilbert, null, 2)}</pre>
-        )}
-
-        <Button
-          style={{ backgroundColor: "red", color: "white" }}
-          onClick={() => fetchPost("nsfw")}
-        >
-          NSFW
-        </Button>
-        {data.nsfw && <pre>{JSON.stringify(data.nsfw, null, 2)}</pre>}
-
-        <Button
-          style={{ backgroundColor: "orange", color: "white" }}
-          onClick={() => fetchPost("moderation")}
-        >
-          Moderation
-        </Button>
-        {data.moderation && (
-          <pre>{JSON.stringify(data.moderation, null, 2)}</pre>
-        )}
-
-        <Button
-          style={{ backgroundColor: "green", color: "white" }}
-          onClick={() => fetchPost("contactInfo")}
-        >
-          Contact Info
-        </Button>
-        {data.contactInfo && (
-          <pre>{JSON.stringify(data.contactInfo, null, 2)}</pre>
-        )}
-      </div>
-    </>
+      <ThemeProvider theme={defaultTheme}>
+        <CssBaseline />
+        <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+          <SideBar />
+          <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, padding: 2 }}>
+            <Typography variant="h5">
+              Automated Text Moderation V1.0
+            </Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', flexGrow: 1 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
+                <img src={logoImage} alt="logo" width="86px" height="86px" />
+                <Typography variant="h5" sx={{ mt: 1 }}>
+                  What text can I moderate today?
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 2 }}>
+                <TextField
+                    helperText={"This text moderation platform is not perfect yet, it can be slow with a response, and it can make mistakes. Please use it with caution."}
+                    style={{ width: 800 }}
+                    variant="outlined"
+                    placeholder="Write text here..."
+                    multiline={true}
+                    maxRows={4}
+                />
+                <IconButton color="primary" size="large" sx={{ ml: 1, alignSelf: "flex-start" }}>
+                  <SendIcon />
+                </IconButton>
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+      </ThemeProvider>
   );
 };

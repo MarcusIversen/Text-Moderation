@@ -1,5 +1,5 @@
 // src/routes/userRoutes.ts
-import express from "express";
+import * as express from "express";
 import { UserService } from "../services/userService";
 import { UserController } from "../controllers/userController";
 import { ModerationController } from "../controllers/moderationController";

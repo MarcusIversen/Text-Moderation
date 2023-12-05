@@ -6,9 +6,8 @@ import { UserDTO } from "../dto/DTOs";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import {db} from "../db/setup";
 
-const sql = postgres(CONNECTION_STRING, { max: 1 });
-const db = drizzle(sql);
 
 export class UserService {
   async getUserById(userId: number): Promise<UserDTO | null> {

@@ -1,4 +1,4 @@
-import { createTheme } from "@mui/material/styles";
+import {createTheme} from "@mui/material/styles";
 
 export const defaultTheme = createTheme({
   palette: {
@@ -6,8 +6,12 @@ export const defaultTheme = createTheme({
     primary: {
       main: "#4facc3",
     },
-    secondary: {
+    error: {
       main: "#c74059",
+    },
+    background: {
+      default: "#041a28",
+      paper: "#202121",
     },
   },
   components: {

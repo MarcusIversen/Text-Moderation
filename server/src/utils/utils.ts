@@ -1,5 +1,8 @@
-import * as path from "path";
-import * as fs from "fs";
+import path from "path";
+import fs from "fs";
+import {Request, Response} from "express";
+import {HF_ACCESS_TOKEN} from "../config/config";
+import axios from "axios"
 
 interface WithRetryArgs {
   retryAttempt?: number;
@@ -44,7 +47,7 @@ export const withRetry =
           }
 
           return fn.catch((err: Error) =>
-              delay({ waitSeconds: 1 * retryAttempt + 1 }).then(() =>
+              delay({waitSeconds: 2 * retryAttempt + 1}).then(() =>
                   withRetry({
                     retryAttempt: retryAttempt + 1,
                     lastErrorMessage: err.message,
@@ -52,6 +55,36 @@ export const withRetry =
               ),
           );
         };
+
+export const modelEndpoint =
+    (modelUrl: string) => async (req: Request, res: Response) => {
+      const headers = {
+        Authorization: `Bearer ${HF_ACCESS_TOKEN}`,
+        "Content-Type": "application/json",
+      };
+
+      const data = {inputs: req.body.inputs};
+      const [myError, myValue] = await perhaps(
+          withRetry({})(axios.post(modelUrl, data, {headers})),
+      );
+
+      if (myError) {
+        res.status(500).json({
+          error: myError.message,
+        });
+        return;
+      }
+
+      if (!myValue) {
+        res.status(404).json({
+          error: "Not found",
+        });
+        return;
+      }
+
+      res.json(myValue.data);
+      return;
+    };
 
 /**
  * Method for displaying the bad words found in input, in an array.

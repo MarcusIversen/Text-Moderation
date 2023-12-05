@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import {migrateDB} from "./db/setup";
-import { modelEndpoint } from "./api/endpoints";
 import userRoutes from "./routes/userRoutes";
 
 export const setupApplication = async () => {
@@ -12,6 +11,7 @@ export const setupApplication = async () => {
   app.use("/api", userRoutes);
 
   await migrateDB();
+
 
   return app;
 };

@@ -26,25 +26,35 @@ export class ModerationController {
         userId,
         content,
       );
+
       const moderationResult =
         await this.moderationService.badWordStep(textData);
       if (moderationResult?.status === "rejected") {
-        res
-          .status(400)
-          .json({
-            message: "Text rejected due to bad words",
-            content: moderationResult.moderatedText,
-            userId: userId,
-          });
+        res.status(400).json({
+          message: "Text rejected due to bad words",
+          textInput: moderationResult.moderatedText,
+          userId: userId,
+        });
         return;
       }
 
-      // Placeholder for Text Classification AI service
-      // const aiClassificationResult = await this.moderationService.aiClassification(moderationResult);
-      // if(aiClassificationResult.status === 'rejected') {
-      //     res.status(400).json({message: 'Text input rejected by AI Classification', content: aiClassificationResult.moderatedText, userId: userId});
-      //     return;
-      // }
+      const aiResult =
+        await this.moderationService.aiModerationStep(moderationResult);
+      if (aiResult?.status === "rejected") {
+        res.status(400).json({
+          message: "Text input rejected by AI Classification",
+          textInput: aiResult.moderatedText,
+          userId: userId,
+        });
+        return;
+      } else if (aiResult?.status === "unclassifiable"){
+        res.status(400).json({
+          message: "Text input unclassifiable by AI, needs manual moderation",
+          textInput: aiResult.moderatedText,
+          userId: userId,
+        });
+        return;
+      }
 
       // Placeholder for Manual Moderation service
       // const manualModerationResult = await this.moderationService.manualModeration(aiClassificationResult);
@@ -53,13 +63,12 @@ export class ModerationController {
       //     return;
       // }
 
-      res
-        .status(200)
-        .json({
-          message: "Text input created and approved",
-          content: moderationResult?.moderatedText,
-          userId: userId,
-        });
+
+      res.status(200).json({
+        message: "Text input created and being moderated",
+        content: moderationResult?.moderatedText,
+        userId: userId,
+      });
     } catch (error) {
       console.error("Error :", error);
     }
@@ -87,5 +96,22 @@ export class ModerationController {
   async getBadWordsList(req: Request, res: Response) {
     const badWordsList = getBadWordsList();
     return res.json({ badWordsList });
+  }
+
+  async ai(req: Request, res: Response) {
+    const { inputs } = req.body;
+
+    try {
+      const [distilbert, nsfw, contactInfo] = await Promise.all([
+        this.moderationService.distilbert(inputs),
+        this.moderationService.nsfw(inputs),
+        this.moderationService.contactInfo(inputs),
+      ]);
+
+      return res.json({ distilbert, nsfw, contactInfo });
+    } catch (error) {
+      console.error(`Error in ai: ${error}`);
+      res.status(500).send("Internal server error");
+    }
   }
 }

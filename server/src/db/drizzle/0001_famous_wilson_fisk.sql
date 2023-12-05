@@ -1,0 +1,1 @@
+ALTER TABLE "TextInput" RENAME COLUMN "distilbertScore" TO "negativeDistilbertScore";

@@ -1,7 +1,4 @@
 import { user } from "../db/schema";
-import { CONNECTION_STRING } from "../config/config";
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
 import { UserDTO } from "../dto/DTOs";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt";

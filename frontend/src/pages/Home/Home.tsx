@@ -9,7 +9,7 @@ import {
 import SendIcon from "@mui/icons-material/Send";
 import { ThemeProvider } from "@mui/material/styles";
 import { defaultTheme } from "../../assets/theme.ts";
-import { SideBar } from "../../components/SideBar.tsx";
+import { SideBar } from "../../components/SideBar/SideBar.tsx";
 
 const logoImage = "../IconLogo.png"; // Update the path to your logo image
 
@@ -27,7 +27,7 @@ export const Home: React.FunctionComponent = () => {
             padding: 2,
           }}
         >
-          <Typography variant="h5">Automated Text Moderation V1.0</Typography>
+          <Typography variant="h6">Automated Text Moderation V1.0</Typography>
           <Box
             sx={{
               display: "flex",
@@ -61,7 +61,7 @@ export const Home: React.FunctionComponent = () => {
             >
               <TextField
                 helperText={
-                  "This text moderation platform is not perfect yet, it can be slow with a response, and it can make mistakes. Please use it with caution."
+                  "This text moderation platform is not perfect yet, it can be slow with a response, and it can make mistakes. Please use it with patience."
                 }
                 style={{ width: 800 }}
                 variant="outlined"

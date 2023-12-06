@@ -220,7 +220,7 @@ export class ModerationService {
       }
 
       switch (true) {
-        case distilbertNegativeScore > 0.9 ||
+        case distilbertNegativeScore > 0.9  && nsfwScore > 0.9||
           nsfwScore > 0.9 ||
           contactInfoScore > 0.9: {
           const rejectedResponse = await db
@@ -251,7 +251,7 @@ export class ModerationService {
           };
         }
 
-        case distilbertPositiveScore > 0.9 ||
+        case distilbertPositiveScore > 0.9  && sfwScore > 0.9||
           sfwScore > 0.9 ||
           contactInfoOtherScore > 0.9: {
           const approvedResponse = await db
@@ -321,8 +321,8 @@ export class ModerationService {
               step: "2: AIModeration",
               status: "rejected",
               badWordStep: "approved",
-              aiModerationStep: "rejected",
-              manualModerationStep: "previouslyRejected",
+              aiModerationStep: "pending",
+              manualModerationStep: "pending",
               updatedAt: new Date(),
               distilbertScore: distilbertNegativeScore,
               nsfwScore: nsfwScore,
@@ -338,8 +338,8 @@ export class ModerationService {
             ...textInputData,
             moderatedText: defaultResponse[0]?.moderatedText,
             status: defaultResponse[0]?.status,
-            aiModerationStep: "rejected",
-            manualModerationStep: "previouslyRejected",
+            aiModerationStep: "pending",
+            manualModerationStep: "pending",
           };
         }
       }

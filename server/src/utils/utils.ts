@@ -10,6 +10,12 @@ interface WithRetryArgs {
   lastErrorMessage?: string;
 }
 
+/**
+ * utility method designed to add retry functionality to asynchronous operations, specifically for making HTTP requests.
+ * Takes a promise and returns a promise that resolves to an array of two elements.
+ * Returns [null, result] if the promise resolves successfully, or [error, null] if the promise rejects.
+ * @param promise
+ */
 export async function perhaps<T>(
     promise: Promise<T>,
 ): Promise<[Error | null, T] | [Error, null]> {
@@ -21,6 +27,10 @@ export async function perhaps<T>(
   }
 }
 
+/**
+ * Utility method for delaying.
+ * @param args
+ */
 export const delay = (args: { waitSeconds: number }): Promise<void> => {
   return new Promise((resolve) => {
     setTimeout(() => resolve(), args.waitSeconds * 1000);
@@ -28,7 +38,7 @@ export const delay = (args: { waitSeconds: number }): Promise<void> => {
 };
 
 /**
- * Utility method for retrying, used for http requests
+ * Utility method for retrying.
  * @param retryAttempt
  * @param maxRetries
  * @param lastErrorMessage
@@ -47,7 +57,7 @@ export const withRetry =
           }
 
           return fn.catch((err: Error) =>
-              delay({waitSeconds: 2 * retryAttempt + 1}).then(() =>
+              delay({waitSeconds: 3 * retryAttempt}).then(() =>
                   withRetry({
                     retryAttempt: retryAttempt + 1,
                     lastErrorMessage: err.message,

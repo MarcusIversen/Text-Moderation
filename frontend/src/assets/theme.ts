@@ -11,10 +11,16 @@ export const defaultTheme = createTheme({
     },
     background: {
       default: "#041a28",
-      paper: "#202121",
     },
   },
   components: {
+    MuiMenu: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: "#041a28",
+        },
+      },
+    },
     MuiCssBaseline: {
       styleOverrides: `
         body {

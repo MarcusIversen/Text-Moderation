@@ -57,7 +57,7 @@ export const withRetry =
           }
 
           return fn.catch((err: Error) =>
-              delay({waitSeconds: 3 * retryAttempt}).then(() =>
+              delay({waitSeconds: 5 * retryAttempt}).then(() =>
                   withRetry({
                     retryAttempt: retryAttempt + 1,
                     lastErrorMessage: err.message,

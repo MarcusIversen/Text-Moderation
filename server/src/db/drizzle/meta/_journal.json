@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1701336234377,
-      "tag": "0000_lonely_ironclad",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1701431931516,
-      "tag": "0001_famous_wilson_fisk",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1701432714980,
-      "tag": "0002_adorable_ender_wiggin",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1701433132699,
-      "tag": "0003_public_thor",
+      "when": 1702284980348,
+      "tag": "0000_closed_supreme_intelligence",
       "breakpoints": true
     }
   ]

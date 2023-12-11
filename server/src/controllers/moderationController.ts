@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
-import { ModerationService } from "../services/moderationService";
+import {Request, Response} from "express";
+import {ModerationService} from "../services/moderationService";
 import {
   getBadWordsFromInput,
   getBadWordsList,
@@ -14,59 +14,112 @@ export class ModerationController {
   }
 
   async processTextInput(req: Request, res: Response): Promise<void> {
-    const { userId, content } = req.body as { userId: number; content: string };
+    const {userId, content} = req.body as { userId: number; content: string };
 
-    if (!content || typeof content !== "string") {
-      res.status(400).json({ error: "Invalid or missing input parameter" });
+    if (!content) {
+      res.status(400).json({error: "Invalid or missing input parameter"});
       return;
     }
 
     try {
-      const textData = await this.moderationService.createTextInput(
-        userId,
-        content,
-      );
+      const textData = await this.moderationService.createTextInput(userId, content);
+      const badWords = await this.moderationService.badWords(textData);
 
-      const moderationResult =
-        await this.moderationService.badWordStep(textData);
-      if (moderationResult?.status === "rejected") {
+      if (badWords.length > 0) {
+        await this.moderationService.createLog(textData.id, "1: BadWord", "badWordsFound: " + badWords.join(", "));
+        await this.moderationService.updateTextInput({
+          id: textData.id,
+          status: "rejected",
+          step: "1: BadWord",
+          badWordStep: "rejected",
+          aiModerationStep: "previouslyRejected",
+          manualModerationStep: "previouslyRejected",
+          wordListScore: badWords.length * 0.1,
+          nsfwScore: 0,
+          distilbertScore: 0,
+          contactInfoScore: 0
+        })
         res.status(400).json({
           message: "Text rejected due to bad words",
-          textInput: moderationResult.moderatedText,
+          textInput: textData.textInput,
           userId: userId,
         });
         return;
       }
 
-      const aiResult =
-        await this.moderationService.aiModerationStep(moderationResult);
-      if (aiResult?.status === "rejected") {
+      const aiModeration = await this.moderationService.aiModeration(textData);
+
+      if (aiModeration?.status === 'rejected') {
+        const moderationTags = await this.moderationService.getModerationTags(textData);
+        await this.moderationService.createLog(textData.id, "2: AIModeration", moderationTags);
+        await this.moderationService.updateTextInput({
+          id: textData.id,
+          status: "rejected",
+          step: "2: AIModeration",
+          badWordStep: "approved",
+          aiModerationStep: "rejected",
+          manualModerationStep: "previouslyRejected",
+          wordListScore: 0,
+          nsfwScore: aiModeration.nsfwScore,
+          distilbertScore: aiModeration.distilbertNegativeScore,
+          contactInfoScore: aiModeration.contactInfoScore
+        })
         res.status(400).json({
-          message: "Text input rejected by AI Classification",
-          textInput: aiResult.moderatedText,
-          userId: userId,
-        });
-        return;
-      } else if (aiResult?.status === "unclassifiable"){
-        res.status(400).json({
-          message: "Text input unclassifiable by AI, needs manual moderation",
-          textInput: aiResult.moderatedText,
+          message: "Text input has been rejected by AI Moderation",
+          textInput: textData.textInput,
           userId: userId,
         });
         return;
       }
 
-      // Placeholder for Manual Moderation service
-      // const manualModerationResult = await this.moderationService.manualModeration(aiClassificationResult);
-      // if(manualModerationResult.status === 'rejected') {
-      //     res.status(400).json({message: 'Text input rejected by Manual Moderation', content: manualModerationResult.moderatedText, userId: userId});
-      //     return;
-      // }
+      if (aiModeration?.status === 'approved') {
+        await this.moderationService.updateTextInput({
+          id: textData.id,
+          status: "pending",
+          step: "3: ManualModeration",
+          badWordStep: "approved",
+          aiModerationStep: "approved",
+          manualModerationStep: "pending",
+          wordListScore: 0,
+          nsfwScore: aiModeration.nsfwScore,
+          distilbertScore: aiModeration.distilbertNegativeScore,
+          contactInfoScore: aiModeration.contactInfoScore
+        })
+        res.status(400).json({
+          message: "Text approved and pending manual moderation",
+          textInput: textData.textInput,
+          userId: userId,
+        });
+        return;
+      }
+
+      if (aiModeration?.status === 'unclassifiable') {
+        await this.moderationService.updateTextInput({
+          id: textData.id,
+          status: "pending",
+          step: "3: ManualModeration",
+          badWordStep: "approved",
+          aiModerationStep: "unclassifiable",
+          manualModerationStep: "pending",
+          wordListScore: 0,
+          nsfwScore: aiModeration.nsfwScore,
+          distilbertScore: aiModeration.distilbertNegativeScore,
+          contactInfoScore: aiModeration.contactInfoScore
+        })
+        res.status(400).json({
+          message: "Text is unclassifiable and pending manual moderation",
+          textInput: textData.textInput,
+          userId: userId,
+        });
+        return;
+      }
+
+      //TODO - add manual moderation step to say either yes or no, and reject with custom moderationTags
 
 
       res.status(200).json({
         message: "Text input created and being moderated",
-        content: moderationResult?.moderatedText,
+        content: textData.textInput,
         userId: userId,
       });
     } catch (error) {
@@ -74,44 +127,29 @@ export class ModerationController {
     }
   }
 
-  async badWordCheck(req: Request, res: Response): Promise<void> {
-    const { inputs } = req.body;
 
-    if (!inputs || typeof inputs !== "string") {
-      res.status(400).json({ error: "Invalid or missing input parameter" });
-      return;
-    }
-
-    const badWordsFound = await getBadWordsFromInput(inputs);
-    const containsBadWords = await hasBadWords(inputs);
-
-    if (containsBadWords) {
-      res.json({ badWordsFound });
-      return;
-    }
-
-    res.json({ "response: ": "TextInput contains no bad words" });
-  }
-
-  async getBadWordsList(req: Request, res: Response) {
+  async getBadWordsList(res: Response) {
     const badWordsList = getBadWordsList();
-    return res.json({ badWordsList });
+    return res.json({badWordsList});
   }
 
-  async ai(req: Request, res: Response) {
-    const { inputs } = req.body;
+
+  async getModerationInputsOnUser(req: Request, res: Response) {
+    const {userID} = req.params;
 
     try {
-      const [distilbert, nsfw, contactInfo] = await Promise.all([
-        this.moderationService.distilbert(inputs),
-        this.moderationService.nsfw(inputs),
-        this.moderationService.contactInfo(inputs),
-      ]);
+      const moderationOnUser = await this.moderationService.getModerationInputsOnUser(parseInt(userID ?? "0", 10));
 
-      return res.json({ distilbert, nsfw, contactInfo });
+      if (!moderationOnUser) {
+        res.status(404).json({error: "User not found"});
+        return;
+      }
+
+      res.json(moderationOnUser);
     } catch (error) {
-      console.error(`Error in ai: ${error}`);
+      console.error(`Error in getModerationOnUser: ${error}`);
       res.status(500).send("Internal server error");
     }
   }
+
 }

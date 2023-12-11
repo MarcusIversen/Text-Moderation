@@ -4,14 +4,14 @@ import {
   CssBaseline,
   TextField,
   Typography,
-  IconButton,
+  IconButton, Paper, CircularProgress
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
 import { ThemeProvider } from "@mui/material/styles";
 import { defaultTheme } from "../../assets/theme.ts";
 import { SideBar } from "../../components/SideBar/SideBar.tsx";
-
-const logoImage = "../IconLogo.png"; // Update the path to your logo image
 
 export const Home: React.FunctionComponent = () => {
   return (
@@ -27,7 +27,7 @@ export const Home: React.FunctionComponent = () => {
             padding: 2,
           }}
         >
-          <Typography variant="h6">Automated Text Moderation V1.0</Typography>
+          <Typography variant="subtitle1" sx={{paddingBottom: 5}}>Automated Text Moderation V1.0</Typography>
           <Box
             sx={{
               display: "flex",
@@ -37,6 +37,21 @@ export const Home: React.FunctionComponent = () => {
               flexGrow: 1,
             }}
           >
+
+            <Paper sx={{width: 1500, height: 200, borderRadius: 5, backgroundColor: "background.paper"}}>
+              <Typography sx={{padding: 2}} variant="h6">
+                Moderation Step 1 : Check for bad words
+              </Typography>
+              <Box sx={{paddingLeft: 3, paddingTop: 2, }}>
+                <CircularProgress/>
+              </Box>
+              <Box sx={{paddingLeft: 2, paddingTop: 2, color: "green"}}>
+                <CheckCircleIcon sx={{height: 50, width: 50}}/>
+              </Box>
+              <Box sx={{paddingLeft: 2, paddingTop: 2,  color: "red"}}>
+                <CancelIcon sx={{height: 50, width: 50}}/>
+              </Box>
+            </Paper>
             <Box
               sx={{
                 display: "flex",
@@ -46,10 +61,10 @@ export const Home: React.FunctionComponent = () => {
                 flexGrow: 1,
               }}
             >
-              <img src={logoImage} alt="logo" width="86px" height="86px" />
-              <Typography variant="h5" sx={{ mt: 1 }}>
-                What text can I moderate today?
-              </Typography>
+              {/*<img src={logoImage} alt="logo" width="86px" height="86px" />*/}
+              {/*<Typography variant="h5" sx={{ mt: 1 }}>*/}
+              {/*  What text can I moderate today?*/}
+              {/*</Typography>*/}
             </Box>
             <Box
               sx={{

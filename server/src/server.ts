@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import {migrateDB} from "./db/setup";
-import userRoutes from "./routes/userRoutes";
+import userRoutes from "./routes/apiRoutes";
 
 export const setupApplication = async () => {
   const app = express();

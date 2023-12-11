@@ -11,6 +11,7 @@ export const defaultTheme = createTheme({
     },
     background: {
       default: "#041a28",
+      paper: "#161818",
     },
   },
   components: {
@@ -31,6 +32,6 @@ export const defaultTheme = createTheme({
           background-attachment: fixed;
         }
       `,
-    },
+    }
   },
 });

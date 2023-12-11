@@ -1,17 +1,11 @@
 DO $$ BEGIN
- CREATE TYPE "moderation_type_enum" AS ENUM('badWord', 'negative', 'nsfw', 'sexual', 'hate', 'violence', 'harassment', 'sexual/minors', 'hate/threatening', 'violence/graphic', 'personalInfo');
+ CREATE TYPE "status_type" AS ENUM('pending', 'approved', 'rejected');
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- CREATE TYPE "status_type" AS ENUM('pending', 'approved', 'rejected', 'unclassifiable');
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- CREATE TYPE "stepStatus_type" AS ENUM('pending', 'approved', 'rejected', 'previouslyRejected');
+ CREATE TYPE "stepStatus_type" AS ENUM('pending', 'approved', 'rejected', 'unclassifiable', 'previouslyRejected');
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -22,17 +16,11 @@ EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
-DO $$ BEGIN
- CREATE TYPE "type_enum" AS ENUM('badWord', 'AI', 'Manual');
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "Log" (
 	"ID" serial NOT NULL,
 	"TextInputID" integer NOT NULL,
-	"log_type" "type_enum" NOT NULL,
-	"moderation_type" "moderation_type_enum" NOT NULL,
+	"moderationStep" "step_type" NOT NULL,
+	"moderationTags" varchar NOT NULL,
 	"created_at" timestamp NOT NULL,
 	"updated_at" timestamp NOT NULL,
 	CONSTRAINT "Log_ID_unique" UNIQUE("ID")
@@ -50,9 +38,9 @@ CREATE TABLE IF NOT EXISTS "TextInput" (
 	"aiModerationStep" "stepStatus_type" NOT NULL,
 	"manualModerationStep" "stepStatus_type" NOT NULL,
 	"wordListScore" double precision NOT NULL,
-	"personalIdentifiableInfoScore" double precision NOT NULL,
 	"nsfwScore" double precision NOT NULL,
-	"distilbertScore" double precision NOT NULL,
+	"negativeDistilbertScore" double precision NOT NULL,
+	"contactInfoScore" double precision NOT NULL,
 	CONSTRAINT "TextInput_ID_unique" UNIQUE("ID")
 );
 --> statement-breakpoint

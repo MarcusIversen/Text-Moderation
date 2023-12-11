@@ -1,1 +1,0 @@
-ALTER TABLE "TextInput" RENAME COLUMN "personalIdentifiableInfoScore" TO "contactInfoScore";

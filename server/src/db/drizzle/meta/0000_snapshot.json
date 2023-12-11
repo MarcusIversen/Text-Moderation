@@ -1,5 +1,5 @@
 {
-  "id": "9879fd5e-cd94-4676-999a-9d92a4da7217",
+  "id": "eb9fe082-8bee-4766-836d-d134516ded84",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -20,15 +20,15 @@
           "primaryKey": false,
           "notNull": true
         },
-        "log_type": {
-          "name": "log_type",
-          "type": "type_enum",
+        "moderationStep": {
+          "name": "moderationStep",
+          "type": "step_type",
           "primaryKey": false,
           "notNull": true
         },
-        "moderation_type": {
-          "name": "moderation_type",
-          "type": "moderation_type_enum",
+        "moderationTags": {
+          "name": "moderationTags",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": true
         },
@@ -142,20 +142,20 @@
           "primaryKey": false,
           "notNull": true
         },
-        "personalIdentifiableInfoScore": {
-          "name": "personalIdentifiableInfoScore",
-          "type": "double precision",
-          "primaryKey": false,
-          "notNull": true
-        },
         "nsfwScore": {
           "name": "nsfwScore",
           "type": "double precision",
           "primaryKey": false,
           "notNull": true
         },
-        "distilbertScore": {
-          "name": "distilbertScore",
+        "negativeDistilbertScore": {
+          "name": "negativeDistilbertScore",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "contactInfoScore": {
+          "name": "contactInfoScore",
           "type": "double precision",
           "primaryKey": false,
           "notNull": true
@@ -256,29 +256,12 @@
     }
   },
   "enums": {
-    "moderation_type_enum": {
-      "name": "moderation_type_enum",
-      "values": {
-        "badWord": "badWord",
-        "negative": "negative",
-        "nsfw": "nsfw",
-        "sexual": "sexual",
-        "hate": "hate",
-        "violence": "violence",
-        "harassment": "harassment",
-        "sexual/minors": "sexual/minors",
-        "hate/threatening": "hate/threatening",
-        "violence/graphic": "violence/graphic",
-        "personalInfo": "personalInfo"
-      }
-    },
     "status_type": {
       "name": "status_type",
       "values": {
         "pending": "pending",
         "approved": "approved",
-        "rejected": "rejected",
-        "unclassifiable": "unclassifiable"
+        "rejected": "rejected"
       }
     },
     "stepStatus_type": {
@@ -287,6 +270,7 @@
         "pending": "pending",
         "approved": "approved",
         "rejected": "rejected",
+        "unclassifiable": "unclassifiable",
         "previouslyRejected": "previouslyRejected"
       }
     },
@@ -296,14 +280,6 @@
         "1: BadWord": "1: BadWord",
         "2: AIModeration": "2: AIModeration",
         "3: ManualModeration": "3: ManualModeration"
-      }
-    },
-    "type_enum": {
-      "name": "type_enum",
-      "values": {
-        "badWord": "badWord",
-        "AI": "AI",
-        "Manual": "Manual"
       }
     }
   },

@@ -3,8 +3,7 @@ import { UserDTO } from "../dto/DTOs";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import {db} from "../db/setup";
-
+import { db } from "../db/setup";
 
 export class UserService {
   async getUserById(userId: number): Promise<UserDTO | null> {

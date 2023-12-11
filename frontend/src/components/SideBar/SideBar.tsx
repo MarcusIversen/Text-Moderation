@@ -1,19 +1,20 @@
 import * as React from "react";
-import { useEffect, useState } from "react";
-import { Drawer, List, ListItem, ListItemIcon, ListItemText } from "@mui/material";
+import {useEffect, useState} from "react";
+import {Drawer, List, ListItem, ListItemIcon, ListItemText} from "@mui/material";
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { ThemeProvider } from "@mui/material/styles";
-import { defaultTheme } from "../../assets/theme.ts";
+import {ThemeProvider} from "@mui/material/styles";
+import {defaultTheme} from "../../assets/theme.ts";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import Cookies from "universal-cookie";
-import { useNavigate } from "react-router-dom";
-import { jwtDecode, JwtPayload } from "jwt-decode";
-import { ModerationService } from "../../services/ModerationService.ts";
+import {useNavigate} from "react-router-dom";
+import {jwtDecode, JwtPayload} from "jwt-decode";
+import {ModerationService} from "../../services/ModerationService.ts";
 import "./SideBar.css";
+
 interface TokenPayload extends JwtPayload {
   id?: string;
   firstName: string;
@@ -32,16 +33,20 @@ export const SideBar: React.FunctionComponent = () => {
   const navigate = useNavigate();
 
   const moderationService = new ModerationService();
-
   const cookie = cookies.get("AuthCookie");
-  if(!cookie) return;
-  const decodedCookie = jwtDecode<TokenPayload>(cookie);
-
-  const firstName = decodedCookie.firstName;
-  const lastName = decodedCookie.lastName;
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [moderationInputs, setModerationInputs] = useState<ModerationInput[]>([]);
+
+  useEffect(() => {
+    fetchModerationInputs();
+  }, []);
+
+  if(!cookie) return;
+
+  const decodedCookie = jwtDecode<TokenPayload>(cookie);
+  const firstName = decodedCookie.firstName;
+  const lastName = decodedCookie.lastName;
 
   const fetchModerationInputs = async () => {
     try {
@@ -60,9 +65,7 @@ export const SideBar: React.FunctionComponent = () => {
     }
   };
 
-  useEffect(() => {
-    fetchModerationInputs();
-  }, []);
+
 
   const handleMenuClick = (event: React.MouseEvent<HTMLDivElement>) => {
     setAnchorEl(event.currentTarget);

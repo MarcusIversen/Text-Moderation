@@ -5,7 +5,7 @@ import {
   pgTable,
   varchar,
   pgEnum,
-  doublePrecision
+  doublePrecision,
 } from "drizzle-orm/pg-core";
 
 // User Table
@@ -58,7 +58,6 @@ export const textInput = pgTable("TextInput", {
   distilbertScore: doublePrecision("negativeDistilbertScore").notNull(),
   contactInfoScore: doublePrecision("contactInfoScore").notNull(),
 });
-
 
 // Log Table
 export const textInputLog = pgTable("Log", {

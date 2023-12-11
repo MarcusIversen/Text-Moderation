@@ -1,8 +1,8 @@
 import path from "path";
 import fs from "fs";
-import {Request, Response} from "express";
-import {HF_ACCESS_TOKEN} from "../config/config";
-import axios from "axios"
+import { Request, Response } from "express";
+import { HF_ACCESS_TOKEN } from "../config/config";
+import axios from "axios";
 
 interface WithRetryArgs {
   retryAttempt?: number;
@@ -17,7 +17,7 @@ interface WithRetryArgs {
  * @param promise
  */
 export async function perhaps<T>(
-    promise: Promise<T>,
+  promise: Promise<T>,
 ): Promise<[Error | null, T] | [Error, null]> {
   try {
     const result = await promise;
@@ -44,57 +44,57 @@ export const delay = (args: { waitSeconds: number }): Promise<void> => {
  * @param lastErrorMessage
  */
 export const withRetry =
-    ({
-       retryAttempt = 0,
-       maxRetries = 10,
-       lastErrorMessage,
-     }: WithRetryArgs = {}) =>
-        async <T>(fn: Promise<T>): Promise<T> => {
-          console.log(`Try number: ${retryAttempt}`);
+  ({
+    retryAttempt = 0,
+    maxRetries = 10,
+    lastErrorMessage,
+  }: WithRetryArgs = {}) =>
+  async <T>(fn: Promise<T>): Promise<T> => {
+    console.log(`Try number: ${retryAttempt}`);
 
-          if (retryAttempt > maxRetries) {
-            throw new Error(lastErrorMessage ?? "Retry failed too many times...");
-          }
+    if (retryAttempt > maxRetries) {
+      throw new Error(lastErrorMessage ?? "Retry failed too many times...");
+    }
 
-          return fn.catch((err: Error) =>
-              delay({waitSeconds: 5 * retryAttempt}).then(() =>
-                  withRetry({
-                    retryAttempt: retryAttempt + 1,
-                    lastErrorMessage: err.message,
-                  })(fn),
-              ),
-          );
-        };
+    return fn.catch((err: Error) =>
+      delay({ waitSeconds: 5 * retryAttempt }).then(() =>
+        withRetry({
+          retryAttempt: retryAttempt + 1,
+          lastErrorMessage: err.message,
+        })(fn),
+      ),
+    );
+  };
 
 export const modelEndpoint =
-    (modelUrl: string) => async (req: Request, res: Response) => {
-      const headers = {
-        Authorization: `Bearer ${HF_ACCESS_TOKEN}`,
-        "Content-Type": "application/json",
-      };
-
-      const data = {inputs: req.body.inputs};
-      const [myError, myValue] = await perhaps(
-          withRetry({})(axios.post(modelUrl, data, {headers})),
-      );
-
-      if (myError) {
-        res.status(500).json({
-          error: myError.message,
-        });
-        return;
-      }
-
-      if (!myValue) {
-        res.status(404).json({
-          error: "Not found",
-        });
-        return;
-      }
-
-      res.json(myValue.data);
-      return;
+  (modelUrl: string) => async (req: Request, res: Response) => {
+    const headers = {
+      Authorization: `Bearer ${HF_ACCESS_TOKEN}`,
+      "Content-Type": "application/json",
     };
+
+    const data = { inputs: req.body.inputs };
+    const [myError, myValue] = await perhaps(
+      withRetry({})(axios.post(modelUrl, data, { headers })),
+    );
+
+    if (myError) {
+      res.status(500).json({
+        error: myError.message,
+      });
+      return;
+    }
+
+    if (!myValue) {
+      res.status(404).json({
+        error: "Not found",
+      });
+      return;
+    }
+
+    res.json(myValue.data);
+    return;
+  };
 
 /**
  * Method for displaying the bad words found in input, in an array.
@@ -109,9 +109,9 @@ export async function getBadWordsFromInput(textInput: string) {
 
   const badWords = getBadWordsList();
   const wordsFromInput = textInput
-      .toLowerCase()
-      .split(/[,\s]+/)
-      .map((word) => word.replace(/[^\w]/g, ""));
+    .toLowerCase()
+    .split(/[,\s]+/)
+    .map((word) => word.replace(/[^\w]/g, ""));
 
   return wordsFromInput.filter((word) => badWords.includes(word));
 }
@@ -129,9 +129,9 @@ export async function hasBadWords(textInput: string) {
 
   const badWords = getBadWordsList();
   const wordsFromInput = textInput
-      .toLowerCase()
-      .split(/[,\s]+/)
-      .map((word) => word.replace(/[^\w]/g, ""));
+    .toLowerCase()
+    .split(/[,\s]+/)
+    .map((word) => word.replace(/[^\w]/g, ""));
 
   for (const word of wordsFromInput) {
     if (badWords.includes(word)) {

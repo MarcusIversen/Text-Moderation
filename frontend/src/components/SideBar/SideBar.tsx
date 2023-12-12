@@ -66,7 +66,6 @@ export const SideBar: React.FunctionComponent = () => {
   };
 
 
-
   const handleMenuClick = (event: React.MouseEvent<HTMLDivElement>) => {
     setAnchorEl(event.currentTarget);
   };

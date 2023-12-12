@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs";
-import { Request, Response } from "express";
-import { HF_ACCESS_TOKEN } from "../config/config";
+import {Request, Response} from "express";
+import {HF_ACCESS_TOKEN} from "../config/config";
 import axios from "axios";
 
 interface WithRetryArgs {
@@ -46,7 +46,7 @@ export const delay = (args: { waitSeconds: number }): Promise<void> => {
 export const withRetry =
   ({
     retryAttempt = 0,
-    maxRetries = 10,
+    maxRetries = 3,
     lastErrorMessage,
   }: WithRetryArgs = {}) =>
   async <T>(fn: Promise<T>): Promise<T> => {
@@ -57,7 +57,7 @@ export const withRetry =
     }
 
     return fn.catch((err: Error) =>
-      delay({ waitSeconds: 5 * retryAttempt }).then(() =>
+      delay({ waitSeconds: 3 * retryAttempt }).then(() =>
         withRetry({
           retryAttempt: retryAttempt + 1,
           lastErrorMessage: err.message,

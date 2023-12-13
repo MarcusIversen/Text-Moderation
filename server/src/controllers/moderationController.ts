@@ -42,7 +42,7 @@ export class ModerationController {
           distilbertScore: 0,
           contactInfoScore: 0,
         });
-        res.status(400).json({
+        res.status(200).json({
           message: "Text rejected due to bad words",
           textInput: textData.textInput,
           userId: userId,
@@ -72,7 +72,7 @@ export class ModerationController {
           distilbertScore: aiModeration.distilbertNegativeScore,
           contactInfoScore: aiModeration.contactInfoScore,
         });
-        res.status(400).json({
+        res.status(200).json({
           message: "Text input has been rejected by AI Moderation",
           textInput: textData.textInput,
           userId: userId,
@@ -87,14 +87,14 @@ export class ModerationController {
           step: "3: ManualModeration",
           badWordStep: "approved",
           aiModerationStep: "approved",
-          manualModerationStep: "pending",
+          manualModerationStep: "approved",
           wordListScore: 0,
           nsfwScore: aiModeration.nsfwScore,
           distilbertScore: aiModeration.distilbertNegativeScore,
           contactInfoScore: aiModeration.contactInfoScore,
         });
-        res.status(400).json({
-          message: "Text approved and pending manual moderation",
+        res.status(200).json({
+          message: "Text input has been approved by AI Moderation",
           textInput: textData.textInput,
           userId: userId,
         });
@@ -114,7 +114,7 @@ export class ModerationController {
           distilbertScore: aiModeration.distilbertNegativeScore,
           contactInfoScore: aiModeration.contactInfoScore,
         });
-        res.status(400).json({
+        res.status(200).json({
           message: "Text is unclassifiable and pending manual moderation",
           textInput: textData.textInput,
           userId: userId,
@@ -133,6 +133,7 @@ export class ModerationController {
       console.error("Error :", error);
     }
   }
+
 
   async getBadWordsList(req: Request, res: Response) {
     const badWordsList = getBadWordsList();

@@ -16,6 +16,31 @@ export class ModerationService{
     }
   }
 
+  async createAndProcessTextInput(userId: string | undefined, content: string) {
+    try {
+      const response = await this.api.post(`/moderation/moderate-text-input`, {userId, content});
+      return response.data;
+    } catch (error){
+      console.error(error);
+      throw error;
+    }
+  }
+
+  async aiConnectionTest() {
+    try {
+      const testString = "This is a test string, which is supposesd to start up the ai connection test";
+      const distilbert = await this.api.post(`/ai/distilbert`, {inputs:testString});
+      const nsfw = await this.api.post(`/ai/nsfw`, {inputs:testString});
+      const contactInfo = await this.api.post(`/ai/contactInfo`, {inputs:testString});
+      const moderation = await this.api.post(`/ai/moderation`, {inputs:testString});
+
+      return await Promise.all([distilbert, nsfw, contactInfo, moderation]);
+    } catch (error){
+      console.error(error);
+      throw error;
+    }
+  }
+
 
 
 

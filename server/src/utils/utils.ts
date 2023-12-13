@@ -107,41 +107,18 @@ export async function getBadWordsFromInput(textInput: string) {
     return [];
   }
 
-  const badWords = getBadWordsList();
+  const badWords = await getBadWordsList();
   const wordsFromInput = textInput
-    .toLowerCase()
-    .split(/[,\s]+/)
-    .map((word) => word.replace(/[^\w]/g, ""));
+      .toLowerCase()
+      .split(/[,\s]+/)
+      .map((word) => word.replace(/[^\w]|_/g, ""))
+      .filter((word) => word.length > 0);  // filter out any empty string or just commas
 
   return wordsFromInput.filter((word) => badWords.includes(word));
 }
 
-/**
- * Boolean method for checking bad words
- * .split(/[,\s]+/) Regular Expression (RegEx) to split by commas and or whitespace
- * replace(/[^\w]/g, '') RegEx to remove non-word characters from each word
- * @param textInput
- */
-export async function hasBadWords(textInput: string) {
-  if (!textInput) {
-    return false;
-  }
 
-  const badWords = getBadWordsList();
-  const wordsFromInput = textInput
-    .toLowerCase()
-    .split(/[,\s]+/)
-    .map((word) => word.replace(/[^\w]/g, ""));
-
-  for (const word of wordsFromInput) {
-    if (badWords.includes(word)) {
-      return true;
-    }
-  }
-  return false;
-}
-
-export function getBadWordsList() {
+export async function getBadWordsList() {
   const filePath = path.join(__dirname, "badWords.txt");
   const fileContent = fs.readFileSync(filePath, "utf-8");
   return fileContent.split("\n").map((word) => word.trim());

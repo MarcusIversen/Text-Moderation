@@ -134,8 +134,8 @@ export const SideBar: React.FunctionComponent = () => {
             <ListItem className="list-sub-header">
               <ListItemText primary="Previous text moderations" className="list-sub-header-text" />
             </ListItem>
-            {moderationInputs.map((moderationInput) => (
-                <ListItem button key={moderationInput.ID} sx={{borderRadius: 2}}>
+            {moderationInputs.map((moderationInput, index) => (
+                <ListItem button key={moderationInput.ID || index} sx={{borderRadius: 2}}>
                   <ListItemText sx={{color: "white"}} primary={truncateText(moderationInput.textInput)} secondary={formatDate(moderationInput.updatedAt)}/>
                   {/* You can add more details or actions related to each ModerationInput */}
                 </ListItem>
@@ -170,3 +170,4 @@ export const SideBar: React.FunctionComponent = () => {
       </ThemeProvider>
   );
 };
+

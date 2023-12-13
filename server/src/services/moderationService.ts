@@ -19,10 +19,10 @@ interface ScoreItem {
 }
 
 type ModerationResponse =
-  | "approved"
-  | "rejected"
-  | "unclassifiable"
-  | undefined;
+    | "approved"
+    | "rejected"
+    | "unclassifiable"
+    | undefined;
 
 interface AiModerationResponse {
   distilbertNegativeScore: number;
@@ -31,7 +31,7 @@ interface AiModerationResponse {
   status: ModerationResponse;
 }
 
-const sql = postgres(CONNECTION_STRING, { max: 1 });
+const sql = postgres(CONNECTION_STRING, {max: 1});
 const db = drizzle(sql);
 
 export class ModerationService {
@@ -41,8 +41,8 @@ export class ModerationService {
    * @param inputs
    */
   async createTextInput(
-    userId: number,
-    inputs: string,
+      userId: number,
+      inputs: string,
   ): Promise<TextInputSelectData> {
     const insertModel: TextInputInsertModel = {
       userId: userId,
@@ -75,9 +75,9 @@ export class ModerationService {
   }
 
   async createLog(
-    textInputId: number,
-    textInputStep: "1: BadWord" | "2: AIModeration" | "3: ManualModeration",
-    moderationTags: string,
+      textInputId: number,
+      textInputStep: "1: BadWord" | "2: AIModeration" | "3: ManualModeration",
+      moderationTags: string,
   ): Promise<LogSelectData> {
     const insertModel: LogInsertModel = {
       textInputId: textInputId,
@@ -104,14 +104,14 @@ export class ModerationService {
   async getModerationInputsOnUser(userId: number) {
     try {
       return await db
-        .select()
-        .from(textInput)
-        .where(eq(textInput.userId, userId))
-        .execute();
+          .select()
+          .from(textInput)
+          .where(eq(textInput.userId, userId))
+          .execute();
     } catch (error) {
       console.error(
-        `Error fetching moderations for user with ID ${userId}:`,
-        error,
+          `Error fetching moderations for user with ID ${userId}:`,
+          error,
       );
       throw error;
     }
@@ -122,14 +122,14 @@ export class ModerationService {
    */
   async updateTextInput(textInputData: TextInputUpdateModel) {
     const response = await db
-      .update(textInput)
-      .set({ ...textInputData, updatedAt: new Date() })
-      .where(eq(textInput.id, textInputData.id))
-      .returning({
-        id: textInput.id,
-        userId: textInput.userId,
-        textInput: textInput.textInput,
-      });
+        .update(textInput)
+        .set({...textInputData, updatedAt: new Date()})
+        .where(eq(textInput.id, textInputData.id))
+        .returning({
+          id: textInput.id,
+          userId: textInput.userId,
+          textInput: textInput.textInput,
+        });
 
     return response[0];
   }
@@ -144,7 +144,7 @@ export class ModerationService {
 
   async distilbert(textInput: string) {
     const url = "http://localhost:3000/api/ai/distilbert";
-    const data = { inputs: textInput };
+    const data = {inputs: textInput};
 
     try {
       const response = await axios.post(url, data);
@@ -157,7 +157,7 @@ export class ModerationService {
 
   async nsfw(textInput: string) {
     const url = "http://localhost:3000/api/ai/nsfw";
-    const data = { inputs: textInput };
+    const data = {inputs: textInput};
 
     try {
       const response = await axios.post(url, data);
@@ -170,7 +170,7 @@ export class ModerationService {
 
   async contactInfo(textInput: string) {
     const url = "http://localhost:3000/api/ai/contactInfo";
-    const data = { inputs: textInput };
+    const data = {inputs: textInput};
 
     try {
       const response = await axios.post(url, data);
@@ -183,7 +183,7 @@ export class ModerationService {
 
   async moderation(textInput: string) {
     const url = "http://localhost:3000/api/ai/moderation"; // replace with your server's URL and port
-    const data = { inputs: textInput };
+    const data = {inputs: textInput};
 
     try {
       const response = await axios.post(url, data);
@@ -194,8 +194,9 @@ export class ModerationService {
     }
   }
 
+
   async aiModeration(
-    textInputData: TextInputSelectData,
+      textInputData: TextInputSelectData,
   ): Promise<AiModerationResponse | undefined> {
     if (!textInputData || typeof textInputData.textInput !== "string") {
       throw new Error("Invalid textInputData");
@@ -209,37 +210,35 @@ export class ModerationService {
       ]);
 
       const distilbertPositiveScore = distilbert.find(
-        (item: ScoreItem) => item.label === "POSITIVE",
+          (item: ScoreItem) => item.label === "POSITIVE",
       )?.score;
       const distilbertNegativeScore = distilbert.find(
-        (item: ScoreItem) => item.label === "NEGATIVE",
+          (item: ScoreItem) => item.label === "NEGATIVE",
       )?.score;
       const sfwScore = nsfw.find((item: ScoreItem) => item.label === "SFW")
-        ?.score;
+          ?.score;
       const nsfwScore = nsfw.find((item: ScoreItem) => item.label === "NSFW")
-        ?.score;
+          ?.score;
       const contactInfoOtherScore = contactInfo.find(
-        (item: ScoreItem) => item.label === "Other",
+          (item: ScoreItem) => item.label === "Other",
       )?.score;
       const contactInfoScore = contactInfo.find(
-        (item: ScoreItem) => item.label === "Privacy contact information",
+          (item: ScoreItem) => item.label === "Privacy contact information",
       )?.score;
 
       if (
-        !distilbertPositiveScore ||
-        !distilbertPositiveScore ||
-        !sfwScore ||
-        !nsfwScore ||
-        !contactInfoOtherScore ||
-        !contactInfoScore
+          !distilbertPositiveScore ||
+          !distilbertPositiveScore ||
+          !sfwScore ||
+          !nsfwScore ||
+          !contactInfoOtherScore ||
+          !contactInfoScore
       ) {
         return undefined;
       }
 
       switch (true) {
-        case distilbertNegativeScore > 0.9 ||
-          nsfwScore > 0.9 ||
-          contactInfoScore > 0.9: {
+        case distilbertNegativeScore > 0.9 && nsfwScore > 0.9 || nsfwScore > 0.95 || contactInfoScore > 0.9: {
           return {
             distilbertNegativeScore: distilbertNegativeScore,
             nsfwScore: nsfwScore,
@@ -248,9 +247,7 @@ export class ModerationService {
           };
         }
 
-        case distilbertPositiveScore > 0.9 ||
-          sfwScore > 0.9 ||
-          contactInfoOtherScore > 0.9: {
+        case distilbertPositiveScore > 0.9 || sfwScore > 0.9 || contactInfoOtherScore > 0.9: {
           return {
             distilbertNegativeScore: distilbertNegativeScore,
             nsfwScore: nsfwScore,
@@ -260,9 +257,9 @@ export class ModerationService {
         }
 
         case (distilbertNegativeScore >= 0.5 &&
-          distilbertNegativeScore < 0.9) ||
-          (nsfwScore >= 0.5 && nsfwScore < 0.9) ||
-          (contactInfoScore >= 0.5 && contactInfoScore < 0.9): {
+            distilbertNegativeScore < 0.9) ||
+        (nsfwScore >= 0.5 && nsfwScore < 0.9) ||
+        (contactInfoScore >= 0.5 && contactInfoScore < 0.9): {
           return {
             distilbertNegativeScore: distilbertNegativeScore,
             nsfwScore: nsfwScore,
@@ -286,15 +283,15 @@ export class ModerationService {
       hate: moderation.find((item: ScoreItem) => item.label === "H")?.score,
       violence: moderation.find((item: ScoreItem) => item.label === "V")?.score,
       harassment: moderation.find((item: ScoreItem) => item.label === "HR")
-        ?.score,
+          ?.score,
       selfHarm: moderation.find((item: ScoreItem) => item.label === "SH")
-        ?.score,
+          ?.score,
       sexualMinor: moderation.find((item: ScoreItem) => item.label === "S3")
-        ?.score,
+          ?.score,
       hateThreatening: moderation.find((item: ScoreItem) => item.label === "H2")
-        ?.score,
+          ?.score,
       violenceGraphic: moderation.find((item: ScoreItem) => item.label === "V2")
-        ?.score,
+          ?.score,
 
     };
 

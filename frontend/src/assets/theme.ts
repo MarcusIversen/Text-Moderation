@@ -1,29 +1,34 @@
-import { createTheme } from "@mui/material/styles";
+import {createTheme} from "@mui/material/styles";
 
 export const defaultTheme = createTheme({
-  palette: {
-    mode: "dark",
-    primary: {
-      main: "#4facc3",
-    },
-    error: {
-      main: "#c74059",
-    },
-    background: {
-      default: "#041a28",
-      paper: "#161818",
-    },
-  },
-  components: {
-    MuiMenu: {
-      styleOverrides: {
-        paper: {
-          backgroundColor: "#041a28",
+    palette: {
+        mode: "dark",
+        primary: {
+            main: "#4facc3",
+
         },
-      },
+        secondary: {
+            main: "#282c2c",
+        },
+        error: {
+            main: "#c74059",
+        },
+        background: {
+            default: "#041a28",
+            paper: "#161818",
+        },
+
     },
-    MuiCssBaseline: {
-      styleOverrides: `
+    components: {
+        MuiMenu: {
+            styleOverrides: {
+                paper: {
+                    backgroundColor: "#041a28",
+                },
+            },
+        },
+        MuiCssBaseline: {
+            styleOverrides: `
         body {
           background: linear-gradient(to left, #000000, #0a3d62);
           height: 100vh;
@@ -32,6 +37,6 @@ export const defaultTheme = createTheme({
           background-attachment: fixed;
         }
       `,
-    }
-  },
+        },
+    },
 });

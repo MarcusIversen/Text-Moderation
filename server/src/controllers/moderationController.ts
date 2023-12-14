@@ -9,12 +9,14 @@ export class ModerationController {
     this.moderationService = moderationService;
   }
 
-  async processTextInput(req: Request, res: Response): Promise<void> {
+  async processTextInput(req: Request, res: Response): Promise<Response | undefined> {
     const { userId, content } = req.body as { userId: number; content: string };
 
     if (!content) {
-      res.status(400).json({ error: "Invalid or missing input parameter" });
-      return;
+      return res.status(400).json({
+        error: "Invalid or missing input parameter",
+        status: "invalid"
+      });
     }
 
     try {
@@ -42,12 +44,13 @@ export class ModerationController {
           distilbertScore: 0,
           contactInfoScore: 0,
         });
-        res.status(200).json({
+        return res.status(200).json({
           message: "Text rejected due to bad words",
+          status: "rejected",
+          step: "BadWords",
           textInput: textData.textInput,
           userId: userId,
         });
-        return;
       }
 
       const aiModeration = await this.moderationService.aiModeration(textData);
@@ -72,12 +75,14 @@ export class ModerationController {
           distilbertScore: aiModeration.distilbertNegativeScore,
           contactInfoScore: aiModeration.contactInfoScore,
         });
-        res.status(200).json({
+        return res.status(200).json({
           message: "Text input has been rejected by AI Moderation",
+          status: "rejected",
+          step: "AI",
           textInput: textData.textInput,
           userId: userId,
         });
-        return;
+
       }
 
       if (aiModeration?.status === "approved") {
@@ -93,12 +98,13 @@ export class ModerationController {
           distilbertScore: aiModeration.distilbertNegativeScore,
           contactInfoScore: aiModeration.contactInfoScore,
         });
-        res.status(200).json({
+        return res.status(200).json({
           message: "Text input has been approved by AI Moderation",
+          status: "approved",
+          step: "AI",
           textInput: textData.textInput,
           userId: userId,
         });
-        return;
       }
 
       if (aiModeration?.status === "unclassifiable") {
@@ -114,23 +120,24 @@ export class ModerationController {
           distilbertScore: aiModeration.distilbertNegativeScore,
           contactInfoScore: aiModeration.contactInfoScore,
         });
-        res.status(200).json({
+        return res.status(200).json({
           message: "Text is unclassifiable and pending manual moderation",
+          status: "unclassifiable",
+          step: "AI",
           textInput: textData.textInput,
           userId: userId,
         });
-        return;
       }
 
       //TODO - add manual moderation step to say either yes or no, and reject with custom moderationTags
 
-      res.status(200).json({
+      return res.status(200).json({
         message: "Text input created and being moderated",
         content: textData.textInput,
         userId: userId,
       });
     } catch (error) {
-      console.error("Error :", error);
+        return res.status(500).json({ error: error });
     }
   }
 
@@ -150,14 +157,13 @@ export class ModerationController {
         );
 
       if (!moderationOnUser) {
-        res.status(404).json({ error: "User not found" });
-        return;
+        return res.status(404).json({ error: "User not found" });
       }
 
       res.json(moderationOnUser);
     } catch (error) {
       console.error(`Error in getModerationOnUser: ${error}`);
-      res.status(500).send("Internal server error");
+      return res.status(500).send("Internal server error");
     }
   }
 }

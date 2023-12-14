@@ -269,7 +269,7 @@ export class ModerationService {
         }
       }
     } catch (error) {
-      console.error(`Error in aiModerationStep: ${error}`);
+      console.error(`Error in aiModerationStep WIhuuu: ${error}`);
       throw error;
     }
   }

@@ -46,7 +46,7 @@ export const delay = (args: { waitSeconds: number }): Promise<void> => {
 export const withRetry =
   ({
     retryAttempt = 0,
-    maxRetries = 3,
+    maxRetries = 1,
     lastErrorMessage,
   }: WithRetryArgs = {}) =>
   async <T>(fn: Promise<T>): Promise<T> => {
@@ -57,7 +57,7 @@ export const withRetry =
     }
 
     return fn.catch((err: Error) =>
-      delay({ waitSeconds: 3 * retryAttempt }).then(() =>
+      delay({ waitSeconds: 4 * retryAttempt }).then(() =>
         withRetry({
           retryAttempt: retryAttempt + 1,
           lastErrorMessage: err.message,

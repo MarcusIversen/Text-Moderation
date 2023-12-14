@@ -1,139 +1,534 @@
 import React, {useEffect, useState} from "react";
-import {Box, CircularProgress, CssBaseline, IconButton, Paper, TextField, Typography} from "@mui/material";
+import {
+    Box,
+    Card,
+    CardContent,
+    CircularProgress,
+    Collapse,
+    CssBaseline,
+    FormGroup,
+    IconButton,
+    TextField,
+    Typography
+} from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
+import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+
 import {ThemeProvider} from "@mui/material/styles";
 import {defaultTheme} from "../../assets/theme.ts";
 import {SideBar} from "../../components/SideBar/SideBar.tsx";
 import {ModerationService} from "../../services/ModerationService.ts";
 import Cookies from "universal-cookie";
 import {jwtDecode, JwtPayload} from "jwt-decode";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
+import Button from "@mui/material/Button";
 
 interface TokenPayload extends JwtPayload {
-  id?: string;
-  firstName: string;
-  lastName: string;
+    id?: string;
+    firstName: string;
+    lastName: string;
 }
 
 
 export const Home: React.FunctionComponent = () => {
 
-  const cookies = new Cookies();
-  const moderationService = new ModerationService();
+    const cookies = new Cookies();
+    const moderationService = new ModerationService();
 
-  const cookie = cookies.get("AuthCookie");
+    const cookie = cookies.get("AuthCookie");
 
-  const [textValue, setTextValue] = useState("");
+    const [textValue, setTextValue] = useState("");
+    const [showWordStep, setShowWordStep] = useState(false);
+    const [loadingWordStep, setLoadingWordStep] = useState(false);
+    const [approvedWordStep, setApprovedWordStep] = useState(false);
+    const [wordStepOver, setWordStepOver] = useState(false);
+    const [showAIStep, setShowAIStep] = useState(false);
+    const [loadingAIStep, setLoadingAIStep] = useState(false);
+    const [approvedAIStep, setApprovedAIStep] = useState(false);
+    const [AIStepOver, setAIStepOver] = useState(false);
+    const [unclassifiableAIStep, setUnclassifiableAIStep] = useState(false);
+    const [showManualStep, setShowManualStep] = useState(false);
+    const [manualExpanded, setManualExpanded] = useState(false);
+    const [pendingManualModeration, setPendingManualModeration] = useState(true);
+    const [approveChecked, setApproveChecked] = useState(false);
+    const [rejectChecked, setRejectChecked] = useState(false);
+    const [approveReason, setApproveReason] = useState('');
+    const [rejectReason, setRejectReason] = useState('');
+    const [approvedManualStep, setApprovedManualStep] = useState(false);
 
-  useEffect(() => {
-    const result = moderationService.aiConnectionTest();
-    console.log({result});
-  }, []);
+    const handleApproveChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.checked) {
+            // If 'Approve' is checked, uncheck 'Reject'
+            setApproveChecked(true);
+            setRejectChecked(false);
+        } else {
+            // If 'Approve' is unchecked, leave 'Reject' as is
+            setApproveChecked(false);
+        }
+    };
 
-  if (!cookie) return;
-  const decodedCookie = jwtDecode<TokenPayload>(cookie);
+    const handleRejectChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.checked) {
+            // If 'Reject' is checked, uncheck 'Approve'
+            setRejectChecked(true);
+            setApproveChecked(false);
+        } else {
+            // If 'Reject' is unchecked, leave 'Approve' as is
+            setRejectChecked(false);
+        }
+    };
 
-  const handleTextChange = (value: string) => {
-    setTextValue(value);
-  }
+    const handleApproveReasonChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setApproveReason(event.target.value);
+    };
 
-  const submitTextInput = async () => {
-    try {
-      const textInput = await moderationService.createAndProcessTextInput(decodedCookie.id, textValue);
-      console.log(textInput);
-    } catch (error) {
-      console.error("Error moderating text input", error);
+    const handleRejectReasonChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setRejectReason(event.target.value);
+    };
+
+
+    useEffect(() => {
+        const result = moderationService.aiConnectionTest();
+        console.log({result});
+    }, []);
+
+    if (!cookie) return;
+    const decodedCookie = jwtDecode<TokenPayload>(cookie);
+
+    const handleTextChange = (value: string) => {
+        setTextValue(value);
     }
-  }
+
+    const handleManualExpandClick = () => {
+        setManualExpanded(!manualExpanded);
+    };
+
+    const handleApproveSubmit = () => {
+        // Handle approval logic here
+        setApprovedManualStep(true);
+        setPendingManualModeration(false);
+        console.log('Approved:', approveReason);
+    };
+
+    const handleRejectSubmit = () => {
+        // Handle rejection logic here
+        setApprovedManualStep(false);
+        setPendingManualModeration(false);
+        console.log('Rejected:', rejectReason);
+    };
 
 
-  return (
-      <ThemeProvider theme={defaultTheme}>
-        <CssBaseline/>
-        <Box sx={{display: "flex", minHeight: "100vh"}}>
-          <SideBar/>
-          <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                flexGrow: 1,
-                padding: 2,
-              }}
-          >
-            <Typography variant="subtitle1" sx={{paddingBottom: 5}}>Automated Text Moderation V1.0</Typography>
-            <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  flexGrow: 1,
-                }}
-            >
+    const submitTextInput = async () => {
+        try {
+            setShowWordStep(true)
+            setLoadingWordStep(true);
 
-              <Paper sx={{width: 1500, height: 125, borderRadius: 5, backgroundColor: "background.paper"}}>
-                <Typography sx={{display: 'flex', alignItems: 'center', paddingLeft: 2}}
-                            variant="h4">
-                  Step 1
-                  <Box sx={{flexGrow: 1, display: 'flex', justifyContent: 'flex-end', paddingRight: 3, paddingTop: 3}}>
-                    <CircularProgress/>
-                    <CheckCircleIcon sx={{height: 50, width: 50, color: "green"}}/>
-                    <CancelIcon sx={{height: 50, width: 50, color: "red"}}/>
-                  </Box>
-                </Typography>
-                <Typography sx={{ paddingLeft: 2}} variant="h6">
-                  Moderation check - Bad Words
-                </Typography>
+            const response = await moderationService.createAndProcessTextInput(decodedCookie.id, textValue);
 
-              </Paper>
-              <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexGrow: 1,
-                  }}
-              >
-                <img src={"../IconLogo.png"} alt="logo" width="86px" height="86px"/>
-                <Typography variant="h5" sx={{mt: 1}}>
-                  What text can I moderate today?
-                </Typography>
-              </Box>
-              <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    mt: 2,
-                  }}
-              >
-                <TextField
-                    helperText={
-                      "This text moderation platform is not perfect yet, it can be slow with a response, and it can make mistakes. Please use it with patience."
+            const badWordPromise = await new Promise<{ approved: boolean }>((resolve) => {
+                if (response.step === "BadWords") {
+                    if (response.status === "approved") {
+                        setTimeout(() => {
+                            setWordStepOver(true);
+                            resolve({approved: true}); // Simulate a successful response
+                        }, 2000); // Simulate a delay
                     }
-                    style={{width: 800}}
-                    variant="outlined"
-                    placeholder="Write text input here..."
-                    multiline={true}
-                    maxRows={4}
-                    onBlur={(e) => {
-                      handleTextChange(e.target.value)
+                    if (response.status === "rejected") {
+                        setTimeout(() => {
+                            setWordStepOver(true);
+                            resolve({approved: false}); // Simulate a successful response
+                        }, 2000); // Simulate a delay
+                    }
+                } else if (response.step === "AI") {
+                    setTimeout(() => {
+                        setWordStepOver(true);
+                        resolve({approved: true}); // Simulate a successful response
+                    }, 2000); // Simulate a delay
+                }
+            });
+
+            setApprovedWordStep(badWordPromise.approved);
+            setLoadingWordStep(false);
+            setShowAIStep(true);
+            setLoadingAIStep(true);
+
+
+            const AIPromise = await new Promise<{ approved: boolean }>((resolve) => {
+                if (response.step === "AI") {
+                    if (response.status === "approved") {
+                        setTimeout(() => {
+                            setAIStepOver(true);
+                            resolve({approved: true}); // Simulate a successful response
+                        }, 3000); // Simulate a delay
+                    }
+                    if (response.status === "rejected") {
+                        setTimeout(() => {
+                            setAIStepOver(true);
+                            resolve({approved: false}); // Simulate a successful response
+                        }, 3000); // Simulate a delay
+                    }
+                    if (response.status === "unclassifiable") {
+                        setTimeout(() => {
+                            setAIStepOver(true);
+                            setUnclassifiableAIStep(true);
+                            setLoadingAIStep(false);
+                            setShowManualStep(true);
+                            setPendingManualModeration(true);
+                        }, 3000); // Simulate a delay
+
+                        setTimeout(() => {
+                            setManualExpanded(prev => !prev);
+                        }, 3400); // 0.4 sec after previous delay
+                    }
+                }
+            });
+
+
+            setApprovedAIStep(AIPromise.approved);
+
+
+        } catch (error) {
+            console.error("Error moderating text input", error);
+        } finally {
+            setLoadingWordStep(false);
+            setLoadingAIStep(false);
+        }
+    }
+
+
+    return (
+        <ThemeProvider theme={defaultTheme}>
+            <CssBaseline/>
+            <Box sx={{display: "flex", minHeight: "100vh"}}>
+                <SideBar/>
+                <Box
+                    sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        flexGrow: 1,
+                        padding: 2,
                     }}
-                />
-                <IconButton
-                    color="primary"
-                    size="large"
-                    sx={{ml: 1, alignSelf: "flex-start"}}
-                    onClick={() => submitTextInput()}
                 >
-                  <SendIcon/>
-                </IconButton>
-              </Box>
+                    <Typography variant="subtitle1" sx={{paddingBottom: 5}}>Automated Text Moderation V1.0</Typography>
+                    <Box
+                        sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            flexGrow: 1,
+                        }}
+                    >
+                        <Box>
+                            {showWordStep && (
+                                <Card
+                                    sx={{
+                                        width: 1000,
+                                        height: 105,
+                                        borderRadius: 5,
+                                        backgroundColor: "background.paper"
+                                    }}>
+                                    <Typography
+                                        sx={{display: 'flex', alignItems: 'center', paddingTop: 2, paddingLeft: 2}}
+                                        variant="h4">
+                                        Step 1 - Bad Words Moderation check
+                                        <Box sx={{
+                                            flexGrow: 1,
+                                            display: 'flex',
+                                            justifyContent: 'flex-end',
+                                            paddingRight: 3,
+                                        }}>
+                                            {loadingWordStep && <CircularProgress style={{width: 60, height: 60}}/>
+                                            }
+                                            {approvedWordStep && (
+                                                <CheckCircleIcon sx={{height: 60, width: 60, color: "green"}}/>
+                                            )}
+                                            {!approvedWordStep && !loadingWordStep && (
+                                                <CancelIcon sx={{height: 60, width: 60, color: "red"}}/>
+                                            )}
+                                        </Box>
+                                    </Typography>
+                                    {wordStepOver && approvedWordStep && (
+                                        <Typography sx={{
+                                            flexGrow: 1,
+                                            display: 'flex',
+                                            justifyContent: 'flex-end',
+                                            paddingRight: 3.5,
+                                            fontSize: "small"
+                                        }}>
+                                            approved
+                                        </Typography>)}
+
+                                    {wordStepOver && !approvedWordStep && !loadingWordStep && (
+                                        <Typography sx={{
+                                            flexGrow: 1,
+                                            display: 'flex',
+                                            justifyContent: 'flex-end',
+                                            paddingRight: 3.75,
+                                            fontSize: "small"
+                                        }}>
+                                            rejected
+                                        </Typography>)}
+                                </Card>
+                            )}
+                        </Box>
+
+
+                        <Box sx={{paddingTop: 5}}>
+                            {showAIStep && (
+                                <Card
+                                    sx={{
+                                        width: 1000,
+                                        height: 105,
+                                        borderRadius: 5,
+                                        backgroundColor: "background.paper"
+                                    }}>
+                                    <Typography
+                                        sx={{display: 'flex', alignItems: 'center', paddingTop: 2, paddingLeft: 2}}
+                                        variant="h4">
+                                        Step 2 - AI Moderation check
+                                        <Box sx={{
+                                            flexGrow: 1,
+                                            display: 'flex',
+                                            justifyContent: 'flex-end',
+                                            paddingRight: 3,
+                                        }}>
+                                            {unclassifiableAIStep &&
+                                                <CancelIcon style={{height: 60, width: 60, color: "yellow"}}/>
+                                            }
+                                            {loadingAIStep && <CircularProgress style={{width: 60, height: 60}}/>
+                                            }
+                                            {approvedAIStep && (
+                                                <CheckCircleIcon sx={{height: 60, width: 60, color: "green"}}/>
+                                            )}
+                                            {!approvedAIStep && !loadingAIStep && !unclassifiableAIStep && (
+                                                <CancelIcon sx={{height: 60, width: 60, color: "red"}}/>
+                                            )}
+                                        </Box>
+                                    </Typography>
+                                    {AIStepOver && approvedAIStep && (
+                                        <Typography sx={{
+                                            flexGrow: 1,
+                                            display: 'flex',
+                                            justifyContent: 'flex-end',
+                                            paddingRight: 3.5,
+                                            fontSize: "small"
+                                        }}>
+                                            approved
+                                        </Typography>)}
+
+                                    {AIStepOver && !approvedAIStep && !loadingAIStep && !unclassifiableAIStep && (
+                                        <Typography sx={{
+                                            flexGrow: 1,
+                                            display: 'flex',
+                                            justifyContent: 'flex-end',
+                                            paddingRight: 3.75,
+                                            fontSize: "small"
+                                        }}>
+                                            rejected
+                                        </Typography>)}
+                                    {AIStepOver && unclassifiableAIStep && (
+                                        <Typography sx={{
+                                            flexGrow: 1,
+                                            display: 'flex',
+                                            justifyContent: 'flex-end',
+                                            paddingRight: 2,
+                                            fontSize: "small"
+                                        }}>
+                                            unclassifiable
+                                        </Typography>)}
+                                </Card>
+                            )}
+                        </Box>
+
+                        <Box sx={{paddingTop: 5}}>
+                            {showManualStep && <Card
+                                sx={{
+                                    width: 1000,
+                                    borderRadius: 5,
+                                    backgroundColor: "background.paper"
+                                }}
+                            >
+                                <Typography sx={{display: 'flex', alignItems: 'center', paddingTop: 2, paddingLeft: 2}}
+                                            variant="h4">
+                                    Step 3 - Manual Moderation
+                                    <Box sx={{
+                                        flexGrow: 1,
+                                        display: 'flex',
+                                        justifyContent: 'flex-end',
+                                        paddingRight: 3,
+                                    }}>
+                                        {pendingManualModeration && (
+                                            <AccessTimeFilledIcon sx={{height: 60, width: 60, color: "yellow"}}/>
+                                        )}
+                                        {!approvedManualStep && !pendingManualModeration && (
+                                            <CancelIcon sx={{height: 60, width: 60, color: "red"}}/>
+                                        )}
+                                        {approvedManualStep && !pendingManualModeration && (
+                                            <CheckCircleIcon sx={{height: 60, width: 60, color: "green"}}/>
+                                        )}
+                                    </Box>
+                                </Typography>
+                                {pendingManualModeration && (
+                                    <Typography sx={{
+                                        flexGrow: 1,
+                                        display: 'flex',
+                                        justifyContent: 'flex-end',
+                                        paddingRight: 4,
+                                        fontSize: "small"
+                                    }}>
+                                        pending
+                                    </Typography>)}
+                                {!approvedManualStep && !pendingManualModeration && (
+                                    <Typography sx={{
+                                        flexGrow: 1,
+                                        display: 'flex',
+                                        justifyContent: 'flex-end',
+                                        paddingRight: 3.75,
+                                        fontSize: "small"
+                                    }}>
+                                        rejected
+                                    </Typography>
+                                )}
+                                {approvedManualStep && !pendingManualModeration && (
+                                    <Typography sx={{
+                                        flexGrow: 1,
+                                        display: 'flex',
+                                        justifyContent: 'flex-end',
+                                        paddingRight: 3.5,
+                                        fontSize: "small"
+                                    }}>
+                                        approved
+                                    </Typography>
+                                )}
+
+                                <Typography sx={{paddingLeft: 1.2, paddingBottom: 1.5}}>
+                                    <IconButton
+                                        sx={{
+                                            color: "primary.main",
+                                            borderRadius: 1.75,
+                                            fontSize: 16, // You can adjust the font size as needed
+                                            width: 75, // You can adjust the width as needed
+                                            height: 35, // You can adjust the height as needed
+                                        }}
+                                        onClick={handleManualExpandClick}
+                                        aria-expanded={manualExpanded}
+                                        aria-label="show more"
+                                    >
+                                        {!manualExpanded && <ExpandMoreIcon/>}
+                                        {manualExpanded && <ExpandLessIcon/>}
+                                    </IconButton>
+                                </Typography>
+
+                                <Collapse in={manualExpanded} timeout="auto" unmountOnExit>
+                                    <CardContent sx={{backgroundColor: "secondary.main"}}>
+                                        <Typography variant="h6" sx={{paddingLeft: 1, paddingTop: 1}}>Text is
+                                            unclassifiable
+                                            - Approve/Reject manually</Typography>
+                                        <FormGroup
+                                            sx={{paddingLeft: 5, paddingTop: 1, paddingRight: 5, paddingBottom: 2}}>
+                                            <FormControlLabel
+                                                control={<Checkbox checked={approveChecked}
+                                                                   onChange={handleApproveChange}/>}
+                                                label="Approve text"
+                                            />
+                                            {approveChecked && (
+                                                <Box sx={{paddingBottom: 4}}>
+                                                    <TextField
+                                                        label="Approval Reasons"
+                                                        variant="outlined"
+                                                        margin="normal"
+                                                        fullWidth
+                                                        multiline={true}
+                                                        rows={2}
+                                                        value={approveReason}
+                                                        onChange={handleApproveReasonChange}
+                                                    />
+                                                    <Button variant="contained" onClick={handleApproveSubmit}>
+                                                        Submit Approval
+                                                    </Button>
+                                                </Box>
+                                            )}
+                                            <FormControlLabel
+                                                control={<Checkbox checked={rejectChecked}
+                                                                   onChange={handleRejectChange}/>}
+                                                label="Reject text"
+                                            />
+                                            {rejectChecked && (
+                                                <Box>
+                                                    <TextField
+                                                        label="Rejection Reasons"
+                                                        variant="outlined"
+                                                        margin="normal"
+                                                        fullWidth
+                                                        multiline={true}
+                                                        rows={2}
+                                                        value={rejectReason}
+                                                        onChange={handleRejectReasonChange}
+                                                    />
+                                                    <Button variant="contained" onClick={handleRejectSubmit}>
+                                                        Submit Rejection
+                                                    </Button>
+                                                </Box>
+                                            )}
+                                        </FormGroup>
+                                    </CardContent>
+                                </Collapse>
+                            </Card>}
+                        </Box>
+
+                        <Box
+                            sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                flexGrow: 1,
+                            }}
+                        >
+                            <img src={"../IconLogo.png"} alt="logo" width="86px" height="86px"/>
+                            <Typography variant="h5" sx={{mt: 1}}>
+                                What text can I moderate today?
+                            </Typography>
+                        </Box>
+                        <Box
+                            sx={{
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                mt: 2,
+                            }}
+                        >
+                            <TextField
+                                helperText={
+                                    "This text moderation platform is not perfect yet, it can be slow with a response, and it can make mistakes. Please use it with patience."
+                                }
+                                style={{width: 800}}
+                                variant="outlined"
+                                placeholder="Write text input here..."
+                                multiline={true}
+                                maxRows={4}
+                                onBlur={(e) => {
+                                    handleTextChange(e.target.value)
+                                }}
+                            />
+                            <IconButton
+                                color="primary"
+                                size="large"
+                                sx={{ml: 1, alignSelf: "flex-start"}}
+                                onClick={() => submitTextInput()}
+                            >
+                                <SendIcon/>
+                            </IconButton>
+                        </Box>
+                    </Box>
+                </Box>
             </Box>
-          </Box>
-        </Box>
-      </ThemeProvider>
-  );
+        </ThemeProvider>
+    );
 };

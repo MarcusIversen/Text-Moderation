@@ -63,22 +63,18 @@ export const Home: React.FunctionComponent = () => {
 
     const handleApproveChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.checked) {
-            // If 'Approve' is checked, uncheck 'Reject'
             setApproveChecked(true);
             setRejectChecked(false);
         } else {
-            // If 'Approve' is unchecked, leave 'Reject' as is
             setApproveChecked(false);
         }
     };
 
     const handleRejectChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.checked) {
-            // If 'Reject' is checked, uncheck 'Approve'
             setRejectChecked(true);
             setApproveChecked(false);
         } else {
-            // If 'Reject' is unchecked, leave 'Approve' as is
             setRejectChecked(false);
         }
     };
@@ -93,8 +89,7 @@ export const Home: React.FunctionComponent = () => {
 
 
     useEffect(() => {
-        const result = moderationService.aiConnectionTest();
-        console.log({result});
+        moderationService.aiConnectionTest();
     }, []);
 
     if (!cookie) return;
@@ -109,17 +104,13 @@ export const Home: React.FunctionComponent = () => {
     };
 
     const handleApproveSubmit = () => {
-        // Handle approval logic here
         setApprovedManualStep(true);
         setPendingManualModeration(false);
-        console.log('Approved:', approveReason);
     };
 
     const handleRejectSubmit = () => {
-        // Handle rejection logic here
         setApprovedManualStep(false);
         setPendingManualModeration(false);
-        console.log('Rejected:', rejectReason);
     };
 
 
@@ -491,10 +482,14 @@ export const Home: React.FunctionComponent = () => {
                                 flexGrow: 1,
                             }}
                         >
-                            <img src={"../IconLogo.png"} alt="logo" width="86px" height="86px"/>
-                            <Typography variant="h5" sx={{mt: 1}}>
-                                What text can I moderate today?
-                            </Typography>
+                            {!textValue && (
+                                <>
+                                    <img src={"../IconLogo.png"} alt="logo" width="86px" height="86px"/>
+                                    <Typography variant="h5" sx={{mt: 1}}>
+                                        What text can I moderate today?
+                                    </Typography>
+                                </>
+                            )}
                         </Box>
                         <Box
                             sx={{

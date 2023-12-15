@@ -22,13 +22,17 @@ interface TokenPayload extends JwtPayload {
 }
 
 interface ModerationInput {
-  ID: number;
+  id: number;
   userID: number;
   textInput: string;
   updatedAt: string;
 }
 
-export const SideBar: React.FunctionComponent = () => {
+interface SideBarProps {
+  onListItemClick: (id: number) => void;
+}
+
+export const SideBar: React.FunctionComponent<SideBarProps> = () => {
   const cookies = new Cookies();
   const navigate = useNavigate();
 
@@ -98,6 +102,10 @@ export const SideBar: React.FunctionComponent = () => {
     });
   };
 
+  function handleItemClick(textInputId: number) {
+    navigate("/home/text-input/id/" + textInputId);
+  }
+
   return (
       <ThemeProvider theme={defaultTheme}>
         <Drawer
@@ -135,9 +143,8 @@ export const SideBar: React.FunctionComponent = () => {
               <ListItemText primary="Previous text moderations" className="list-sub-header-text" />
             </ListItem>
             {moderationInputs.map((moderationInput, index) => (
-                <ListItem button key={moderationInput.ID || index} sx={{borderRadius: 2}}>
+                <ListItem button key={moderationInput.id || index} sx={{borderRadius: 2}} onClick={() => handleItemClick(moderationInput.id)}>
                   <ListItemText sx={{color: "white"}} primary={truncateText(moderationInput.textInput)} secondary={formatDate(moderationInput.updatedAt)}/>
-                  {/* You can add more details or actions related to each ModerationInput */}
                 </ListItem>
             ))}
           </List>

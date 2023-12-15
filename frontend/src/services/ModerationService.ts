@@ -16,6 +16,16 @@ export class ModerationService {
         }
     }
 
+    async getTextInputById(textInputId: string | undefined) {
+        try {
+            const response = await this.api.get(`/moderation/text-input/${textInputId}`);
+            return response.data;
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }
+
     async createAndProcessTextInput(userId: string | undefined, content: string) {
         try {
             const response = await this.api.post(`/moderation/moderate-text-input`, {userId, content});
@@ -40,6 +50,7 @@ export class ModerationService {
             throw error;
         }
     }
+
 
 
 }

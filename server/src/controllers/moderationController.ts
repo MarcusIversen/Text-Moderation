@@ -166,4 +166,23 @@ export class ModerationController {
       return res.status(500).send("Internal server error");
     }
   }
+  async getTextInputOnId(req: Request, res: Response) {
+    const { textInputId } = req.params;
+
+    try {
+      const textInput =
+        await this.moderationService.getTextInputOnId(
+          parseInt(textInputId ?? "0", 10),
+        );
+
+      if (!textInput) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      res.json(textInput);
+    } catch (error) {
+      console.error(`Error in getModerationOnUser: ${error}`);
+      return res.status(500).send("Internal server error");
+    }
+  }
 }

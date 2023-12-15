@@ -42,6 +42,11 @@ router.get("/moderation/moderation-inputs-on-user/:userID", (req, res) =>
     moderationController.getModerationInputsOnUser(req, res),
 );
 
+router.get("/moderation/text-input/:textInputId", (req, res) =>
+    moderationController.getTextInputOnId(req, res),
+);
+
+
 
 //AI
 router.post(

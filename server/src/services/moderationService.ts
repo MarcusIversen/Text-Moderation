@@ -117,6 +117,23 @@ export class ModerationService {
     }
   }
 
+  async getTextInputOnId(textInputId: number) {
+    try {
+      return await db
+          .select()
+          .from(textInput)
+          .where(eq(textInput.id, textInputId))
+          .execute();
+    } catch (error) {
+      console.error(
+          `Error fetching textInput with ID ${textInputId}:`,
+          error,
+      );
+      throw error;
+    }
+  }
+
+
   /**
    * Method for updating TextInput
    */

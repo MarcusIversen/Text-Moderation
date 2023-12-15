@@ -27,6 +27,7 @@ import {jwtDecode, JwtPayload} from "jwt-decode";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import Button from "@mui/material/Button";
+import {useParams} from "react-router-dom";
 
 interface TokenPayload extends JwtPayload {
     id?: string;
@@ -36,6 +37,9 @@ interface TokenPayload extends JwtPayload {
 
 
 export const Home: React.FunctionComponent = () => {
+
+    const { textInputId } = useParams(); // Add this line to get the 'id' parameter from the URL
+
 
     const cookies = new Cookies();
     const moderationService = new ModerationService();
@@ -90,6 +94,7 @@ export const Home: React.FunctionComponent = () => {
 
     useEffect(() => {
         moderationService.aiConnectionTest();
+        console.log({textInputId})
     }, []);
 
     if (!cookie) return;
@@ -191,12 +196,18 @@ export const Home: React.FunctionComponent = () => {
         }
     }
 
+    const handleSidebarItemClick = (id: number) => {
+        // Do something with the clicked ID in the Home component
+        console.log("Clicked ID in Home:", id);
+        // You can use the ID as needed in the Home component
+    };
+
 
     return (
         <ThemeProvider theme={defaultTheme}>
             <CssBaseline/>
             <Box sx={{display: "flex", minHeight: "100vh"}}>
-                <SideBar/>
+                <SideBar onListItemClick={handleSidebarItemClick}/>
                 <Box
                     sx={{
                         display: "flex",

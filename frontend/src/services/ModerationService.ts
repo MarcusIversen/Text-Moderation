@@ -37,19 +37,15 @@ export class ModerationService {
     }
 
     async aiConnectionTest() {
-        try {
-            const testString = "This is a test string, which is supposed to start up the ai connection test and it should be really long to really start up the slow hugginface API's";
-            const distilbert = await this.api.post(`/ai/distilbert`, {inputs: testString});
-            const nsfw = await this.api.post(`/ai/nsfw`, {inputs: testString});
-            const contactInfo = await this.api.post(`/ai/contactInfo`, {inputs: testString});
-            const moderation = await this.api.post(`/ai/moderation`, {inputs: testString});
+        const testString = "This is a test string, which is supposed to start up the ai connection test and it should be really long to really start up the slow hugginface API's";
+        const distilbert = await this.api.post(`/ai/distilbert`, {inputs: testString});
+        const nsfw = await this.api.post(`/ai/nsfw`, {inputs: testString});
+        const contactInfo = await this.api.post(`/ai/contactInfo`, {inputs: testString});
+        const moderation = await this.api.post(`/ai/moderation`, {inputs: testString});
 
-            return await Promise.all([distilbert, nsfw, contactInfo, moderation]);
-        } catch (error) {
-            throw error;
-        }
+        return await Promise.all([distilbert, nsfw, contactInfo, moderation]);
+        
     }
-
 
 
 }

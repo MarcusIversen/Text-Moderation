@@ -89,31 +89,31 @@ export const Home: React.FunctionComponent = () => {
                 setApprovedWordStep(true);
                 setShowAIStep(true);
 
-                if (textInput.aiModerationStep === "rejected") {
+                if (textInput.aiModerationStep === "approved") {
+                    setApprovedAIStep(true);
+                    setAIStepOver(true);
+                    setLoadingAIStep(false);
+                    setShowManualStep(true);
+
+                    setTimeout(() => {
+                        setManualExpanded(prev => !prev);
+                    }, 1200); // Adjust the delay as needed
+                } else {
                     setApprovedAIStep(false);
                     setAIStepOver(true);
                     setLoadingAIStep(false);
-                    setShowManualStep(false);
-                } else if (textInput.aiModerationStep === "approved") {
-                    setApprovedAIStep(true);
-                    setAIStepOver(true);
-                    setLoadingAIStep(false);
-                    setShowManualStep(false);
-                } else if (textInput.aiModerationStep === "unclassifiable") {
-                    setApprovedAIStep(true);
-                    setAIStepOver(true);
-                    setLoadingAIStep(false);
-                    setShowManualStep(true);
-                    setTimeout(() => {
-                        setManualExpanded(prev => !prev);
-                    }, 1200); // Adjust the delay as needed
-                } else if (textInput.step === "3: ManualModeration" && textInput.aiModerationStep === "approved") {
-                    setShowManualStep(true);
-                    setTimeout(() => {
-                        setManualExpanded(prev => !prev);
-                    }, 1200); // Adjust the delay as needed
+                    setShowManualStep(textInput.aiModerationStep === "unclassifiable");
+
+                    if (textInput.step === "3: ManualModeration" && textInput.aiModerationStep === "approved") {
+                        setShowManualStep(true);
+
+                        setTimeout(() => {
+                            setManualExpanded(prev => !prev);
+                        }, 1200); // Adjust the delay as needed
+                    }
                 }
             }
+
         } catch (error) {
             console.error(error);
             throw error;

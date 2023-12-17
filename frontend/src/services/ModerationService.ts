@@ -19,7 +19,7 @@ export class ModerationService {
     async getTextInputById(textInputId: string | undefined) {
         try {
             const response = await this.api.get(`/moderation/text-input/${textInputId}`);
-            return response.data;
+            return response.data[0];
         } catch (error) {
             console.error(error);
             throw error;
@@ -46,7 +46,6 @@ export class ModerationService {
 
             return await Promise.all([distilbert, nsfw, contactInfo, moderation]);
         } catch (error) {
-            console.error(error);
             throw error;
         }
     }

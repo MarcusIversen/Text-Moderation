@@ -23,7 +23,7 @@ const RoutesComponent: React.FunctionComponent = () => {
           </AuthGuard>
         }
       />
-        <Route path="home/text-input/id/:textInputId" element={<Home />} />
+        <Route path="home/:textInputId" element={<Home />} />
         <Route path="create-new-password" element={<ForgotPassword />} />
     </Routes>
   );

@@ -19,13 +19,15 @@ export class ModerationController {
       });
     }
 
-    try {
-      const textData = await this.moderationService.createTextInput(
+    const textData = await this.moderationService.createTextInput(
         userId,
         content,
-      );
-      const badWords = await this.moderationService.badWords(textData);
+    );
 
+    const badWords = await this.moderationService.badWords(textData);
+
+
+    try {
       if (badWords.length > 0) {
         await this.moderationService.createLog(
           textData.id,
@@ -50,6 +52,7 @@ export class ModerationController {
           step: "BadWords",
           textInput: textData.textInput,
           userId: userId,
+          id: textData.id,
         });
       }
 
@@ -81,6 +84,7 @@ export class ModerationController {
           step: "AI",
           textInput: textData.textInput,
           userId: userId,
+          id: textData.id,
         });
 
       }
@@ -89,7 +93,7 @@ export class ModerationController {
         await this.moderationService.updateTextInput({
           id: textData.id,
           status: "pending",
-          step: "3: ManualModeration",
+          step: "2: AIModeration",
           badWordStep: "approved",
           aiModerationStep: "approved",
           manualModerationStep: "approved",
@@ -104,6 +108,7 @@ export class ModerationController {
           step: "AI",
           textInput: textData.textInput,
           userId: userId,
+          id: textData.id,
         });
       }
 
@@ -126,18 +131,12 @@ export class ModerationController {
           step: "AI",
           textInput: textData.textInput,
           userId: userId,
+          id: textData.id,
         });
       }
 
-      //TODO - add manual moderation step to say either yes or no, and reject with custom moderationTags
-
-      return res.status(200).json({
-        message: "Text input created and being moderated",
-        content: textData.textInput,
-        userId: userId,
-      });
     } catch (error) {
-        return res.status(500).json({ error: error });
+        return res.status(500).json({ error: error, textInputId: textData.id });
     }
   }
 

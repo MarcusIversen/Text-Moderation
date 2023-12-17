@@ -51,3 +51,14 @@
 .logout-menu{
     width: 253px;
 }
+
+@keyframes newItemAnimation {
+    0% { background-color: white; }
+    100% { background-color: transparent; }
+}
+
+.new-item {
+    animation-name: newItemAnimation;
+    animation-duration: 2s; /* however long you want the animation to last */
+}
+

@@ -44,7 +44,7 @@ export class ModerationService {
         const moderation = await this.api.post(`/ai/moderation`, {inputs: testString});
 
         return await Promise.all([distilbert, nsfw, contactInfo, moderation]);
-        
+
     }
 
 

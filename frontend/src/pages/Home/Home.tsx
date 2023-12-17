@@ -342,7 +342,7 @@ export const Home: React.FunctionComponent = () => {
                             <Card sx={{
                                 width: 1000,
                                 borderRadius: 5,
-                                backgroundColor: "background.paper"
+                                backgroundColor: "rgba(39,51,51,0.31)"
                             }}>
                                 <Typography sx={{
                                     fontWeight: "bold", display: 'flex',
@@ -363,7 +363,7 @@ export const Home: React.FunctionComponent = () => {
                                     }
                                 </Typography>
                                 <Typography sx={{
-                                    marginBottom: 1,
+                                    marginBottom: 1.5,
                                     display: 'flex',
                                     alignItems: 'center',
                                     paddingLeft: 2
@@ -438,7 +438,7 @@ export const Home: React.FunctionComponent = () => {
                         </Box>
 
 
-                        <Box sx={{paddingTop: 5}}>
+                        <Box sx={{paddingTop: 3}}>
                             {showAIStep && (
                                 <Fade in timeout={750}>
 
@@ -516,7 +516,7 @@ export const Home: React.FunctionComponent = () => {
                             )}
                         </Box>
 
-                        <Box sx={{paddingTop: 5}}>
+                        <Box sx={{paddingTop: 3}}>
                             {showManualStep &&
                                 <Fade in timeout={750}>
                                     <Card

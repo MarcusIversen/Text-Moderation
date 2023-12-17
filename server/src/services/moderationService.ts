@@ -256,7 +256,7 @@ export class ModerationService {
             console.log({contactInfoOtherScore})
             console.log({contactInfoScore})
 
-            if (distilbertNegativeScore > 0.9 && nsfwScore > 0.9 || nsfwScore > 0.95 || contactInfoScore > 0.9) {
+            if (distilbertNegativeScore > 0.9 && nsfwScore > 0.9 || nsfwScore > 0.99 || contactInfoScore > 0.9) {
                 return {
                     distilbertNegativeScore: distilbertNegativeScore,
                     nsfwScore: nsfwScore,
@@ -265,7 +265,7 @@ export class ModerationService {
                 };
             }
 
-            if ((nsfw > 0.8 && distilbertNegativeScore <= 0.2)) {
+            if ((nsfw > 0.99 && distilbertNegativeScore <= 0.2)) {
                 return {
                     distilbertNegativeScore: distilbertNegativeScore,
                     nsfwScore: nsfwScore,

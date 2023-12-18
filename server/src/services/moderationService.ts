@@ -354,27 +354,21 @@ export class ModerationService {
         const moderation = await this.moderation(textInputData.textInput);
 
         const labelScores: { [key: string]: number | undefined } = {
-            OK: moderation.find((item: ScoreItem) => item.label === "OK")?.score,
-            sexual: moderation.find((item: ScoreItem) => item.label === "S")?.score,
-            hate: moderation.find((item: ScoreItem) => item.label === "H")?.score,
-            violence: moderation.find((item: ScoreItem) => item.label === "V")?.score,
-            harassment: moderation.find((item: ScoreItem) => item.label === "HR")
-                ?.score,
-            selfHarm: moderation.find((item: ScoreItem) => item.label === "SH")
-                ?.score,
-            sexualMinor: moderation.find((item: ScoreItem) => item.label === "S3")
-                ?.score,
-            hateThreatening: moderation.find((item: ScoreItem) => item.label === "H2")
-                ?.score,
-            violenceGraphic: moderation.find((item: ScoreItem) => item.label === "V2")
-                ?.score,
-
+            "OK": moderation.find((item: ScoreItem) => item.label === "OK")?.score,
+            "Sexual": moderation.find((item: ScoreItem) => item.label === "S")?.score,
+            "Hateful": moderation.find((item: ScoreItem) => item.label === "H")?.score,
+            "Violence": moderation.find((item: ScoreItem) => item.label === "V")?.score,
+            "Harassment/harassing": moderation.find((item: ScoreItem) => item.label === "HR")?.score,
+            "Self harming": moderation.find((item: ScoreItem) => item.label === "SH")?.score,
+            "Sexual/minors": moderation.find((item: ScoreItem) => item.label === "S3")?.score,
+            "Hate/threatening": moderation.find((item: ScoreItem) => item.label === "H2")?.score,
+            "Violence/graphic": moderation.find((item: ScoreItem) => item.label === "V2")?.score,
         };
 
         const highScoreLabels: string[] = [];
 
         for (const label in labelScores) {
-            if (labelScores[label]! > 0.15) {
+            if (labelScores[label]! > 0.075) {
                 highScoreLabels.push(label);
             }
         }
@@ -382,7 +376,4 @@ export class ModerationService {
         return highScoreLabels.join(", ");
     }
 
-    // async manualModerationStep(textInputData: string) {
-    //   // TODO make the logic for manually approving or rejecting and maybe in the future - reason for rejection
-    // }
 }

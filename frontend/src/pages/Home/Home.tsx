@@ -76,6 +76,37 @@ export const Home: React.FunctionComponent = () => {
 
 
     const fillTextInputInfo = useCallback(async () => {
+
+        console.log({
+            id,
+            moderationTags,
+            theme,
+            textValue,
+            showWordStep,
+            loadingWordStep,
+            approvedWordStep,
+            wordStepOver,
+            showAIStep,
+            loadingAIStep,
+            approvedAIStep,
+            AIStepOver,
+            unclassifiableAIStep,
+            showManualStep,
+            manualExpanded,
+            pendingManualModeration,
+            approveChecked,
+            rejectChecked,
+            approveReason,
+            rejectReason,
+            approvedManualStep,
+            errorMessage,
+            showErrorMessage,
+            prevTextInputId,
+            showManualStepForm,
+            showManualStepResult,
+            loadingManualModeration,
+        })
+
         try {
             const textInput = await moderationService.getTextInputById(textInputId);
             const textLog = await moderationService.getTextLogById(textInputId);
@@ -116,9 +147,15 @@ export const Home: React.FunctionComponent = () => {
                     setApprovedAIStep(true);
                     setAIStepOver(true);
                     setLoadingAIStep(false);
-                    setTimeout(() => {
-                        setManualExpanded(prev => !prev);
-                    }, 1200); // Adjust the delay as needed
+                }
+                if(textInput.aiModerationStep === "rejected") {
+                    setApprovedAIStep(false);
+                    setUnclassifiableAIStep(false);
+                    setAIStepOver(true);
+                    setLoadingAIStep(false);
+                    setShowManualStep(false);
+                    setPendingManualModeration(false);
+                    setModerationTags(textLog.moderationTags);
                 }
                 if (textInput.aiModerationStep === "unclassifiable") {
                     setApprovedAIStep(false);
@@ -126,13 +163,14 @@ export const Home: React.FunctionComponent = () => {
                     setAIStepOver(true);
                     setLoadingAIStep(false);
                     setShowManualStep(true);
+                    setPendingManualModeration(true);
                     if (textInput.manualModerationStep === "pending") {
+                        setApprovedAIStep(false);
                         setShowManualStep(true);
                         setShowManualStepResult(false);
                         setShowManualStepForm(true);
-                        setTimeout(() => {
-                            setManualExpanded(prev => !prev);
-                        }, 1200); // Adjust the delay as needed
+                        setManualExpanded(true);
+
                     }
                 }
                 if (textInput.manualModerationStep === "approved") {
@@ -455,7 +493,8 @@ export const Home: React.FunctionComponent = () => {
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 paddingTop: 2,
-                                                paddingLeft: 2
+                                                paddingLeft: 2,
+                                                marginBottom: 1.5,
                                             }}
                                             variant="h4">
                                             Step 1 - Bad Words Moderation check
@@ -466,58 +505,56 @@ export const Home: React.FunctionComponent = () => {
                                                 paddingRight: 3,
                                             }}>
                                                 {loadingWordStep &&
-                                                    <CircularProgress style={{width: 60, height: 60}}/>
+                                                    <Box sx={{textAlign: 'center'}}>
+                                                        <CircularProgress style={{width: 60, height: 60}}/>
+                                                    </Box>
                                                 }
                                                 {approvedWordStep && (
-                                                    <CheckCircleIcon
-                                                        sx={{height: 60, width: 60, color: "green"}}/>
+                                                    <Box sx={{textAlign: 'center'}}>
+                                                        <CheckCircleIcon sx={{height: 60, width: 60, color: "green"}}/>
+                                                        <Typography sx={{fontSize: "small", marginTop: -1}}>
+                                                            approved
+                                                        </Typography>
+                                                    </Box>
                                                 )}
                                                 {!approvedWordStep && !loadingWordStep && (
-                                                    <CancelIcon sx={{height: 60, width: 60, color: "red"}}/>
+                                                    <Box sx={{textAlign: 'center'}}>
+                                                        <CancelIcon sx={{height: 60, width: 60, color: "red"}}/>
+                                                        <Typography sx={{fontSize: "small", marginTop: -1}}>
+                                                            rejected
+                                                        </Typography>
+                                                    </Box>
                                                 )}
                                             </Box>
                                         </Typography>
-                                        {wordStepOver && approvedWordStep && (
+                                        {showWordStep && !approvedWordStep && (
                                             <Typography sx={{
-                                                flexGrow: 1,
-                                                display: 'flex',
-                                                justifyContent: 'flex-end',
-                                                paddingRight: 3.5,
-                                                fontSize: "small"
+                                                display: "flex",
+                                                justifyContent: "flex-end",
+                                                paddingTop: 1,
+                                                paddingRight: 1.75,
+                                                paddingBottom: 1.5
                                             }}>
-                                                approved
-                                            </Typography>)}
-
-                                        {wordStepOver && !approvedWordStep && !loadingWordStep && (
-                                            <Typography sx={{
-                                                flexGrow: 1,
-                                                display: 'flex',
-                                                justifyContent: 'flex-end',
-                                                paddingRight: 3.75,
-                                                fontSize: "small"
-                                            }}>
-                                                rejected
-                                            </Typography>)}
-                                        <Typography sx={{paddingLeft: 1.2, paddingBottom: 1.5}}>
-                                            <IconButton
-                                                sx={{
-                                                    color: "primary.main",
-                                                    borderRadius: 1.75,
-                                                    fontSize: 16, // You can adjust the font size as needed
-                                                    width: 75, // You can adjust the width as needed
-                                                    height: 25, // You can adjust the height as needed
-                                                }}
-                                                onClick={handleManualExpandClick}
-                                                aria-expanded={manualExpanded}
-                                                aria-label="show more"
-                                            >
-                                                {!manualExpanded && <ExpandMoreIcon/>}
-                                                {manualExpanded && <ExpandLessIcon/>}
-                                            </IconButton>
-                                        </Typography>
+                                                <IconButton
+                                                    sx={{
+                                                        color: "primary.main",
+                                                        borderRadius: 1.75,
+                                                        fontSize: 16, // You can adjust the font size as needed
+                                                        width: 75, // You can adjust the width as needed
+                                                        height: 25, // You can adjust the height as needed
+                                                    }}
+                                                    onClick={handleManualExpandClick}
+                                                    aria-expanded={manualExpanded}
+                                                    aria-label="show more"
+                                                >
+                                                    {!manualExpanded && <ExpandMoreIcon/>}
+                                                    {manualExpanded && <ExpandLessIcon/>}
+                                                </IconButton>
+                                            </Typography>
+                                        )}
 
                                         <Collapse in={manualExpanded} timeout="auto" unmountOnExit>
-                                            {showManualStepResult && (<CardContent sx={{
+                                            {showWordStep && !approvedWordStep && (<CardContent sx={{
                                                 backgroundColor: "secondary.main",
                                                 borderRadius: 1,
                                                 boxShadow: 4,
@@ -539,65 +576,6 @@ export const Home: React.FunctionComponent = () => {
                                                     {moderationTags}
                                                 </Typography>
                                             </CardContent>)}
-                                            {showManualStepForm && (
-                                                <CardContent sx={{backgroundColor: "secondary.main"}}>
-                                                    <Typography variant="h6" sx={{paddingLeft: 1, paddingTop: 1}}>
-                                                        Text is unclassifiable - Approve/Reject manually</Typography>
-                                                    <FormGroup
-                                                        sx={{
-                                                            paddingLeft: 5,
-                                                            paddingTop: 1,
-                                                            paddingRight: 5,
-                                                            paddingBottom: 2
-                                                        }}>
-                                                        <FormControlLabel
-                                                            control={<Checkbox checked={approveChecked}
-                                                                               onChange={handleApproveChange}/>}
-                                                            label="Approve text"
-                                                        />
-                                                        {approveChecked && (
-                                                            <Box sx={{paddingBottom: 4}}>
-                                                                <TextField
-                                                                    label="Approval Reasons"
-                                                                    variant="outlined"
-                                                                    margin="normal"
-                                                                    fullWidth
-                                                                    multiline={true}
-                                                                    rows={2}
-                                                                    value={approveReason}
-                                                                    onChange={handleApproveReasonChange}
-                                                                />
-                                                                <Button variant="contained"
-                                                                        onClick={handleApproveSubmit}>
-                                                                    Submit Approval
-                                                                </Button>
-                                                            </Box>
-                                                        )}
-                                                        <FormControlLabel
-                                                            control={<Checkbox checked={rejectChecked}
-                                                                               onChange={handleRejectChange}/>}
-                                                            label="Reject text"
-                                                        />
-                                                        {rejectChecked && (
-                                                            <Box>
-                                                                <TextField
-                                                                    label="Rejection Reasons"
-                                                                    variant="outlined"
-                                                                    margin="normal"
-                                                                    fullWidth
-                                                                    multiline={true}
-                                                                    rows={2}
-                                                                    value={rejectReason}
-                                                                    onChange={handleRejectReasonChange}
-                                                                />
-                                                                <Button variant="contained"
-                                                                        onClick={handleRejectSubmit}>
-                                                                    Submit Rejection
-                                                                </Button>
-                                                            </Box>
-                                                        )}
-                                                    </FormGroup>
-                                                </CardContent>)}
                                         </Collapse>
                                     </Card>
                                 </Fade>
@@ -608,11 +586,9 @@ export const Home: React.FunctionComponent = () => {
                         <Box sx={{paddingTop: 3}}>
                             {showAIStep && !showErrorMessage && (
                                 <Fade in timeout={750}>
-
                                     <Card
                                         sx={{
                                             width: 1000,
-                                            height: 105,
                                             borderRadius: 5,
                                             backgroundColor: "background.paper"
                                         }}>
@@ -621,7 +597,8 @@ export const Home: React.FunctionComponent = () => {
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 paddingTop: 2,
-                                                paddingLeft: 2
+                                                paddingLeft: 2,
+                                                marginBottom: 1.5,
                                             }}
                                             variant="h4">
                                             Step 2 - AI Moderation check
@@ -629,55 +606,89 @@ export const Home: React.FunctionComponent = () => {
                                                 flexGrow: 1,
                                                 display: 'flex',
                                                 justifyContent: 'flex-end',
-                                                paddingRight: 3,
+                                                paddingRight: 1.5,
                                             }}>
-                                                {unclassifiableAIStep && showManualStep &&
-                                                    <CancelIcon
-                                                        style={{height: 60, width: 60, color: "orange"}}/>
-                                                }
-                                                {loadingAIStep &&
-                                                    <CircularProgress style={{width: 60, height: 60}}/>
-                                                }
-                                                {approvedAIStep && !unclassifiableAIStep &&(
-                                                    <CheckCircleIcon
-                                                        sx={{height: 60, width: 60, color: "green"}}/>
+                                                {unclassifiableAIStep && showManualStep && (
+                                                    <Box style={{textAlign: 'center'}}>
+                                                        <CancelIcon style={{height: 60, width: 60, color: "orange"}}/>
+                                                        <Typography sx={{fontSize: "small", marginTop: -1}}>
+                                                            unclassifiable
+                                                        </Typography>
+                                                    </Box>
                                                 )}
-                                                {!approvedAIStep && !loadingAIStep && !unclassifiableAIStep && (
-                                                    <CancelIcon sx={{height: 60, width: 60, color: "red"}}/>
+                                                {loadingAIStep && (
+                                                    <Box style={{textAlign: 'center'}}>
+                                                        <CircularProgress style={{width: 60, height: 60}}/>
+                                                    </Box>
+                                                )}
+                                                {approvedAIStep && !unclassifiableAIStep && (
+                                                    <Box style={{textAlign: 'center'}}>
+                                                        <CheckCircleIcon sx={{height: 60, width: 60, color: "green"}}/>
+                                                        <Typography sx={{fontSize: "small", marginTop: -1}}>
+                                                            approved
+                                                        </Typography>
+                                                    </Box>
+                                                )}
+                                                {showAIStep && !pendingManualModeration && !approvedAIStep &&(
+                                                    <Box style={{textAlign: 'center'}}>
+                                                        <CancelIcon sx={{height: 60, width: 60, color: "red", marginRight: 1.5}}/>
+                                                        <Typography sx={{fontSize: "small", marginTop: -1, marginRight: 1.5}}>
+                                                            rejected
+                                                        </Typography>
+                                                    </Box>
                                                 )}
                                             </Box>
                                         </Typography>
-                                        {AIStepOver && approvedAIStep && !unclassifiableAIStep &&(
+                                        {showAIStep && !approvedAIStep && !pendingManualModeration &&(
                                             <Typography sx={{
-                                                flexGrow: 1,
-                                                display: 'flex',
-                                                justifyContent: 'flex-end',
-                                                paddingRight: 3.5,
-                                                fontSize: "small"
+                                                display: "flex",
+                                                justifyContent: "flex-end",
+                                                paddingTop: 1,
+                                                paddingRight: 2.05,
+                                                paddingBottom: 1.5
                                             }}>
-                                                approved
-                                            </Typography>)}
+                                                <IconButton
+                                                    sx={{
+                                                        color: "primary.main",
+                                                        borderRadius: 1.75,
+                                                        fontSize: 16, // You can adjust the font size as needed
+                                                        width: 75, // You can adjust the width as needed
+                                                        height: 25, // You can adjust the height as needed
+                                                    }}
+                                                    onClick={handleManualExpandClick}
+                                                    aria-expanded={manualExpanded}
+                                                    aria-label="show more"
+                                                >
+                                                    {!manualExpanded && <ExpandMoreIcon/>}
+                                                    {manualExpanded && <ExpandLessIcon/>}
+                                                </IconButton>
+                                            </Typography>
+                                        )}
 
-                                        {AIStepOver && !approvedAIStep && !loadingAIStep && !unclassifiableAIStep && (
-                                            <Typography sx={{
-                                                flexGrow: 1,
-                                                display: 'flex',
-                                                justifyContent: 'flex-end',
-                                                paddingRight: 3.75,
-                                                fontSize: "small"
+                                        <Collapse in={manualExpanded} timeout="auto" unmountOnExit>
+                                            {showAIStep && !approvedAIStep && !pendingManualModeration && (<CardContent sx={{
+                                                backgroundColor: "secondary.main",
+                                                borderRadius: 1,
+                                                boxShadow: 4,
+                                                p: 3
                                             }}>
-                                                rejected
-                                            </Typography>)}
-                                        {AIStepOver && unclassifiableAIStep && (
-                                            <Typography sx={{
-                                                flexGrow: 1,
-                                                display: 'flex',
-                                                justifyContent: 'flex-end',
-                                                paddingRight: 2,
-                                                fontSize: "small"
-                                            }}>
-                                                unclassifiable
-                                            </Typography>)}
+                                                <Typography variant="h5" sx={{color: "primary.main"}}>
+                                                    (Moderation Tags) AI Moderation Result:
+                                                </Typography>
+                                                <Typography variant="body2" sx={{
+                                                    marginTop: 1,
+                                                    backgroundColor: "info.main",
+                                                    fontWeight: "bold",
+                                                    fontSize: 15,
+                                                    border: "1px solid",
+                                                    borderColor: "primary.main",
+                                                    borderRadius: 2,
+                                                    padding: 2,
+                                                }}>
+                                                    {moderationTags}
+                                                </Typography>
+                                            </CardContent>)}
+                                        </Collapse>
                                     </Card>
                                 </Fade>
                             )}
@@ -698,7 +709,7 @@ export const Home: React.FunctionComponent = () => {
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 paddingTop: 2,
-                                                paddingLeft: 2
+                                                paddingLeft: 2,
                                             }}
                                             variant="h4">
                                             Step 3 - Manual Moderation
@@ -709,55 +720,43 @@ export const Home: React.FunctionComponent = () => {
                                                 paddingRight: 3,
                                             }}>
                                                 {pendingManualModeration && !loadingManualModeration && (
-                                                    <AccessTimeFilledIcon
-                                                        sx={{height: 60, width: 60, color: "orange"}}/>
+                                                    <Box style={{textAlign: 'center'}}>
+                                                        <AccessTimeFilledIcon
+                                                            sx={{height: 60, width: 60, color: "orange"}}/>
+                                                        <Typography sx={{fontSize: "small", marginTop: -1}}>
+                                                            pending
+                                                        </Typography>
+                                                    </Box>
                                                 )}
                                                 {!approvedManualStep && !pendingManualModeration && !loadingManualModeration && (
-                                                    <CancelIcon sx={{height: 60, width: 60, color: "red"}}/>
+                                                    <Box style={{textAlign: 'center'}}>
+                                                        <CancelIcon sx={{height: 60, width: 60, color: "red"}}/>
+                                                        <Typography sx={{fontSize: "small", marginTop: -1}}>
+                                                            rejected
+                                                        </Typography>
+                                                    </Box>
                                                 )}
                                                 {approvedManualStep && !pendingManualModeration && !loadingManualModeration && (
-                                                    <CheckCircleIcon
-                                                        sx={{height: 60, width: 60, color: "green"}}/>
+                                                    <Box style={{textAlign: 'center'}}>
+                                                        <CheckCircleIcon sx={{height: 60, width: 60, color: "green"}}/>
+                                                        <Typography sx={{fontSize: "small", marginTop: -1}}>
+                                                            approved
+                                                        </Typography>
+                                                    </Box>
                                                 )}
                                                 {loadingManualModeration && (
                                                     <CircularProgress style={{width: 45, height: 45}}/>
                                                 )}
                                             </Box>
                                         </Typography>
-                                        {pendingManualModeration && !loadingManualModeration && (
-                                            <Typography sx={{
-                                                flexGrow: 1,
-                                                display: 'flex',
-                                                justifyContent: 'flex-end',
-                                                paddingRight: 4,
-                                                fontSize: "small"
-                                            }}>
-                                                pending
-                                            </Typography>)}
-                                        {!approvedManualStep && !pendingManualModeration && !loadingManualModeration && (
-                                            <Typography sx={{
-                                                flexGrow: 1,
-                                                display: 'flex',
-                                                justifyContent: 'flex-end',
-                                                paddingRight: 3.75,
-                                                fontSize: "small"
-                                            }}>
-                                                rejected
-                                            </Typography>
-                                        )}
-                                        {approvedManualStep && !pendingManualModeration && !loadingManualModeration && (
-                                            <Typography sx={{
-                                                flexGrow: 1,
-                                                display: 'flex',
-                                                justifyContent: 'flex-end',
-                                                paddingRight: 3.5,
-                                                fontSize: "small"
-                                            }}>
-                                                approved
-                                            </Typography>
-                                        )}
 
-                                        <Typography sx={{paddingLeft: 1.2, paddingBottom: 1.5}}>
+                                        <Typography sx={{
+                                            display: "flex",
+                                            justifyContent: "flex-end",
+                                            paddingTop: 1,
+                                            paddingRight: 2,
+                                            paddingBottom: 1.5
+                                        }}>
                                             <IconButton
                                                 sx={{
                                                     color: "primary.main",

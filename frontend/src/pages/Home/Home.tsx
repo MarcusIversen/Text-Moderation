@@ -72,9 +72,7 @@ export const Home: React.FunctionComponent = () => {
         try {
             const textInput = await moderationService.getTextInputById(textInputId);
 
-            if (!textValue) {
-                setTextValue(textInput.textInput);
-            }
+            setTextValue(textInput.textInput);
 
             setTheme(defaultTheme);
             setWordStepOver(true);
@@ -146,37 +144,16 @@ export const Home: React.FunctionComponent = () => {
         setRejectReason(event.target.value);
     };
 
-    const fetchAIConnection = useCallback(async () => {
-            try {
-                await moderationService.aiConnectionTest();
-            } catch (error: unknown) {
-                const axiosError = error as AxiosError;
-
-                if (axiosError.response && axiosError.response.status === 503) {
-                    setErrorMessage("Hugging Face FREE API is slow, try again.");
-                    setShowErrorMessage(true);
-                    setTheme(errorTheme);
-                } else if (axiosError.response && axiosError.response.status === 429) {
-                    setErrorMessage("HuggingFace Request limit reached - Wait 1-2 hours or revalidate token");
-                    setShowErrorMessage(true);
-                    setTheme(errorTheme);
-                } else {
-                    throw error;
-                }
-            }
-        }, [setErrorMessage, setShowErrorMessage]
-    );
-
 
     useEffect(() => {
         if (!textInputId) {
-            fetchAIConnection();
+            moderationService.aiConnectionTest();
         }
         if (textInputId) {
             fillTextInputInfo();
         }
 
-    }, [textInputId, fillTextInputInfo, fetchAIConnection]);
+    }, [textInputId, fillTextInputInfo]);
 
 
     if (!cookie) return;
@@ -203,7 +180,13 @@ export const Home: React.FunctionComponent = () => {
     };
 
 
-    const submitTextInput = async () => {
+    const submitTextInput = async (textInput: string) => {
+        const textInputOnId = await moderationService.getTextInputById(textInputId);
+
+        if(textValue !== textInputOnId.textInput) {
+            setTextValue(textInput);
+        }
+
         if ((textValue && showWordStep && showAIStep && showManualStep) || (textValue || showWordStep || showAIStep || showManualStep)) {
             setShowWordStep(false);
             setLoadingWordStep(false);
@@ -300,7 +283,7 @@ export const Home: React.FunctionComponent = () => {
                 setErrorMessage("AI Moderation API is slow, try again after 5-20 seconds.");
                 setShowErrorMessage(true);
                 setTheme(errorTheme);
-            } else if (axiosError.response && axiosError.response.status === 400 ){
+            } else if (axiosError.response && axiosError.response.status === 400) {
                 setErrorMessage("400 Internal Server Error - Try another text input.");
                 setShowErrorMessage(true);
                 setTheme(errorTheme);
@@ -351,16 +334,18 @@ export const Home: React.FunctionComponent = () => {
                                     paddingLeft: 2
                                 }}>
                                     Your Text Input:
-                                    {textValue && !showWordStep &&
+                                    {textValue && !showWordStep && (
                                         <Box sx={{
                                             flexGrow: 1,
                                             display: 'flex',
                                             justifyContent: 'flex-end',
                                             paddingRight: 3,
+                                            width: 25,
+                                            height: 25,
                                         }}>
                                             <CircularProgress/>
                                         </Box>
-                                    }
+                                    )}
                                 </Typography>
                                 <Typography sx={{
                                     marginBottom: 1.5,
@@ -734,7 +719,7 @@ export const Home: React.FunctionComponent = () => {
                                 color="primary"
                                 size="large"
                                 sx={{ml: 1, alignSelf: "flex-start"}}
-                                onClick={() => submitTextInput()}
+                                onClick={() => submitTextInput(textValue)}
                             >
                                 <SendIcon/>
                             </IconButton>

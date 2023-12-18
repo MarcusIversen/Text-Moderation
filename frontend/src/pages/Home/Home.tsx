@@ -27,10 +27,10 @@ import {jwtDecode, JwtPayload} from "jwt-decode";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import Button from "@mui/material/Button";
-import {useParams} from "react-router-dom";
 import {AxiosError} from "axios";
 import ReportGmailerrorredIcon from "@mui/icons-material/ReportGmailerrorred";
 import {ModerationService} from "../../services/ModerationService.ts";
+import {useParams} from "react-router-dom";
 
 interface TokenPayload extends JwtPayload {
     id?: string;
@@ -46,6 +46,8 @@ export const Home: React.FunctionComponent = () => {
     const moderationService = new ModerationService();
     const cookie = cookies.get("AuthCookie");
 
+    const [id, setId] = useState("");
+    const [moderationTags, setModerationTags] = useState("");
     const [theme, setTheme] = useState(defaultTheme);
     const [textValue, setTextValue] = useState("");
     const [showWordStep, setShowWordStep] = useState(false);
@@ -67,56 +69,105 @@ export const Home: React.FunctionComponent = () => {
     const [approvedManualStep, setApprovedManualStep] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [showErrorMessage, setShowErrorMessage] = useState(false);
+    const [prevTextInputId, setPrevTextInputId] = useState<string | null>(null);
+    const [showManualStepForm, setShowManualStepForm] = useState(false);
+    const [showManualStepResult, setShowManualStepResult] = useState(false);
+    const [loadingManualModeration, setLoadingManualModeration] = useState(false);
+
 
     const fillTextInputInfo = useCallback(async () => {
         try {
             const textInput = await moderationService.getTextInputById(textInputId);
+            const textLog = await moderationService.getTextLogById(textInputId);
+            if (textLog) {
+                setModerationTags(textLog.moderationTags);
+            }
 
-            setTextValue(textInput.textInput);
+            // Check if the new textInput.textInput is different from the current textValue
+            if (textValue !== textInput.textInput) {
+                setTextValue(textInput.textInput);
+            }
 
             setTheme(defaultTheme);
+            setShowErrorMessage(false);
             setWordStepOver(true);
             setLoadingWordStep(false);
             setShowWordStep(true);
+
+            if (textInput.step === "1: BadWord" && textInput.status === "pending" || !textLog) {
+                setShowWordStep(false);
+                setShowManualStep(false);
+                setErrorMessage("Moderation of this text input is failed, choose another text input.");
+                setShowErrorMessage(true);
+                setTheme(errorTheme);
+            }
 
             if (textInput.badWordStep === "rejected") {
                 setApprovedWordStep(false);
                 setShowAIStep(false);
                 setShowManualStep(false);
-            } else {
-                setApprovedWordStep(true);
-                setShowAIStep(true);
+            }
 
+            if (textInput.badWordStep === "approved") {
+                setShowAIStep(true);
+                setApprovedWordStep(true);
                 if (textInput.aiModerationStep === "approved") {
+                    setUnclassifiableAIStep(false);
                     setApprovedAIStep(true);
                     setAIStepOver(true);
                     setLoadingAIStep(false);
-                    setShowManualStep(true);
-
                     setTimeout(() => {
                         setManualExpanded(prev => !prev);
                     }, 1200); // Adjust the delay as needed
-                } else {
+                }
+                if (textInput.aiModerationStep === "unclassifiable") {
                     setApprovedAIStep(false);
+                    setUnclassifiableAIStep(true);
                     setAIStepOver(true);
                     setLoadingAIStep(false);
-                    setShowManualStep(textInput.aiModerationStep === "unclassifiable");
-
-                    if (textInput.step === "3: ManualModeration" && textInput.aiModerationStep === "approved") {
+                    setShowManualStep(true);
+                    if (textInput.manualModerationStep === "pending") {
                         setShowManualStep(true);
-
+                        setShowManualStepResult(false);
+                        setShowManualStepForm(true);
                         setTimeout(() => {
                             setManualExpanded(prev => !prev);
                         }, 1200); // Adjust the delay as needed
                     }
                 }
+                if (textInput.manualModerationStep === "approved") {
+                    setUnclassifiableAIStep(true);
+                    setShowManualStep(true);
+                    setShowManualStepForm(false);
+                    setShowManualStepResult(true);
+                    setModerationTags(textLog.moderationTags);
+                    setApprovedManualStep(true);
+                    setPendingManualModeration(false);
+                }
+                if (textInput.manualModerationStep === "rejected") {
+                    setUnclassifiableAIStep(true);
+                    setShowManualStep(true);
+                    setShowManualStepForm(false);
+                    setShowManualStepResult(true);
+                    setModerationTags(textLog.moderationTags);
+                    setApprovedManualStep(false);
+                    setPendingManualModeration(false);
+                }
+                if (textInput.manualModerationStep === "previouslyRejected") {
+                    setUnclassifiableAIStep(true);
+                    setAIStepOver(true);
+                    setShowManualStep(false);
+                    setShowManualStepForm(false);
+                    setShowManualStepResult(false);
+                    setModerationTags(textLog.moderationTags);
+                }
             }
-
         } catch (error) {
             console.error(error);
             throw error;
         }
     }, [textInputId, textValue]);
+
 
     const handleApproveChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.checked) {
@@ -148,12 +199,12 @@ export const Home: React.FunctionComponent = () => {
     useEffect(() => {
         if (!textInputId) {
             moderationService.aiConnectionTest();
-        }
-        if (textInputId) {
+        } else if (textInputId !== prevTextInputId) {
+            // Only fill the information if the textInputId has changed
             fillTextInputInfo();
+            setPrevTextInputId(textInputId);
         }
-
-    }, [textInputId, fillTextInputInfo]);
+    }, [textInputId, fillTextInputInfo, prevTextInputId]);
 
 
     if (!cookie) return;
@@ -161,32 +212,58 @@ export const Home: React.FunctionComponent = () => {
 
     const handleTextChange = (value: string) => {
         setTextValue(value);
-        console.log(value)
-        console.log(textValue)
     }
 
     const handleManualExpandClick = () => {
         setManualExpanded(!manualExpanded);
     };
 
-    const handleApproveSubmit = () => {
-        setApprovedManualStep(true);
-        setPendingManualModeration(false);
-    };
+    const handleApproveSubmit = async () => {
+        setLoadingManualModeration(true);
+        try {
+            console.log(approveReason)
 
-    const handleRejectSubmit = () => {
-        setApprovedManualStep(false);
-        setPendingManualModeration(false);
-    };
+            setApprovedManualStep(true);
+            setPendingManualModeration(false);
 
+            if (!id) {
+                await moderationService.approveTextInput(textInputId, approveReason)
+            } else if (!textInputId) {
+                await moderationService.approveTextInput(id, approveReason)
+            }
 
-    const submitTextInput = async (textInput: string) => {
-        const textInputOnId = await moderationService.getTextInputById(textInputId);
-
-        if(textValue !== textInputOnId.textInput) {
-            setTextValue(textInput);
+            setTimeout(() => {
+                setLoadingManualModeration(false);
+            }, 1000);
+        } catch (error) {
+            console.error(error);
+            throw error;
         }
 
+    };
+
+    const handleRejectSubmit = async () => {
+        try {
+            setApprovedManualStep(false);
+            setPendingManualModeration(false);
+
+            if (!id) {
+                await moderationService.rejectTextInput(textInputId, rejectReason)
+            } else if (!textInputId) {
+                await moderationService.rejectTextInput(id, rejectReason)
+            }
+            setTimeout(() => {
+                setLoadingManualModeration(false);
+            }, 1000);
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+
+    };
+
+
+    const submitTextInput = async () => {
         if ((textValue && showWordStep && showAIStep && showManualStep) || (textValue || showWordStep || showAIStep || showManualStep)) {
             setShowWordStep(false);
             setLoadingWordStep(false);
@@ -213,6 +290,7 @@ export const Home: React.FunctionComponent = () => {
 
         try {
             const response = await moderationService.createAndProcessTextInput(decodedCookie.id, textValue);
+            setId(response.id);
             setShowWordStep(true)
             setLoadingWordStep(true);
 
@@ -247,6 +325,7 @@ export const Home: React.FunctionComponent = () => {
 
             const AIPromise = await new Promise<{ approved: boolean }>((resolve) => {
                 if (response.step === "AI") {
+
                     if (response.status === "approved") {
                         setTimeout(() => {
                             setAIStepOver(true);
@@ -266,6 +345,8 @@ export const Home: React.FunctionComponent = () => {
                             setLoadingAIStep(false);
                             setShowManualStep(true);
                             setPendingManualModeration(true);
+                            setShowManualStepForm(true);
+                            setShowManualStepResult(false);
                         }, 3000); // Simulate a delay
 
                         setTimeout(() => {
@@ -294,6 +375,7 @@ export const Home: React.FunctionComponent = () => {
             setLoadingWordStep(false);
             setLoadingAIStep(false);
         }
+
     }
 
 
@@ -365,7 +447,6 @@ export const Home: React.FunctionComponent = () => {
                                     <Card
                                         sx={{
                                             width: 1000,
-                                            height: 105,
                                             borderRadius: 5,
                                             backgroundColor: "background.paper"
                                         }}>
@@ -417,6 +498,107 @@ export const Home: React.FunctionComponent = () => {
                                             }}>
                                                 rejected
                                             </Typography>)}
+                                        <Typography sx={{paddingLeft: 1.2, paddingBottom: 1.5}}>
+                                            <IconButton
+                                                sx={{
+                                                    color: "primary.main",
+                                                    borderRadius: 1.75,
+                                                    fontSize: 16, // You can adjust the font size as needed
+                                                    width: 75, // You can adjust the width as needed
+                                                    height: 25, // You can adjust the height as needed
+                                                }}
+                                                onClick={handleManualExpandClick}
+                                                aria-expanded={manualExpanded}
+                                                aria-label="show more"
+                                            >
+                                                {!manualExpanded && <ExpandMoreIcon/>}
+                                                {manualExpanded && <ExpandLessIcon/>}
+                                            </IconButton>
+                                        </Typography>
+
+                                        <Collapse in={manualExpanded} timeout="auto" unmountOnExit>
+                                            {showManualStepResult && (<CardContent sx={{
+                                                backgroundColor: "secondary.main",
+                                                borderRadius: 1,
+                                                boxShadow: 4,
+                                                p: 3
+                                            }}>
+                                                <Typography variant="h5" sx={{color: "primary.main"}}>
+                                                    Bad Words Moderation Result:
+                                                </Typography>
+                                                <Typography variant="body2" sx={{
+                                                    marginTop: 1,
+                                                    backgroundColor: "info.main",
+                                                    fontWeight: "bold",
+                                                    fontSize: 15,
+                                                    border: "1px solid",
+                                                    borderColor: "primary.main",
+                                                    borderRadius: 2,
+                                                    padding: 2,
+                                                }}>
+                                                    {moderationTags}
+                                                </Typography>
+                                            </CardContent>)}
+                                            {showManualStepForm && (
+                                                <CardContent sx={{backgroundColor: "secondary.main"}}>
+                                                    <Typography variant="h6" sx={{paddingLeft: 1, paddingTop: 1}}>
+                                                        Text is unclassifiable - Approve/Reject manually</Typography>
+                                                    <FormGroup
+                                                        sx={{
+                                                            paddingLeft: 5,
+                                                            paddingTop: 1,
+                                                            paddingRight: 5,
+                                                            paddingBottom: 2
+                                                        }}>
+                                                        <FormControlLabel
+                                                            control={<Checkbox checked={approveChecked}
+                                                                               onChange={handleApproveChange}/>}
+                                                            label="Approve text"
+                                                        />
+                                                        {approveChecked && (
+                                                            <Box sx={{paddingBottom: 4}}>
+                                                                <TextField
+                                                                    label="Approval Reasons"
+                                                                    variant="outlined"
+                                                                    margin="normal"
+                                                                    fullWidth
+                                                                    multiline={true}
+                                                                    rows={2}
+                                                                    value={approveReason}
+                                                                    onChange={handleApproveReasonChange}
+                                                                />
+                                                                <Button variant="contained"
+                                                                        onClick={handleApproveSubmit}>
+                                                                    Submit Approval
+                                                                </Button>
+                                                            </Box>
+                                                        )}
+                                                        <FormControlLabel
+                                                            control={<Checkbox checked={rejectChecked}
+                                                                               onChange={handleRejectChange}/>}
+                                                            label="Reject text"
+                                                        />
+                                                        {rejectChecked && (
+                                                            <Box>
+                                                                <TextField
+                                                                    label="Rejection Reasons"
+                                                                    variant="outlined"
+                                                                    margin="normal"
+                                                                    fullWidth
+                                                                    multiline={true}
+                                                                    rows={2}
+                                                                    value={rejectReason}
+                                                                    onChange={handleRejectReasonChange}
+                                                                />
+                                                                <Button variant="contained"
+                                                                        onClick={handleRejectSubmit}>
+                                                                    Submit Rejection
+                                                                </Button>
+                                                            </Box>
+                                                        )}
+                                                    </FormGroup>
+                                                </CardContent>)}
+                                        </Collapse>
                                     </Card>
                                 </Fade>
                             )}
@@ -424,7 +606,7 @@ export const Home: React.FunctionComponent = () => {
 
 
                         <Box sx={{paddingTop: 3}}>
-                            {showAIStep && (
+                            {showAIStep && !showErrorMessage && (
                                 <Fade in timeout={750}>
 
                                     <Card
@@ -449,14 +631,14 @@ export const Home: React.FunctionComponent = () => {
                                                 justifyContent: 'flex-end',
                                                 paddingRight: 3,
                                             }}>
-                                                {unclassifiableAIStep &&
+                                                {unclassifiableAIStep && showManualStep &&
                                                     <CancelIcon
-                                                        style={{height: 60, width: 60, color: "yellow"}}/>
+                                                        style={{height: 60, width: 60, color: "orange"}}/>
                                                 }
                                                 {loadingAIStep &&
                                                     <CircularProgress style={{width: 60, height: 60}}/>
                                                 }
-                                                {approvedAIStep && (
+                                                {approvedAIStep && !unclassifiableAIStep &&(
                                                     <CheckCircleIcon
                                                         sx={{height: 60, width: 60, color: "green"}}/>
                                                 )}
@@ -465,7 +647,7 @@ export const Home: React.FunctionComponent = () => {
                                                 )}
                                             </Box>
                                         </Typography>
-                                        {AIStepOver && approvedAIStep && (
+                                        {AIStepOver && approvedAIStep && !unclassifiableAIStep &&(
                                             <Typography sx={{
                                                 flexGrow: 1,
                                                 display: 'flex',
@@ -526,20 +708,23 @@ export const Home: React.FunctionComponent = () => {
                                                 justifyContent: 'flex-end',
                                                 paddingRight: 3,
                                             }}>
-                                                {pendingManualModeration && (
+                                                {pendingManualModeration && !loadingManualModeration && (
                                                     <AccessTimeFilledIcon
-                                                        sx={{height: 60, width: 60, color: "yellow"}}/>
+                                                        sx={{height: 60, width: 60, color: "orange"}}/>
                                                 )}
-                                                {!approvedManualStep && !pendingManualModeration && (
+                                                {!approvedManualStep && !pendingManualModeration && !loadingManualModeration && (
                                                     <CancelIcon sx={{height: 60, width: 60, color: "red"}}/>
                                                 )}
-                                                {approvedManualStep && !pendingManualModeration && (
+                                                {approvedManualStep && !pendingManualModeration && !loadingManualModeration && (
                                                     <CheckCircleIcon
                                                         sx={{height: 60, width: 60, color: "green"}}/>
                                                 )}
+                                                {loadingManualModeration && (
+                                                    <CircularProgress style={{width: 45, height: 45}}/>
+                                                )}
                                             </Box>
                                         </Typography>
-                                        {pendingManualModeration && (
+                                        {pendingManualModeration && !loadingManualModeration && (
                                             <Typography sx={{
                                                 flexGrow: 1,
                                                 display: 'flex',
@@ -549,7 +734,7 @@ export const Home: React.FunctionComponent = () => {
                                             }}>
                                                 pending
                                             </Typography>)}
-                                        {!approvedManualStep && !pendingManualModeration && (
+                                        {!approvedManualStep && !pendingManualModeration && !loadingManualModeration && (
                                             <Typography sx={{
                                                 flexGrow: 1,
                                                 display: 'flex',
@@ -560,7 +745,7 @@ export const Home: React.FunctionComponent = () => {
                                                 rejected
                                             </Typography>
                                         )}
-                                        {approvedManualStep && !pendingManualModeration && (
+                                        {approvedManualStep && !pendingManualModeration && !loadingManualModeration && (
                                             <Typography sx={{
                                                 flexGrow: 1,
                                                 display: 'flex',
@@ -579,7 +764,7 @@ export const Home: React.FunctionComponent = () => {
                                                     borderRadius: 1.75,
                                                     fontSize: 16, // You can adjust the font size as needed
                                                     width: 75, // You can adjust the width as needed
-                                                    height: 35, // You can adjust the height as needed
+                                                    height: 25, // You can adjust the height as needed
                                                 }}
                                                 onClick={handleManualExpandClick}
                                                 aria-expanded={manualExpanded}
@@ -591,66 +776,90 @@ export const Home: React.FunctionComponent = () => {
                                         </Typography>
 
                                         <Collapse in={manualExpanded} timeout="auto" unmountOnExit>
-                                            <CardContent sx={{backgroundColor: "secondary.main"}}>
-                                                <Typography variant="h6" sx={{paddingLeft: 1, paddingTop: 1}}>Text
-                                                    is
-                                                    unclassifiable
-                                                    - Approve/Reject manually</Typography>
-                                                <FormGroup
-                                                    sx={{
-                                                        paddingLeft: 5,
-                                                        paddingTop: 1,
-                                                        paddingRight: 5,
-                                                        paddingBottom: 2
-                                                    }}>
-                                                    <FormControlLabel
-                                                        control={<Checkbox checked={approveChecked}
-                                                                           onChange={handleApproveChange}/>}
-                                                        label="Approve text"
-                                                    />
-                                                    {approveChecked && (
-                                                        <Box sx={{paddingBottom: 4}}>
-                                                            <TextField
-                                                                label="Approval Reasons"
-                                                                variant="outlined"
-                                                                margin="normal"
-                                                                fullWidth
-                                                                multiline={true}
-                                                                rows={2}
-                                                                value={approveReason}
-                                                                onChange={handleApproveReasonChange}
-                                                            />
-                                                            <Button variant="contained"
-                                                                    onClick={handleApproveSubmit}>
-                                                                Submit Approval
-                                                            </Button>
-                                                        </Box>
-                                                    )}
-                                                    <FormControlLabel
-                                                        control={<Checkbox checked={rejectChecked}
-                                                                           onChange={handleRejectChange}/>}
-                                                        label="Reject text"
-                                                    />
-                                                    {rejectChecked && (
-                                                        <Box>
-                                                            <TextField
-                                                                label="Rejection Reasons"
-                                                                variant="outlined"
-                                                                margin="normal"
-                                                                fullWidth
-                                                                multiline={true}
-                                                                rows={2}
-                                                                value={rejectReason}
-                                                                onChange={handleRejectReasonChange}
-                                                            />
-                                                            <Button variant="contained"
-                                                                    onClick={handleRejectSubmit}>
-                                                                Submit Rejection
-                                                            </Button>
-                                                        </Box>
-                                                    )}
-                                                </FormGroup>
-                                            </CardContent>
+                                            {showManualStepResult && (<CardContent sx={{
+                                                backgroundColor: "secondary.main",
+                                                borderRadius: 1,
+                                                boxShadow: 4,
+                                                p: 3
+                                            }}>
+                                                <Typography variant="h5" sx={{color: "primary.main"}}>
+                                                    Manual Moderation Result:
+                                                </Typography>
+                                                <Typography variant="body2" sx={{
+                                                    marginTop: 1,
+                                                    backgroundColor: "info.main",
+                                                    fontWeight: "bold",
+                                                    fontSize: 15,
+                                                    border: "1px solid",
+                                                    borderColor: "primary.main",
+                                                    borderRadius: 2,
+                                                    padding: 2,
+                                                    height: 115
+                                                }}>
+                                                    {moderationTags}
+                                                </Typography>
+                                            </CardContent>)}
+                                            {showManualStepForm && (
+                                                <CardContent sx={{backgroundColor: "secondary.main"}}>
+                                                    <Typography variant="h6" sx={{paddingLeft: 1, paddingTop: 1}}>
+                                                        Text is unclassifiable - Approve/Reject manually</Typography>
+                                                    <FormGroup
+                                                        sx={{
+                                                            paddingLeft: 5,
+                                                            paddingTop: 1,
+                                                            paddingRight: 5,
+                                                            paddingBottom: 2
+                                                        }}>
+                                                        <FormControlLabel
+                                                            control={<Checkbox checked={approveChecked}
+                                                                               onChange={handleApproveChange}/>}
+                                                            label="Approve text"
+                                                        />
+                                                        {approveChecked && (
+                                                            <Box sx={{paddingBottom: 4}}>
+                                                                <TextField
+                                                                    label="Approval Reasons"
+                                                                    variant="outlined"
+                                                                    margin="normal"
+                                                                    fullWidth
+                                                                    multiline={true}
+                                                                    rows={2}
+                                                                    value={approveReason}
+                                                                    onChange={handleApproveReasonChange}
+                                                                />
+                                                                <Button variant="contained"
+                                                                        onClick={handleApproveSubmit}>
+                                                                    Submit Approval
+                                                                </Button>
+                                                            </Box>
+                                                        )}
+                                                        <FormControlLabel
+                                                            control={<Checkbox checked={rejectChecked}
+                                                                               onChange={handleRejectChange}/>}
+                                                            label="Reject text"
+                                                        />
+                                                        {rejectChecked && (
+                                                            <Box>
+                                                                <TextField
+                                                                    label="Rejection Reasons"
+                                                                    variant="outlined"
+                                                                    margin="normal"
+                                                                    fullWidth
+                                                                    multiline={true}
+                                                                    rows={2}
+                                                                    value={rejectReason}
+                                                                    onChange={handleRejectReasonChange}
+                                                                />
+                                                                <Button variant="contained"
+                                                                        onClick={handleRejectSubmit}>
+                                                                    Submit Rejection
+                                                                </Button>
+                                                            </Box>
+                                                        )}
+                                                    </FormGroup>
+                                                </CardContent>)}
+
+
                                         </Collapse>
                                     </Card>
                                 </Fade>
@@ -719,7 +928,7 @@ export const Home: React.FunctionComponent = () => {
                                 color="primary"
                                 size="large"
                                 sx={{ml: 1, alignSelf: "flex-start"}}
-                                onClick={() => submitTextInput(textValue)}
+                                onClick={() => submitTextInput()}
                             >
                                 <SendIcon/>
                             </IconButton>

@@ -129,6 +129,19 @@ export class ModerationService {
         }
     }
 
+    async getTextLogOnId(textInputId: number) {
+        try {
+            return await db
+                .select()
+                .from(textInputLog)
+                .where(eq(textInputLog.textInputId, textInputId))
+                .execute();
+        } catch (error) {
+            console.error(`getTextLogOnIdError_moderationService:  ${textInputId}:`, error);
+            throw error;
+        }
+    }
+
 
     /**
      * Method for updating TextInput
@@ -163,6 +176,19 @@ export class ModerationService {
 
         return response[0];
     }
+
+    /**
+     * Method for deleting TextInput
+     */
+    async deleteTextInput(textInputId: number) {
+        const response = await db
+            .delete(textInput)
+            .where(eq(textInput.id, textInputId))
+            .execute();
+
+        return response[0];
+    }
+
 
     /**
      * Method for checking bad words (step 1 in moderation)
@@ -286,6 +312,7 @@ export class ModerationService {
             }
 
             if (distilbertNegativeScore > 0.99 && nsfwScore < 0.8) {
+                console.log("nNOWWWWWW!")
                 return {
                     distilbertNegativeScore: distilbertNegativeScore,
                     nsfwScore: nsfwScore,

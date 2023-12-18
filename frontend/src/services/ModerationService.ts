@@ -11,7 +11,6 @@ export class ModerationService {
             const response = await this.api.get(`/moderation/moderation-inputs-on-user/${userID}`);
             return response.data;
         } catch (error) {
-            console.error(error);
             throw error;
         }
     }
@@ -21,7 +20,15 @@ export class ModerationService {
             const response = await this.api.get(`/moderation/text-input/${textInputId}`);
             return response.data[0];
         } catch (error) {
-            console.error(error);
+            throw error;
+        }
+    }
+
+    async getTextLogById(textInputId: string | undefined) {
+        try {
+            const response = await this.api.get(`/moderation/text-log/${textInputId}`);
+            return response.data[0];
+        } catch (error) {
             throw error;
         }
     }
@@ -31,7 +38,6 @@ export class ModerationService {
             const response = await this.api.post(`/moderation/moderate-text-input`, {userId, content});
             return response.data;
         } catch (error) {
-            console.error(error);
             throw error;
         }
     }
@@ -44,7 +50,24 @@ export class ModerationService {
         const moderation = await this.api.post(`/ai/moderation`, {inputs: testString});
 
         return await Promise.all([distilbert, nsfw, contactInfo, moderation]);
+    }
 
+    async approveTextInput(textInputId: string | undefined, moderationTags: string) {
+        try {
+            const response = await this.api.put(`/moderation/approve-text-input/${textInputId}`, {moderationTags: moderationTags});
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async rejectTextInput(textInputId: string | undefined, moderationTags: string | undefined) {
+        try {
+            const response = await this.api.put(`/moderation/reject-text-input/${textInputId}`, {moderationTags: moderationTags});
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
     }
 
 

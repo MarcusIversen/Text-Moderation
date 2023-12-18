@@ -17,6 +17,9 @@ export const defaultTheme = createTheme({
             default: "#041a28",
             paper: "#161818",
         },
+        info: {
+            main: "#383f3f",
+        }
 
     },
     components: {

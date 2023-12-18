@@ -9,6 +9,7 @@ export class ModerationController {
         this.moderationService = moderationService;
     }
 
+
     async processTextInput(req: Request, res: Response): Promise<Response | undefined> {
         const {userId, content} = req.body as { userId: number; content: string };
 
@@ -32,7 +33,7 @@ export class ModerationController {
                 await this.moderationService.createLog(
                     textData.id,
                     "1: BadWord",
-                    "badWordsFound: " + badWords.join(", "),
+                    "Bad words found: " + badWords.join(", " + "\n"),
                 );
                 await this.moderationService.updateTextInput({
                     id: textData.id,
@@ -92,7 +93,7 @@ export class ModerationController {
             if (aiModeration?.status === "approved") {
                 await this.moderationService.updateTextInput({
                     id: textData.id,
-                    status: "pending",
+                    status: "approved",
                     step: "2: AIModeration",
                     badWordStep: "approved",
                     aiModerationStep: "approved",
@@ -102,6 +103,11 @@ export class ModerationController {
                     distilbertScore: aiModeration.distilbertNegativeScore,
                     contactInfoScore: aiModeration.contactInfoScore,
                 });
+                await this.moderationService.createLog(
+                    textData.id,
+                    "2: AIModeration",
+                    "OK",
+                );
                 return res.status(200).json({
                     message: "Text input has been approved by AI Moderation",
                     status: "approved",
@@ -125,6 +131,11 @@ export class ModerationController {
                     distilbertScore: aiModeration.distilbertNegativeScore,
                     contactInfoScore: aiModeration.contactInfoScore,
                 });
+                await this.moderationService.createLog(
+                    textData.id,
+                    "2: AIModeration",
+                    "Unclassifiable",
+                );
                 return res.status(200).json({
                     message: "Text is unclassifiable and pending manual moderation",
                     status: "unclassifiable",
@@ -138,6 +149,22 @@ export class ModerationController {
         } catch (error) {
             return res.status(500).json({error: error, textInputId: textData.id});
         }
+    }
+
+    async getTextLogOnId(req: Request, res: Response) {
+        const { textInputId } = req.params;
+
+        if(!textInputId) {
+            return undefined;
+        }
+
+        const textLog = await this.moderationService.getTextLogOnId(parseInt(textInputId, 10));
+
+        if (!textLog) {
+            return res.status(404).json({ error: "Text input not found" });
+        }
+
+        return res.json(textLog);
     }
 
     async approveTextInput(req: Request, res: Response) {
@@ -213,6 +240,18 @@ export class ModerationController {
         return res.json({ message: `Text input manually rejected with following moderationTags: "${moderationTags}"` });
     }
 
+    async deleteTextInput(req: Request, res: Response) {
+        const { textInputId } = req.params;
+
+        if(!textInputId) {
+            return undefined;
+        }
+
+        await this.moderationService.deleteTextInput(parseInt(textInputId, 10));
+
+        return res.json({ message: `Text input with id ${textInputId} has been deleted` });
+    }
+
 
     async getBadWordsList(req: Request, res: Response) {
         const badWordsList = getBadWordsList();
@@ -234,7 +273,6 @@ export class ModerationController {
 
             res.json(moderationOnUser);
         } catch (error) {
-            console.error(`Error in getModerationOnUser: ${error}`);
             return res.status(500).send("Internal server error");
         }
     }
@@ -254,7 +292,6 @@ export class ModerationController {
 
             res.json(textInput);
         } catch (error) {
-            console.error(`Error in getModerationOnUser: ${error}`);
             return res.status(500).send("Internal server error");
         }
     }

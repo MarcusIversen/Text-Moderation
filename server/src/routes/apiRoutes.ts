@@ -34,6 +34,14 @@ router.post("/moderation/moderate-text-input", (req, res) =>
     moderationController.processTextInput(req, res),
 );
 
+router.post("/moderation/approve-text-input/:textInputId", (req, res) =>
+    moderationController.approveTextInput(req, res),
+);
+
+router.post("/moderation/reject-text-input/:textInputId", (req, res) =>
+    moderationController.rejectTextInput(req, res),
+);
+
 router.get("/moderation/list-of-bad-words", (req, res) =>
     moderationController.getBadWordsList(req, res),
 );

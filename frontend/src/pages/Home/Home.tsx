@@ -22,7 +22,6 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import {ThemeProvider} from "@mui/material/styles";
 import {defaultTheme, errorTheme} from "../../assets/theme.ts";
 import {SideBar} from "../../components/SideBar/SideBar.tsx";
-import {ModerationService} from "../../services/ModerationService.ts";
 import Cookies from "universal-cookie";
 import {jwtDecode, JwtPayload} from "jwt-decode";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -31,6 +30,7 @@ import Button from "@mui/material/Button";
 import {useParams} from "react-router-dom";
 import {AxiosError} from "axios";
 import ReportGmailerrorredIcon from "@mui/icons-material/ReportGmailerrorred";
+import {ModerationService} from "../../services/ModerationService.ts";
 
 interface TokenPayload extends JwtPayload {
     id?: string;

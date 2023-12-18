@@ -1,4 +1,4 @@
-import { textInput, textInputLog } from "../db/schema";
+import {textInput, textInputLog} from "../db/schema";
 
 export interface UserDTO {
   id?: number;
@@ -37,4 +37,9 @@ export type LogInsertModel = typeof textInputLog.$inferInsert; //Model for inser
 export type LogSelectData = Pick<
   LogSelectModel,
   "textInputId" | "moderationStep" | "id" | "createdAt"
+>;
+
+export type LogUpdateModel = Pick<
+    LogSelectModel,
+    "textInputId" | "moderationTags" | "moderationStep"
 >;

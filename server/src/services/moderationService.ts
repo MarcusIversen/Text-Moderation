@@ -7,6 +7,7 @@ import {getBadWordsFromInput} from "../utils/utils";
 import {
     LogInsertModel,
     LogSelectData,
+    LogUpdateModel,
     TextInputInsertModel,
     TextInputSelectData,
     TextInputUpdateModel,
@@ -147,6 +148,23 @@ export class ModerationService {
     }
 
     /**
+     * Method for updating Log
+     */
+    async updateLog(logData: LogUpdateModel) {
+        const response = await db
+            .update(textInputLog)
+            .set({...logData, updatedAt: new Date()})
+            .where(eq(textInputLog.textInputId, logData.textInputId))
+            .returning({
+                id: textInputLog.id,
+                textInputId: textInputLog.textInputId,
+                moderationStep: textInputLog.moderationStep,
+            });
+
+        return response[0];
+    }
+
+    /**
      * Method for checking bad words (step 1 in moderation)
      * @param textInputData
      */
@@ -248,13 +266,6 @@ export class ModerationService {
             ) {
                 return undefined;
             }
-
-            console.log({distilbertPositiveScore})
-            console.log({distilbertNegativeScore})
-            console.log({sfwScore})
-            console.log({nsfwScore})
-            console.log({contactInfoOtherScore})
-            console.log({contactInfoScore})
 
             if (distilbertNegativeScore > 0.9 && nsfwScore > 0.9 || nsfwScore > 0.99 || contactInfoScore > 0.9) {
                 return {

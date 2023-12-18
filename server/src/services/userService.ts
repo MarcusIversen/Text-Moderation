@@ -1,14 +1,9 @@
 import { user } from "../db/schema";
-import { CONNECTION_STRING } from "../config/config";
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
 import { UserDTO } from "../dto/DTOs";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-
-const sql = postgres(CONNECTION_STRING, { max: 1 });
-const db = drizzle(sql);
+import { db } from "../db/setup";
 
 export class UserService {
   async getUserById(userId: number): Promise<UserDTO | null> {

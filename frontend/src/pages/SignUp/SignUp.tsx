@@ -16,9 +16,9 @@ import { useState } from "react";
 import { Alert, CircularProgress, Snackbar } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { defaultTheme } from "../../assets/theme.ts";
-import { Copyright } from "../../components/copyright.tsx";
 import { UserService } from "../../services/UserService.ts";
 import "./SignUp.css";
+import { Copyright } from "../../components/Copyright.tsx";
 
 export default function SignUp() {
   const navigate = useNavigate();

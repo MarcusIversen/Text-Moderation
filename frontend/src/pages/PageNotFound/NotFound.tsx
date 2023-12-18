@@ -25,7 +25,7 @@ export const NotFound: React.FunctionComponent = () => {
       <Container component="main" style={{ overflow: "hidden" }}>
         <CssBaseline />
         <Box className={"containerBox"}>
-          <Avatar className="avatar" sx={{ backgroundColor: "secondary.main" }}>
+          <Avatar className="avatar" sx={{ backgroundColor: "error.main" }}>
             <ReportGmailerrorredIcon />
           </Avatar>
           <Typography component="h1" variant="h5" color="error">

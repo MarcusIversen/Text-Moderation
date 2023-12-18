@@ -59,32 +59,14 @@ export const textInput = pgTable("TextInput", {
   contactInfoScore: doublePrecision("contactInfoScore").notNull(),
 });
 
-// Type Enum
-export const typeEnum = pgEnum("type_enum", ["badWord", "AI", "Manual"]);
-
-export const moderationTypeEnum = pgEnum("moderation_type_enum", [
-  "badWord",
-  "negative",
-  "nsfw",
-  "sexual",
-  "hate",
-  "violence",
-  "harassment",
-  "harassment",
-  "sexual/minors",
-  "hate/threatening",
-  "violence/graphic",
-  "personalInfo",
-]);
-
 // Log Table
-export const log = pgTable("Log", {
+export const textInputLog = pgTable("Log", {
   id: serial("ID").unique(),
   textInputId: integer("TextInputID")
     .references(() => textInput.id)
     .notNull(),
-  type: typeEnum("log_type").notNull(),
-  moderationTags: moderationTypeEnum("moderation_type").notNull(),
+  moderationStep: stepType("moderationStep").notNull(),
+  moderationTags: varchar("moderationTags").notNull(),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
 });

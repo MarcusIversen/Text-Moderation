@@ -1,0 +1,64 @@
+/* styles.css */
+
+/* Define styles for the scrollbar */
+::-webkit-scrollbar {
+    width: 20px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgba(70, 72, 72, 0.71);
+    border-radius: 20px;
+    border: 6px solid transparent;
+    background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #343e42;
+}
+
+.drawer {
+    width: 280px;
+    flex-shrink: 0;
+}
+
+.new-input-list-item {
+    color: white;
+    padding-top: 1px;
+}
+
+.circle-icon{
+    padding-left: 45px;
+}
+
+.main-list{
+    flex: 1;
+    overflow: auto;
+}
+
+.list-sub-header{
+    height: 25px;
+    margin-top: 10px;
+}
+
+.list-sub-header-text{
+    color: grey;
+}
+
+.logout-menu{
+    width: 253px;
+}
+
+@keyframes newItemAnimation {
+    0% { background-color: white; }
+    100% { background-color: transparent; }
+}
+
+.new-item {
+    animation-name: newItemAnimation;
+    animation-duration: 2s; /* however long you want the animation to last */
+}
+

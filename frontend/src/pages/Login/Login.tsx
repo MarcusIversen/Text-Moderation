@@ -13,7 +13,7 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { ThemeProvider } from "@mui/material/styles";
 import { defaultTheme } from "../../assets/theme.ts";
-import { Copyright } from "../../components/copyright.tsx";
+import { Copyright } from "../../components/Copyright.tsx";
 import { UserService } from "../../services/UserService.ts";
 import { useNavigate } from "react-router-dom";
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
@@ -202,12 +202,12 @@ export const Login: React.FunctionComponent = () => {
 
             <Grid container>
               <Grid item xs>
-                <Link href="/create-new-password" variant="body2">
+                <Link href={"/create-new-password"} variant="body2">
                   Forgot password?
                 </Link>
               </Grid>
               <Grid item>
-                <Link href="/sign-up" variant="body2">
+                <Link href={"/sign-up"} variant="body2">
                   Don't have an account? Sign Up
                 </Link>
               </Grid>

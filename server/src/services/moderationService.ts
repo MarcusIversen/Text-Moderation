@@ -1,355 +1,350 @@
 import postgres from "postgres";
-import { CONNECTION_STRING } from "../config/config";
-import { drizzle } from "drizzle-orm/postgres-js";
-import { textInput } from "../db/schema";
-import { eq } from "drizzle-orm";
-import { getBadWordsFromInput, hasBadWords } from "../utils/utils";
-import { TextInputInsertModel, TextInputSelectData } from "../dto/DTOs";
+import {CONNECTION_STRING} from "../config/config";
+import {drizzle} from "drizzle-orm/postgres-js";
+import {textInput, textInputLog} from "../db/schema";
+import {eq} from "drizzle-orm";
+import {getBadWordsFromInput} from "../utils/utils";
+import {
+    LogInsertModel,
+    LogSelectData,
+    TextInputInsertModel,
+    TextInputSelectData,
+    TextInputUpdateModel,
+} from "../dto/DTOs";
 import axios from "axios";
 
 interface ScoreItem {
-  label: string;
-  score: number;
+    label: string;
+    score: number;
 }
 
-const sql = postgres(CONNECTION_STRING, { max: 1 });
+type ModerationResponse =
+    | "approved"
+    | "rejected"
+    | "unclassifiable"
+    | undefined;
+
+interface AiModerationResponse {
+    distilbertNegativeScore: number;
+    nsfwScore: number;
+    contactInfoScore: number;
+    status: ModerationResponse;
+}
+
+const sql = postgres(CONNECTION_STRING, {max: 1});
 const db = drizzle(sql);
 
 export class ModerationService {
-  /**
-   * Method for initially creating standard TextInput and return result
-   * @param userId
-   * @param inputs
-   */
-  async createTextInput(
-    userId: number,
-    inputs: string,
-  ): Promise<TextInputSelectData> {
-    const insertModel: TextInputInsertModel = {
-      userId: userId,
-      textInput: inputs,
-      status: "pending",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      step: "1: BadWord",
-      badWordStep: "pending",
-      aiModerationStep: "pending",
-      manualModerationStep: "pending",
-      wordListScore: 0.0,
-      contactInfoScore: 0.0,
-      nsfwScore: 0.0,
-      distilbertScore: 0.0,
-    };
+    /**
+     * Method for initially creating standard TextInput and return result
+     * @param userId
+     * @param inputs
+     */
+    async createTextInput(
+        userId: number,
+        inputs: string,
+    ): Promise<TextInputSelectData> {
+        const insertModel: TextInputInsertModel = {
+            userId: userId,
+            textInput: inputs,
+            status: "pending",
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            step: "1: BadWord",
+            badWordStep: "pending",
+            aiModerationStep: "pending",
+            manualModerationStep: "pending",
+            wordListScore: 0.0,
+            contactInfoScore: 0.0,
+            nsfwScore: 0.0,
+            distilbertScore: 0.0,
+        };
 
-    const result = await db.insert(textInput).values(insertModel).returning({
-      textInput: textInput.textInput,
-      id: textInput.id,
-      userId: textInput.userId,
-    });
-
-    if (!result[0]?.textInput) {
-      throw new Error("No result found");
-    }
-
-    return result[0];
-  }
-
-  /**
-   * Method for checking bad words (step 1 in moderation)
-   * @param textInputData
-   */
-  async badWordStep(textInputData: TextInputSelectData) {
-    //TODO add a return type for type safety
-    const containsBadWords = await hasBadWords(textInputData.textInput);
-    const badWordsFound = await getBadWordsFromInput(textInputData.textInput);
-
-    if (containsBadWords) {
-      const wordScore = badWordsFound.length * 0.1;
-      const response = await db
-        .update(textInput)
-        .set({
-          status: "rejected",
-          badWordStep: "rejected",
-          aiModerationStep: "previouslyRejected",
-          manualModerationStep: "previouslyRejected",
-          updatedAt: new Date(),
-          wordListScore: wordScore,
-        })
-        .where(eq(textInput.id, textInputData.id))
-        .returning({
-          moderatedText: textInput.textInput,
-          status: textInput.status,
+        const result = await db.insert(textInput).values(insertModel).returning({
+            id: textInput.id,
+            userId: textInput.userId,
+            textInput: textInput.textInput,
+            createdAt: textInput.createdAt,
         });
 
-      return {
-        ...textInputData,
-        moderatedText: response[0]?.moderatedText,
-        status: response[0]?.status,
-        badWordStep: "approved",
-        aiModerationStep: "pending",
-        manualModerationStep: "pending",
-      };
+        if (!result[0]?.textInput) {
+            throw new Error("No result found");
+        }
+
+        return result[0];
     }
 
-    return {
-      ...textInputData,
-      moderatedText: textInputData.textInput,
-      status: "approved",
-      badWordStep: "approved",
-      aiModerationStep: "pending",
-      manualModerationStep: "pending",
-    };
-  }
+    async createLog(
+        textInputId: number,
+        textInputStep: "1: BadWord" | "2: AIModeration" | "3: ManualModeration",
+        moderationTags: string,
+    ): Promise<LogSelectData> {
+        const insertModel: LogInsertModel = {
+            textInputId: textInputId,
+            moderationStep: textInputStep,
+            moderationTags: moderationTags,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        };
 
-  async distilbert(textInput: string) {
-    const url = "http://localhost:3000/api/ai/distilbert";
-    const data = { inputs: textInput };
+        const result = await db.insert(textInputLog).values(insertModel).returning({
+            id: textInputLog.id,
+            textInputId: textInputLog.textInputId,
+            moderationStep: textInputLog.moderationStep,
+            createdAt: textInputLog.createdAt,
+        });
 
-    try {
-      const response = await axios.post(url, data);
-      return response.data[0];
-    } catch (error) {
-      console.error(`Error in distilbertStep: ${error}`);
-      throw error;
-    }
-  }
+        if (!result[0]?.textInputId) {
+            throw new Error("No result found");
+        }
 
-  async nsfw(textInput: string) {
-    const url = "http://localhost:3000/api/ai/nsfw";
-    const data = { inputs: textInput };
-
-    try {
-      const response = await axios.post(url, data);
-      return response.data[0];
-    } catch (error) {
-      console.error(`Error in nsfwStep: ${error}`);
-      throw error;
-    }
-  }
-
-  async contactInfo(textInput: string) {
-    const url = "http://localhost:3000/api/ai/contactInfo";
-    const data = { inputs: textInput };
-
-    try {
-      const response = await axios.post(url, data);
-      return response.data[0];
-    } catch (error) {
-      console.error(`Error in contactInfoStep: ${error}`);
-      throw error;
-    }
-  }
-
-  // async moderation(textInput: string) {
-  //   const url = 'http://localhost:3000/api/ai/moderation';  // replace with your server's URL and port
-  //   const data = { inputs: textInput };
-  //
-  //   try {
-  //     const response = await axios.post(url, data);
-  //     return response.data;
-  //   } catch (error) {
-  //     console.error(`Error in aiModerationStep: ${error}`);
-  //     throw error;
-  //   }
-  // }
-
-  async aiModerationStep(textInputData: TextInputSelectData) {
-    if (!textInputData || typeof textInputData.textInput !== "string") {
-      throw new Error("Invalid textInputData");
+        return result[0];
     }
 
-    try {
-      const [distilbert, nsfw, contactInfo] = await Promise.all([
-        this.distilbert(textInputData.textInput),
-        this.nsfw(textInputData.textInput),
-        this.contactInfo(textInputData.textInput),
-      ]);
-
-      let distilbertPositiveScore: number | undefined;
-      let distilbertNegativeScore: number | undefined;
-
-      distilbert.forEach((item: ScoreItem) => {
-        if (item.label === "POSITIVE") {
-          distilbertPositiveScore = item.score;
+    async getModerationInputsOnUser(userId: number) {
+        try {
+            return await db
+                .select()
+                .from(textInput)
+                .where(eq(textInput.userId, userId))
+                .execute();
+        } catch (error) {
+            console.error(
+                `getModerationInputsOnUserError_moderationService: ${userId}:`, error);
+            throw error;
         }
-        if (item.label === "NEGATIVE") {
-          distilbertNegativeScore = item.score;
+    }
+
+    async getTextInputOnId(textInputId: number) {
+        try {
+            return await db
+                .select()
+                .from(textInput)
+                .where(eq(textInput.id, textInputId))
+                .execute();
+        } catch (error) {
+            console.error(`getTextInputOnIdError_moderationService:  ${textInputId}:`, error);
+            throw error;
         }
-      });
+    }
 
-      let nsfwScore: number | undefined;
-      let sfwScore: number | undefined;
 
-      nsfw.forEach((item: ScoreItem) => {
-        if (item.label === "SFW") {
-          sfwScore = item.score;
-        }
-        if (item.label === "NSFW") {
-          nsfwScore = item.score;
-        }
-      });
-
-      let contactInfoScore: number | undefined;
-      let contactInfoOtherScore: number | undefined;
-
-      contactInfo.forEach((item: ScoreItem) => {
-        if (item.label === "Privacy contact information") {
-          contactInfoScore = item.score;
-        }
-        if (item.label === "Other") {
-          contactInfoOtherScore = item.score;
-        }
-      });
-
-      console.log({ distilbertPositiveScore });
-      console.log({ distilbertNegativeScore });
-      console.log({ nsfwScore });
-      console.log({ sfwScore });
-      console.log({ contactInfoScore });
-      console.log({ contactInfoOtherScore });
-
-      if (
-        !distilbertNegativeScore ||
-        !nsfwScore ||
-        !contactInfoScore ||
-        !distilbertPositiveScore ||
-        !sfwScore ||
-        !contactInfoOtherScore
-      ) {
-        return;
-      }
-
-      switch (true) {
-        case distilbertNegativeScore > 0.9 ||
-          nsfwScore > 0.9 ||
-          contactInfoScore > 0.9: {
-          const rejectedResponse = await db
+    /**
+     * Method for updating TextInput
+     */
+    async updateTextInput(textInputData: TextInputUpdateModel) {
+        const response = await db
             .update(textInput)
-            .set({
-              step: "2: AIModeration",
-              status: "rejected",
-              badWordStep: "approved",
-              aiModerationStep: "rejected",
-              manualModerationStep: "previouslyRejected",
-              updatedAt: new Date(),
-              distilbertScore: distilbertNegativeScore,
-              nsfwScore: nsfwScore,
-              contactInfoScore: contactInfoScore,
-            })
+            .set({...textInputData, updatedAt: new Date()})
             .where(eq(textInput.id, textInputData.id))
             .returning({
-              moderatedText: textInput.textInput,
-              status: textInput.aiModerationStep,
+                id: textInput.id,
+                userId: textInput.userId,
+                textInput: textInput.textInput,
             });
 
-          return {
-            ...textInputData,
-            moderatedText: rejectedResponse[0]?.moderatedText,
-            status: rejectedResponse[0]?.status,
-            aiModerationStep: "rejected",
-            manualModerationStep: "previouslyRejected",
-          };
-        }
-
-        case distilbertPositiveScore > 0.9 ||
-          sfwScore > 0.9 ||
-          contactInfoOtherScore > 0.9: {
-          const approvedResponse = await db
-            .update(textInput)
-            .set({
-              step: "3: ManualModeration",
-              status: "pending",
-              badWordStep: "approved",
-              aiModerationStep: "approved",
-              manualModerationStep: "pending",
-              updatedAt: new Date(),
-              distilbertScore: distilbertNegativeScore,
-              nsfwScore: nsfwScore,
-              contactInfoScore: contactInfoScore,
-            })
-            .where(eq(textInput.id, textInputData.id))
-            .returning({
-              moderatedText: textInput.textInput,
-              status: textInput.aiModerationStep,
-            });
-
-          return {
-            ...textInputData,
-            moderatedText: approvedResponse[0]?.moderatedText,
-            status: approvedResponse[0]?.status,
-            aiModerationStep: "approved",
-            manualModerationStep: "pending",
-          };
-        }
-
-        case (distilbertNegativeScore >= 0.5 &&
-          distilbertNegativeScore < 0.9) ||
-          (nsfwScore >= 0.5 && nsfwScore < 0.9) ||
-          (contactInfoScore >= 0.5 && contactInfoScore < 0.9): {
-          const unclassifiableResponse = await db
-            .update(textInput)
-            .set({
-              step: "3: ManualModeration",
-              status: "pending",
-              badWordStep: "approved",
-              aiModerationStep: "unclassifiable",
-              manualModerationStep: "pending",
-              updatedAt: new Date(),
-              distilbertScore: distilbertNegativeScore,
-              nsfwScore: nsfwScore,
-              contactInfoScore: contactInfoScore,
-            })
-            .where(eq(textInput.id, textInputData.id))
-            .returning({
-              moderatedText: textInput.textInput,
-              status: textInput.aiModerationStep,
-            });
-
-          return {
-            ...textInputData,
-            moderatedText: unclassifiableResponse[0]?.moderatedText,
-            status: unclassifiableResponse[0]?.status,
-            aiModerationStep: "unclassifiable",
-            manualModerationStep: "pending",
-          };
-        }
-
-        default: {
-          const defaultResponse = await db
-            .update(textInput)
-            .set({
-              step: "2: AIModeration",
-              status: "rejected",
-              badWordStep: "approved",
-              aiModerationStep: "rejected",
-              manualModerationStep: "previouslyRejected",
-              updatedAt: new Date(),
-              distilbertScore: distilbertNegativeScore,
-              nsfwScore: nsfwScore,
-              contactInfoScore: contactInfoScore,
-            })
-            .where(eq(textInput.id, textInputData.id))
-            .returning({
-              moderatedText: textInput.textInput,
-              status: textInput.aiModerationStep,
-            });
-
-          return {
-            ...textInputData,
-            moderatedText: defaultResponse[0]?.moderatedText,
-            status: defaultResponse[0]?.status,
-            aiModerationStep: "rejected",
-            manualModerationStep: "previouslyRejected",
-          };
-        }
-      }
-    } catch (error) {
-      console.error(`Error in aiModerationStep: ${error}`);
-      throw error;
+        return response[0];
     }
-  }
 
-  // async manualModerationStep(textInputData: string) {
-  //   // TODO make the logic for manually approving or rejecting and maybe in the future - reason for rejection
-  // }
+    /**
+     * Method for checking bad words (step 1 in moderation)
+     * @param textInputData
+     */
+    async badWords(textInputData: TextInputSelectData): Promise<string[]> {
+        return await getBadWordsFromInput(textInputData.textInput);
+    }
+
+    async distilbert(textInput: string) {
+        const url = "http://localhost:3000/api/ai/distilbert";
+        const data = {inputs: textInput};
+
+        try {
+            const response = await axios.post(url, data);
+            return response.data[0];
+        } catch (error) {
+            console.log("distilbertError_moderationService: ", error);
+            throw error;
+        }
+    }
+
+    async nsfw(textInput: string) {
+        const url = "http://localhost:3000/api/ai/nsfw";
+        const data = {inputs: textInput};
+
+        try {
+            const response = await axios.post(url, data);
+            return response.data[0];
+        } catch (error) {
+            console.log("nsfwError_moderationService: ", error);
+            throw error;
+        }
+    }
+
+    async contactInfo(textInput: string) {
+        const url = "http://localhost:3000/api/ai/contactInfo";
+        const data = {inputs: textInput};
+
+        try {
+            const response = await axios.post(url, data);
+            return response.data[0];
+        } catch (error) {
+            console.log("contactInfoError_moderationService: ", error);
+            throw error;
+        }
+    }
+
+    async moderation(textInput: string) {
+        const url = "http://localhost:3000/api/ai/moderation"; // replace with your server's URL and port
+        const data = {inputs: textInput};
+
+        try {
+            const response = await axios.post(url, data);
+            return response.data[0];
+        } catch (error) {
+            console.log("moderationError_moderationService: ", error);
+            throw error;
+        }
+    }
+
+
+    async aiModeration(
+        textInputData: TextInputSelectData,
+    ): Promise<AiModerationResponse | undefined> {
+        if (!textInputData || typeof textInputData.textInput !== "string") {
+            throw new Error("Invalid textInputData");
+        }
+
+        try {
+            const [distilbert, nsfw, contactInfo] = await Promise.all([
+                this.distilbert(textInputData.textInput),
+                this.nsfw(textInputData.textInput),
+                this.contactInfo(textInputData.textInput),
+            ]);
+
+            const distilbertPositiveScore = distilbert.find(
+                (item: ScoreItem) => item.label === "POSITIVE",
+            )?.score;
+            const distilbertNegativeScore = distilbert.find(
+                (item: ScoreItem) => item.label === "NEGATIVE",
+            )?.score;
+            const sfwScore = nsfw.find((item: ScoreItem) => item.label === "SFW")
+                ?.score;
+            const nsfwScore = nsfw.find((item: ScoreItem) => item.label === "NSFW")
+                ?.score;
+            const contactInfoOtherScore = contactInfo.find(
+                (item: ScoreItem) => item.label === "Other",
+            )?.score;
+            const contactInfoScore = contactInfo.find(
+                (item: ScoreItem) => item.label === "Privacy contact information",
+            )?.score;
+
+            if (
+                !distilbertPositiveScore ||
+                !distilbertNegativeScore ||
+                !sfwScore ||
+                !nsfwScore ||
+                !contactInfoOtherScore ||
+                !contactInfoScore
+            ) {
+                return undefined;
+            }
+
+            console.log({distilbertPositiveScore})
+            console.log({distilbertNegativeScore})
+            console.log({sfwScore})
+            console.log({nsfwScore})
+            console.log({contactInfoOtherScore})
+            console.log({contactInfoScore})
+
+            if (distilbertNegativeScore > 0.9 && nsfwScore > 0.9 || nsfwScore > 0.99 || contactInfoScore > 0.9) {
+                return {
+                    distilbertNegativeScore: distilbertNegativeScore,
+                    nsfwScore: nsfwScore,
+                    contactInfoScore: contactInfoScore,
+                    status: "rejected",
+                };
+            }
+
+            if ((nsfw > 0.99 && distilbertNegativeScore <= 0.2)) {
+                return {
+                    distilbertNegativeScore: distilbertNegativeScore,
+                    nsfwScore: nsfwScore,
+                    contactInfoScore: contactInfoScore,
+                    status: "unclassifiable",
+                };
+            }
+
+            if (distilbertNegativeScore > 0.99 && nsfwScore < 0.8) {
+                return {
+                    distilbertNegativeScore: distilbertNegativeScore,
+                    nsfwScore: nsfwScore,
+                    contactInfoScore: contactInfoScore,
+                    status: "unclassifiable",
+                };
+            }
+
+
+            if (
+                (distilbertNegativeScore >= 0.5 && distilbertNegativeScore < 0.9) ||
+                (nsfwScore >= 0.5 && nsfwScore < 0.9) ||
+                (nsfwScore >= 0.5 && nsfwScore < 0.9) && (contactInfoScore >= 0.5 && contactInfoScore < 0.9)
+            ) {
+                return {
+                    distilbertNegativeScore: distilbertNegativeScore,
+                    nsfwScore: nsfwScore,
+                    contactInfoScore: contactInfoScore,
+                    status: "unclassifiable",
+                };
+            }
+
+            if (distilbertPositiveScore > 0.9 && sfwScore > 0.9 || contactInfoOtherScore > 0.9) {
+                return {
+                    distilbertNegativeScore: distilbertNegativeScore,
+                    nsfwScore: nsfwScore,
+                    contactInfoScore: contactInfoScore,
+                    status: "approved",
+                };
+            }
+
+        } catch (error) {
+            console.log("AiModeration_ModerationService: ", error);
+            throw error;
+        }
+    }
+
+    async getModerationTags(textInputData: TextInputSelectData): Promise<string> {
+        const moderation = await this.moderation(textInputData.textInput);
+
+        const labelScores: { [key: string]: number | undefined } = {
+            OK: moderation.find((item: ScoreItem) => item.label === "OK")?.score,
+            sexual: moderation.find((item: ScoreItem) => item.label === "S")?.score,
+            hate: moderation.find((item: ScoreItem) => item.label === "H")?.score,
+            violence: moderation.find((item: ScoreItem) => item.label === "V")?.score,
+            harassment: moderation.find((item: ScoreItem) => item.label === "HR")
+                ?.score,
+            selfHarm: moderation.find((item: ScoreItem) => item.label === "SH")
+                ?.score,
+            sexualMinor: moderation.find((item: ScoreItem) => item.label === "S3")
+                ?.score,
+            hateThreatening: moderation.find((item: ScoreItem) => item.label === "H2")
+                ?.score,
+            violenceGraphic: moderation.find((item: ScoreItem) => item.label === "V2")
+                ?.score,
+
+        };
+
+        const highScoreLabels: string[] = [];
+
+        for (const label in labelScores) {
+            if (labelScores[label]! > 0.15) {
+                highScoreLabels.push(label);
+            }
+        }
+
+        return highScoreLabels.join(", ");
+    }
+
+    // async manualModerationStep(textInputData: string) {
+    //   // TODO make the logic for manually approving or rejecting and maybe in the future - reason for rejection
+    // }
 }

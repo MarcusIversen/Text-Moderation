@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
-import { setupDatabase } from "./db/setup";
-import userRoutes from "./routes/userRoutes";
+import { migrateDB } from "./db/setup";
+import userRoutes from "./routes/apiRoutes";
 
 export const setupApplication = async () => {
   const app = express();
@@ -10,7 +10,7 @@ export const setupApplication = async () => {
 
   app.use("/api", userRoutes);
 
-  await setupDatabase();
+  await migrateDB();
 
   return app;
 };

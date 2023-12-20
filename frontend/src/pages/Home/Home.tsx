@@ -12,6 +12,7 @@ import {
     TextField,
     Typography
 } from "@mui/material";
+
 import SendIcon from "@mui/icons-material/Send";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -76,36 +77,6 @@ export const Home: React.FunctionComponent = () => {
 
 
     const fillTextInputInfo = useCallback(async () => {
-
-        console.log({
-            id,
-            moderationTags,
-            theme,
-            textValue,
-            showWordStep,
-            loadingWordStep,
-            approvedWordStep,
-            wordStepOver,
-            showAIStep,
-            loadingAIStep,
-            approvedAIStep,
-            AIStepOver,
-            unclassifiableAIStep,
-            showManualStep,
-            manualExpanded,
-            pendingManualModeration,
-            approveChecked,
-            rejectChecked,
-            approveReason,
-            rejectReason,
-            approvedManualStep,
-            errorMessage,
-            showErrorMessage,
-            prevTextInputId,
-            showManualStepForm,
-            showManualStepResult,
-            loadingManualModeration,
-        })
 
         try {
             const textInput = await moderationService.getTextInputById(textInputId);
@@ -413,6 +384,36 @@ export const Home: React.FunctionComponent = () => {
             setLoadingWordStep(false);
             setLoadingAIStep(false);
         }
+
+        console.log({
+            id,
+            moderationTags,
+            theme,
+            textValue,
+            showWordStep,
+            loadingWordStep,
+            approvedWordStep,
+            wordStepOver,
+            showAIStep,
+            loadingAIStep,
+            approvedAIStep,
+            AIStepOver,
+            unclassifiableAIStep,
+            showManualStep,
+            manualExpanded,
+            pendingManualModeration,
+            approveChecked,
+            rejectChecked,
+            approveReason,
+            rejectReason,
+            approvedManualStep,
+            errorMessage,
+            showErrorMessage,
+            prevTextInputId,
+            showManualStepForm,
+            showManualStepResult,
+            loadingManualModeration,
+        })
 
     }
 

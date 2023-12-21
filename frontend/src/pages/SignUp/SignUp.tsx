@@ -1,4 +1,5 @@
 import * as React from "react";
+import {useState} from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -11,14 +12,13 @@ import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { ThemeProvider } from "@mui/material/styles";
-import { useState } from "react";
-import { Alert, CircularProgress, Snackbar } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import { defaultTheme } from "../../assets/theme.ts";
-import { UserService } from "../../services/UserService.ts";
+import {ThemeProvider} from "@mui/material/styles";
+import {Alert, CircularProgress, Snackbar} from "@mui/material";
+import {useNavigate} from "react-router-dom";
+import {defaultTheme} from "../../assets/theme.ts";
+import {UserService} from "../../services/UserService.ts";
 import "./SignUp.css";
-import { Copyright } from "../../components/Copyright.tsx";
+import {Copyright} from "../../components/Copyright.tsx";
 
 export default function SignUp() {
   const navigate = useNavigate();
@@ -94,7 +94,7 @@ export default function SignUp() {
             component="form"
             noValidate
             onSubmit={handleSubmit}
-            sx={{ marginTop: 3 }}
+            sx={{ marginTop: 1.5 }}
           >
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
@@ -212,10 +212,11 @@ export default function SignUp() {
               </Grid>
             </Grid>
           </Box>
+          <Box className="copyrightBox">
+            <Copyright />
+          </Box>
         </Box>
-        <Box className="copyrightBox">
-          <Copyright />
-        </Box>
+
         <Snackbar
           open={openSnackbar}
           autoHideDuration={3500}

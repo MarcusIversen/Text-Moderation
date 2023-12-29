@@ -11,6 +11,7 @@ export class ModerationService {
             const response = await this.api.get(`/moderation/moderation-inputs-on-user/${userID}`);
             return response.data;
         } catch (error) {
+            console.error("Error in getAllModerationInputs: ", error);
             throw error;
         }
     }
@@ -20,6 +21,7 @@ export class ModerationService {
             const response = await this.api.get(`/moderation/text-input/${textInputId}`);
             return response.data[0];
         } catch (error) {
+            console.error("Error in getTextInputById: ", error);
             throw error;
         }
     }
@@ -29,6 +31,7 @@ export class ModerationService {
             const response = await this.api.get(`/moderation/text-log/${textInputId}`);
             return response.data[0];
         } catch (error) {
+            console.error("Error in getTextLogById: ", error);
             throw error;
         }
     }
@@ -38,6 +41,7 @@ export class ModerationService {
             const response = await this.api.post(`/moderation/moderate-text-input`, {userId, content});
             return response.data;
         } catch (error) {
+            console.error("Error in createAndProcessTextInput: ", error);
             throw error;
         }
     }
@@ -57,6 +61,7 @@ export class ModerationService {
             const response = await this.api.put(`/moderation/approve-text-input/${textInputId}`, {moderationTags: moderationTags});
             return response.data;
         } catch (error) {
+            console.error("Error in approveTextInput: ", error);
             throw error;
         }
     }
@@ -66,6 +71,7 @@ export class ModerationService {
             const response = await this.api.put(`/moderation/reject-text-input/${textInputId}`, {moderationTags: moderationTags});
             return response.data;
         } catch (error) {
+            console.error("Error in rejectTextInput: ", error);
             throw error;
         }
     }

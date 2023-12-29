@@ -29,7 +29,7 @@ interface ModerationInput {
 }
 
 
-export const SideBar: React.FunctionComponent = (sidebarKey) => {
+export const SideBar: React.FunctionComponent = (SideBarKey) => {
     const cookies = new Cookies();
     const navigate = useNavigate();
 
@@ -46,7 +46,7 @@ export const SideBar: React.FunctionComponent = (sidebarKey) => {
 
     const fetchModerationInputs = async () => {
         try {
-            const inputs = await moderationService.getAllModerationInputs(decodedCookie.id);
+            const inputs = await moderationService. getAllModerationInputs(decodedCookie.id);
 
             // Sort the inputs based on the updatedAt property in descending order
             inputs.sort((a: ModerationInput, b: ModerationInput) => {
@@ -63,7 +63,7 @@ export const SideBar: React.FunctionComponent = (sidebarKey) => {
 
     useEffect(() => {
         fetchModerationInputs();
-    }, [sidebarKey]);
+    }, [SideBarKey]);
 
     if (!cookie) return;
 
@@ -84,7 +84,7 @@ export const SideBar: React.FunctionComponent = (sidebarKey) => {
 
     // If the textInput exceeds 28 characters, truncate it and add "..." at the end
     const truncateText = (text: string): string => {
-        const maxLength = 28;
+        const maxLength = 22;
         return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
     };
 

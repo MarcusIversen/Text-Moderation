@@ -1,4 +1,5 @@
 import * as React from "react";
+import {ChangeEvent, useCallback, useEffect, useMemo, useState} from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -11,14 +12,13 @@ import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { ThemeProvider } from "@mui/material/styles";
-import { defaultTheme } from "../../assets/theme.ts";
-import { Copyright } from "../../components/Copyright.tsx";
-import { UserService } from "../../services/UserService.ts";
-import { useNavigate } from "react-router-dom";
-import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
-import { Alert, CircularProgress, Snackbar } from "@mui/material";
-import { jwtDecode, JwtPayload } from "jwt-decode";
+import {ThemeProvider} from "@mui/material/styles";
+import {defaultTheme} from "../../assets/theme.ts";
+import {Copyright} from "../../components/Copyright.tsx";
+import {UserService} from "../../services/UserService.ts";
+import {useNavigate} from "react-router-dom";
+import {Alert, CircularProgress, Snackbar} from "@mui/material";
+import {jwtDecode, JwtPayload} from "jwt-decode";
 import "./Login.css";
 import Cookies from "universal-cookie";
 
@@ -125,7 +125,6 @@ export const Login: React.FunctionComponent = () => {
       <Container
         component="main"
         maxWidth="xs"
-        style={{ overflow: "hidden", marginTop: -40 }}
       >
         <CssBaseline />
         <Box className={"containerBox"}>

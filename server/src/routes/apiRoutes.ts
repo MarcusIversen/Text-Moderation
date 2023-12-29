@@ -30,9 +30,26 @@ router.delete("/users/delete/:userId", (req, res) =>
 );
 
 //Moderation
+router.get("/moderation/text-log/:textInputId", (req, res) =>
+    moderationController.getTextLogOnId(req, res),
+);
+
 router.post("/moderation/moderate-text-input", (req, res) =>
     moderationController.processTextInput(req, res),
 );
+
+router.put("/moderation/approve-text-input/:textInputId", (req, res) =>
+    moderationController.approveTextInput(req, res),
+);
+
+router.put("/moderation/reject-text-input/:textInputId", (req, res) =>
+    moderationController.rejectTextInput(req, res),
+);
+
+router.delete("/moderation/delete-text-input/:textInputId", (req, res) =>
+    moderationController.deleteTextInput(req, res),
+);
+
 
 router.get("/moderation/list-of-bad-words", (req, res) =>
     moderationController.getBadWordsList(req, res),

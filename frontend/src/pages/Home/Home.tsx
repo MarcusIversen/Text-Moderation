@@ -120,6 +120,10 @@ export const Home: React.FunctionComponent = () => {
 
                     if (textInput.badWordStep === "approved" && textInput.aiModerationStep === "approved") {
                         setShowAIStep(true);
+                        setShowManualStep(false);
+                        setManuallyModerated(false);
+                        setPendingManualModeration(false);
+                        setShowManualStepResult(false);
                         setApprovedWordStep(true);
                         setUnclassifiableAIStep(false);
                         setApprovedAIStep(true);
@@ -149,7 +153,7 @@ export const Home: React.FunctionComponent = () => {
 
                         }
                     }
-                    if (textInput.manualModerationStep === "approved") {
+                    if (textInput.manualModerationStep === "approved" && textInput.aiModerationStep === "unclassifiable") {
                         setUnclassifiableAIStep(true);
                         setShowManualStep(true);
                         setShowManualStepForm(false);

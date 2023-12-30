@@ -273,7 +273,7 @@ export class ModerationController {
 
             res.json(moderationOnUser);
         } catch (error) {
-            return res.status(500).send("Internal server error");
+            return res.status(500).send("Internal backend error");
         }
     }
 
@@ -292,7 +292,7 @@ export class ModerationController {
 
             res.json(textInput);
         } catch (error) {
-            return res.status(500).send("Internal server error");
+            return res.status(500).send("Internal backend error");
         }
     }
 }

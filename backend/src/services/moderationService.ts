@@ -238,7 +238,7 @@ export class ModerationService {
     }
 
     async moderation(textInput: string) {
-        const url = "http://localhost:3000/api/ai/moderation"; // replace with your server's URL and port
+        const url = "http://localhost:3000/api/ai/moderation"; // replace with your backend's URL and port
         const data = {inputs: textInput};
 
         try {

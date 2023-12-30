@@ -17,13 +17,13 @@ services:
   backend:
     ports:
       - "3000:3000"
-    build: ./server
+    build: backend
     environment:
       - DATABASE_URL=postgres://textmoderation:texmopassword123@db:5432/textmoderationdb
     volumes:
-      - ./server/src:/app/src:delegated
-      - ./server/drizzle:/app/drizzle:delegated
-      - ./server/db:/app/db:delegated
+      - ./backend/src:/app/src:delegated
+      - ./backend/drizzle:/app/drizzle:delegated
+      - ./backend/db:/app/db:delegated
     networks:
       - my_network
     depends_on:

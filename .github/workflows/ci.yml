@@ -28,7 +28,7 @@ jobs:
         working-directory: ./frontend
 
   validate_server:
-    name: validate server
+    name: validate backend
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -38,18 +38,18 @@ jobs:
         with:
           node-version: 20
 
-      - name: npm install server
+      - name: npm install backend
         run: npm install
-        working-directory: ./server
+        working-directory: ./backend
 
-      - name: Typecheck server
+      - name: Typecheck backend
         run: npm run typecheck
-        working-directory: ./server
+        working-directory: ./backend
 
       - name: Eslint check
         run: npm run lint
-        working-directory: ./server
+        working-directory: ./backend
         
-      - name: Prettier server
+      - name: Prettier backend
         run: npm run prettier
-        working-directory: ./server
+        working-directory: ./backend

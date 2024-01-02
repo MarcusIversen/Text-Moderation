@@ -27,7 +27,7 @@ jobs:
         run: npm run prettier
         working-directory: ./frontend
 
-  validate_server:
+  validate_backend:
     name: validate backend
     runs-on: ubuntu-latest
     steps:

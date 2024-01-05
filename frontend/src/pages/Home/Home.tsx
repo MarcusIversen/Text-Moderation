@@ -47,8 +47,7 @@ export const Home: React.FunctionComponent = () => {
     const navigate = useNavigate();
     const moderationService = new ModerationService();
     const cookie = cookies.get("AuthCookie");
-    if (!cookie) return;
-    const decodedCookie = jwtDecode<TokenPayload>(cookie);
+
 
     const [id, setId] = useState("");
     const [moderationTags, setModerationTags] = useState("");
@@ -233,6 +232,9 @@ export const Home: React.FunctionComponent = () => {
             setPrevTextInputId(textInputId);
         }
     }, [textInputId, fillTextInputInfo, prevTextInputId]);
+
+    if (!cookie) return;
+    const decodedCookie = jwtDecode<TokenPayload>(cookie);
 
     const handleTextChange = (value: string) => {
         setTextValue(value);

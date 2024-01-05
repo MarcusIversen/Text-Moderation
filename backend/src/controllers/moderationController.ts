@@ -59,13 +59,15 @@ export class ModerationController {
 
             const aiModeration = await this.moderationService.aiModeration(textData);
 
-            if (aiModeration?.status === "rejected") {
+
+
+            if (aiModeration?.status === "rejected" && aiModeration?.contactInfoScore > 0.9) {
                 const moderationTags =
                     await this.moderationService.getModerationTags(textData);
                 await this.moderationService.createLog(
                     textData.id,
                     "2: AIModeration",
-                    moderationTags,
+                    moderationTags + ", " + "Personal information detected",
                 );
                 await this.moderationService.updateTextInput({
                     id: textData.id,
@@ -87,7 +89,6 @@ export class ModerationController {
                     userId: userId,
                     id: textData.id,
                 });
-
             }
 
             if (aiModeration?.status === "approved") {
@@ -187,7 +188,7 @@ export class ModerationController {
             status: "approved",
             step: "3: ManualModeration",
             badWordStep: "approved",
-            aiModerationStep: "approved",
+            aiModerationStep: "unclassifiable",
             manualModerationStep: "approved",
             wordListScore: textInput[0]?.wordListScore ?? 0,
             nsfwScore: textInput[0]?.nsfwScore ?? 0,
@@ -223,7 +224,7 @@ export class ModerationController {
             status: "rejected",
             step: "3: ManualModeration",
             badWordStep: "approved",
-            aiModerationStep: "approved",
+            aiModerationStep: "unclassifiable",
             manualModerationStep: "rejected",
             wordListScore: textInput[0]?.wordListScore ?? 0,
             nsfwScore: textInput[0]?.nsfwScore ?? 0,

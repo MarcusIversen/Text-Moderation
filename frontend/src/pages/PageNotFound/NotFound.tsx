@@ -1,16 +1,9 @@
 import React from "react";
-import {
-  Avatar,
-  Box,
-  Button,
-  Container,
-  CssBaseline,
-  Typography,
-} from "@mui/material";
-import { ThemeProvider } from "@mui/material/styles";
-import { useNavigate } from "react-router-dom";
+import {Avatar, Box, Button, Container, CssBaseline, Typography,} from "@mui/material";
+import {ThemeProvider} from "@mui/material/styles";
+import {useNavigate} from "react-router-dom";
 import ReportGmailerrorredIcon from "@mui/icons-material/ReportGmailerrorred";
-import { defaultTheme } from "../../assets/theme.ts";
+import {defaultTheme} from "../../theme/theme.ts";
 import "./NotFound.css";
 
 export const NotFound: React.FunctionComponent = () => {

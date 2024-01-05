@@ -15,7 +15,7 @@ import Container from "@mui/material/Container";
 import {ThemeProvider} from "@mui/material/styles";
 import {Alert, CircularProgress, Snackbar} from "@mui/material";
 import {useNavigate} from "react-router-dom";
-import {defaultTheme} from "../../assets/theme.ts";
+import {defaultTheme} from "../../theme/theme.ts";
 import {UserService} from "../../services/UserService.ts";
 import "./SignUp.css";
 import {Copyright} from "../../components/Copyright.tsx";

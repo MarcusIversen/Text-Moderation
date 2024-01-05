@@ -11,7 +11,8 @@ interface WithRetryArgs {
 }
 
 /**
- * utility method designed to add retry functionality to asynchronous operations, specifically for making HTTP requests.
+ * utility method for handling asynchronous operations with promises.
+ * Simplifies error handling by encapsulating resolution and rejection logic in a single promise.
  * Takes a promise and returns a promise that resolves to an array of two elements.
  * Returns [null, result] if the promise resolves successfully, or [error, null] if the promise rejects.
  * @param promise
@@ -79,7 +80,8 @@ export const modelEndpoint =
 
         const data = {inputs: req.body.inputs};
         const [myError, myValue] = await perhaps(
-            withRetry({})(axios.post(modelUrl, data, {headers})),
+            withRetry({})
+                     (axios.post(modelUrl, data, {headers})),
         );
 
         if (myError) {

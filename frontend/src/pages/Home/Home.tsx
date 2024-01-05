@@ -21,7 +21,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
 import {ThemeProvider} from "@mui/material/styles";
-import {defaultTheme, errorTheme} from "../../assets/theme.ts";
+import {defaultTheme, errorTheme} from "../../theme/theme.ts";
 import {SideBar} from "../../components/SideBar/SideBar.tsx";
 import Cookies from "universal-cookie";
 import {jwtDecode, JwtPayload} from "jwt-decode";
@@ -47,6 +47,7 @@ export const Home: React.FunctionComponent = () => {
     const navigate = useNavigate();
     const moderationService = new ModerationService();
     const cookie = cookies.get("AuthCookie");
+
 
     const [id, setId] = useState("");
     const [moderationTags, setModerationTags] = useState("");
@@ -79,6 +80,9 @@ export const Home: React.FunctionComponent = () => {
     const fillTextInputInfo = useCallback(async () => {
                 try {
                     const textInput = await moderationService.getTextInputById(textInputId);
+                    if(textInput.userId !== decodedCookie.id){
+                        navigate(`/home`);
+                    }
                     const textLog = await moderationService.getTextLogById(textInputId);
                     if (textLog) {
                         setModerationTags(textLog.moderationTags);
@@ -120,6 +124,10 @@ export const Home: React.FunctionComponent = () => {
 
                     if (textInput.badWordStep === "approved" && textInput.aiModerationStep === "approved") {
                         setShowAIStep(true);
+                        setShowManualStep(false);
+                        setManuallyModerated(false);
+                        setPendingManualModeration(false);
+                        setShowManualStepResult(false);
                         setApprovedWordStep(true);
                         setUnclassifiableAIStep(false);
                         setApprovedAIStep(true);
@@ -149,7 +157,7 @@ export const Home: React.FunctionComponent = () => {
 
                         }
                     }
-                    if (textInput.manualModerationStep === "approved") {
+                    if (textInput.manualModerationStep === "approved" && textInput.aiModerationStep === "unclassifiable") {
                         setUnclassifiableAIStep(true);
                         setShowManualStep(true);
                         setShowManualStepForm(false);
@@ -204,12 +212,12 @@ export const Home: React.FunctionComponent = () => {
         }
     };
 
-    const handleApproveReasonChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setApproveReason(event.target.value);
+    const handleApproveReasonChange = (value: string) => {
+        setApproveReason(value);
     };
 
-    const handleRejectReasonChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setRejectReason(event.target.value);
+    const handleRejectReasonChange = (value: string) => {
+        setRejectReason(value);
     };
 
 
@@ -224,7 +232,6 @@ export const Home: React.FunctionComponent = () => {
             setPrevTextInputId(textInputId);
         }
     }, [textInputId, fillTextInputInfo, prevTextInputId]);
-
 
     if (!cookie) return;
     const decodedCookie = jwtDecode<TokenPayload>(cookie);
@@ -249,7 +256,9 @@ export const Home: React.FunctionComponent = () => {
             setPendingManualModeration(false);
             setManuallyModerated(true);
 
-            if (!id) {
+
+
+                if (!id) {
                 await moderationService.approveTextInput(textInputId, approveReason)
             } else if (!textInputId) {
                 await moderationService.approveTextInput(id, approveReason)
@@ -502,7 +511,7 @@ export const Home: React.FunctionComponent = () => {
                                             {approvedWordStep && (
                                                 <Box sx={{textAlign: 'center'}}>
                                                     <CheckCircleIcon sx={{height: 60, width: 60, color: "green"}}/>
-                                                    <Typography sx={{fontSize: "small", marginTop: -1}}>
+                                                    <Typography sx={{fontSize: "small", marginTop: -1, paddingBottom: 1}}>
                                                         approved
                                                     </Typography>
                                                 </Box>
@@ -510,7 +519,7 @@ export const Home: React.FunctionComponent = () => {
                                             {!approvedWordStep && !loadingWordStep && (
                                                 <Box sx={{textAlign: 'center'}}>
                                                     <CancelIcon sx={{height: 60, width: 60, color: "red"}}/>
-                                                    <Typography sx={{fontSize: "small", marginTop: -1}}>
+                                                    <Typography sx={{fontSize: "small", marginTop: -1, paddingBottom: 1}}>
                                                         rejected
                                                     </Typography>
                                                 </Box>
@@ -599,7 +608,7 @@ export const Home: React.FunctionComponent = () => {
                                             {unclassifiableAIStep && showManualStep && !manuallyModerated &&(
                                                 <Box style={{textAlign: 'center'}}>
                                                     <CancelIcon style={{height: 60, width: 60, color: "orange"}}/>
-                                                    <Typography sx={{fontSize: "small", marginTop: -1}}>
+                                                    <Typography sx={{fontSize: "small", marginTop: -1, paddingBottom: 1}}>
                                                         unclassifiable
                                                     </Typography>
                                                 </Box>
@@ -607,20 +616,20 @@ export const Home: React.FunctionComponent = () => {
                                             {manuallyModerated &&(
                                                 <Box style={{textAlign: 'center'}}>
                                                     <CancelIcon style={{height: 60, width: 60, color: "orange"}}/>
-                                                    <Typography sx={{fontSize: "small", marginTop: -1}}>
+                                                    <Typography sx={{fontSize: "small", marginTop: -1, paddingBottom: 1}}>
                                                         unclassifiable
                                                     </Typography>
                                                 </Box>
                                             )}
                                             {loadingAIStep && (
                                                 <Box style={{textAlign: 'center', paddingRight: 5,}}>
-                                                    <CircularProgress style={{width: 60, height: 60}}/>
+                                                    <CircularProgress style={{width: 60, height: 60, paddingBottom: 1}}/>
                                                 </Box>
                                             )}
                                             {approvedAIStep && !manuallyModerated &&(
                                                 <Box style={{textAlign: 'center', marginRight: 12}}>
                                                     <CheckCircleIcon sx={{height: 60, width: 60, color: "green"}}/>
-                                                    <Typography sx={{fontSize: "small", marginTop: -1}}>
+                                                    <Typography sx={{fontSize: "small", marginTop: -1, paddingBottom: 1}}>
                                                         approved
                                                     </Typography>
                                                 </Box>
@@ -635,7 +644,7 @@ export const Home: React.FunctionComponent = () => {
                                                             marginRight: 1.5
                                                         }}/>
                                                     <Typography
-                                                        sx={{fontSize: "small", marginTop: -1, marginRight: 1.5}}>
+                                                        sx={{fontSize: "small", marginTop: -1, marginRight: 1.5, paddingBottom: 1}}>
                                                         rejected
                                                     </Typography>
                                                 </Box>
@@ -825,8 +834,7 @@ export const Home: React.FunctionComponent = () => {
                                                                     fullWidth
                                                                     multiline={true}
                                                                     rows={2}
-                                                                    value={approveReason}
-                                                                    onChange={handleApproveReasonChange}
+                                                                    onBlur={(e) => handleApproveReasonChange(e.target.value)}
                                                                 />
                                                                 <Button variant="contained"
                                                                         onClick={handleApproveSubmit}>
@@ -848,8 +856,7 @@ export const Home: React.FunctionComponent = () => {
                                                                     fullWidth
                                                                     multiline={true}
                                                                     rows={2}
-                                                                    value={rejectReason}
-                                                                    onChange={handleRejectReasonChange}
+                                                                    onBlur={(e) => handleRejectReasonChange(e.target.value)}
                                                                 />
                                                                 <Button variant="contained"
                                                                         onClick={handleRejectSubmit}>
@@ -918,7 +925,7 @@ export const Home: React.FunctionComponent = () => {
                                 }
                                 style={{width: 800}}
                                 variant="outlined"
-                                placeholder="Write text input here..."
+                                placeholder="Try writing a profane text here...."
                                 multiline={true}
                                 maxRows={4}
                                 onBlur={(e) => {

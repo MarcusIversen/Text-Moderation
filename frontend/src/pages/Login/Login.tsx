@@ -13,7 +13,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import {ThemeProvider} from "@mui/material/styles";
-import {defaultTheme} from "../../assets/theme.ts";
+import {defaultTheme} from "../../theme/theme.ts";
 import {Copyright} from "../../components/Copyright.tsx";
 import {UserService} from "../../services/UserService.ts";
 import {useNavigate} from "react-router-dom";

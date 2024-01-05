@@ -238,7 +238,7 @@ export class ModerationService {
     }
 
     async moderation(textInput: string) {
-        const url = "http://localhost:3000/api/ai/moderation"; // replace with your server's URL and port
+        const url = "http://localhost:3000/api/ai/moderation"; // replace with your backend's URL and port
         const data = {inputs: textInput};
 
         try {
@@ -293,7 +293,7 @@ export class ModerationService {
                 return undefined;
             }
 
-            if (distilbertNegativeScore > 0.9 && nsfwScore > 0.9 || nsfwScore > 0.99 || contactInfoScore > 0.9) {
+            if (distilbertNegativeScore > 0.9 && nsfwScore > 0.9 || nsfwScore > 0.95 || contactInfoScore > 0.9) {
                 return {
                     distilbertNegativeScore: distilbertNegativeScore,
                     nsfwScore: nsfwScore,
@@ -302,14 +302,24 @@ export class ModerationService {
                 };
             }
 
-            if ((nsfw > 0.99 && distilbertNegativeScore <= 0.2)) {
+            if(distilbertNegativeScore < 0.75 && nsfwScore < 0.75 && contactInfoScore < 0.2) {
                 return {
                     distilbertNegativeScore: distilbertNegativeScore,
                     nsfwScore: nsfwScore,
                     contactInfoScore: contactInfoScore,
-                    status: "unclassifiable",
+                    status: "approved",
                 };
             }
+
+
+            // if ((nsfwScore > 0.95 && distilbertNegativeScore <= 0.2)) {
+            //     return {
+            //         distilbertNegativeScore: distilbertNegativeScore,
+            //         nsfwScore: nsfwScore,
+            //         contactInfoScore: contactInfoScore,
+            //         status: "unclassifiable",
+            //     };
+            // }
 
             if (distilbertNegativeScore > 0.99 && nsfwScore < 0.8) {
                 console.log("nNOWWWWWW!")
@@ -343,6 +353,7 @@ export class ModerationService {
                     status: "approved",
                 };
             }
+
 
         } catch (error) {
             console.log("AiModeration_ModerationService: ", error);

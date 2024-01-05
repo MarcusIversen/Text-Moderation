@@ -6,7 +6,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import LogoutIcon from '@mui/icons-material/Logout';
 import {ThemeProvider} from "@mui/material/styles";
-import {defaultTheme} from "../../assets/theme.ts";
+import {defaultTheme} from "../../theme/theme.ts";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import Cookies from "universal-cookie";
@@ -79,7 +79,7 @@ export const SideBar: React.FunctionComponent = (SideBarKey) => {
     const handleLogout = () => {
         localStorage.clear();
         cookies.remove("AuthCookie");
-        navigate("/login");
+        navigate("/home");
     };
 
     // If the textInput exceeds 28 characters, truncate it and add "..." at the end

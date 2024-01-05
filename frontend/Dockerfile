@@ -7,3 +7,6 @@ COPY public ./public
 COPY index.html ./index.html
 EXPOSE 3000
 CMD [ "npm" , "run" , "dev" ]
+
+
+

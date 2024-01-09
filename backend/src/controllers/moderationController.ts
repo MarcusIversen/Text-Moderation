@@ -60,15 +60,23 @@ export class ModerationController {
             const aiModeration = await this.moderationService.aiModeration(textData);
 
 
+            if (aiModeration?.status === "rejected") {
+                const moderationTags = await this.moderationService.getModerationTags(textData);
 
-            if (aiModeration?.status === "rejected" && aiModeration?.contactInfoScore > 0.9) {
-                const moderationTags =
-                    await this.moderationService.getModerationTags(textData);
-                await this.moderationService.createLog(
-                    textData.id,
-                    "2: AIModeration",
-                    moderationTags + ", " + "Personal information detected",
-                );
+                if(aiModeration?.contactInfoScore > 0.9){
+                    await this.moderationService.createLog(
+                        textData.id,
+                        "2: AIModeration",
+                        moderationTags + ", " + "Personal information detected",
+                    );
+                }else if(aiModeration?.contactInfoScore < 0.9){
+                    await this.moderationService.createLog(
+                        textData.id,
+                        "2: AIModeration",
+                        moderationTags,
+                    );
+                }
+
                 await this.moderationService.updateTextInput({
                     id: textData.id,
                     status: "rejected",
@@ -90,6 +98,7 @@ export class ModerationController {
                     id: textData.id,
                 });
             }
+
 
             if (aiModeration?.status === "approved") {
                 await this.moderationService.updateTextInput({

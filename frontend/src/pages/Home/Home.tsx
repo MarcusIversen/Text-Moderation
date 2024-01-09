@@ -80,7 +80,7 @@ export const Home: React.FunctionComponent = () => {
     const fillTextInputInfo = useCallback(async () => {
                 try {
                     const textInput = await moderationService.getTextInputById(textInputId);
-                    if(textInput.userId !== decodedCookie.id){
+                    if (textInput.userId !== decodedCookie.id) {
                         navigate(`/home`);
                     }
                     const textLog = await moderationService.getTextLogById(textInputId);
@@ -257,8 +257,7 @@ export const Home: React.FunctionComponent = () => {
             setManuallyModerated(true);
 
 
-
-                if (!id) {
+            if (!id) {
                 await moderationService.approveTextInput(textInputId, approveReason)
             } else if (!textInputId) {
                 await moderationService.approveTextInput(id, approveReason)
@@ -430,7 +429,8 @@ export const Home: React.FunctionComponent = () => {
                         padding: 2,
                     }}
                 >
-                    <Typography variant="subtitle1" sx={{paddingBottom: 1.75}}>Automated Text Moderation
+                    <Typography component={'span'} variant="subtitle1" sx={{paddingBottom: 1.75}}>Automated Text
+                        Moderation
                         V1.0</Typography>
                     <Box
                         sx={{
@@ -447,7 +447,7 @@ export const Home: React.FunctionComponent = () => {
                                 borderRadius: 5,
                                 backgroundColor: "rgba(39,51,51,0.31)"
                             }}>
-                                <Typography sx={{
+                                <Typography component={'span'} sx={{
                                     fontWeight: "bold", display: 'flex',
                                     alignItems: 'center',
                                     paddingTop: 2,
@@ -467,7 +467,7 @@ export const Home: React.FunctionComponent = () => {
                                         </Box>
                                     )}
                                 </Typography>
-                                <Typography sx={{
+                                <Typography component={'span'} sx={{
                                     marginBottom: 1.5,
                                     display: 'flex',
                                     alignItems: 'center',
@@ -488,6 +488,7 @@ export const Home: React.FunctionComponent = () => {
                                         backgroundColor: "background.paper"
                                     }}>
                                     <Typography
+                                        component={'span'}
                                         sx={{
                                             display: 'flex',
                                             alignItems: 'center',
@@ -511,7 +512,11 @@ export const Home: React.FunctionComponent = () => {
                                             {approvedWordStep && (
                                                 <Box sx={{textAlign: 'center'}}>
                                                     <CheckCircleIcon sx={{height: 60, width: 60, color: "green"}}/>
-                                                    <Typography sx={{fontSize: "small", marginTop: -1, paddingBottom: 1}}>
+                                                    <Typography sx={{
+                                                        fontSize: "small",
+                                                        marginTop: -1,
+                                                        paddingBottom: 1
+                                                    }}>
                                                         approved
                                                     </Typography>
                                                 </Box>
@@ -519,7 +524,11 @@ export const Home: React.FunctionComponent = () => {
                                             {!approvedWordStep && !loadingWordStep && (
                                                 <Box sx={{textAlign: 'center'}}>
                                                     <CancelIcon sx={{height: 60, width: 60, color: "red"}}/>
-                                                    <Typography sx={{fontSize: "small", marginTop: -1, paddingBottom: 1}}>
+                                                    <Typography sx={{
+                                                        fontSize: "small",
+                                                        marginTop: -1,
+                                                        paddingBottom: 1
+                                                    }}>
                                                         rejected
                                                     </Typography>
                                                 </Box>
@@ -527,13 +536,14 @@ export const Home: React.FunctionComponent = () => {
                                         </Box>
                                     </Typography>
                                     {showWordStep && !approvedWordStep && (
-                                        <Typography sx={{
-                                            display: "flex",
-                                            justifyContent: "flex-end",
-                                            paddingTop: 1,
-                                            paddingRight: 1.75,
-                                            paddingBottom: 1.5
-                                        }}>
+                                        <Typography component={'span'}
+                                                    sx={{
+                                                        display: "flex",
+                                                        justifyContent: "flex-end",
+                                                        paddingTop: 1,
+                                                        paddingRight: 1.75,
+                                                        paddingBottom: 1.5
+                                                    }}>
                                             <IconButton
                                                 sx={{
                                                     color: "primary.main",
@@ -559,10 +569,10 @@ export const Home: React.FunctionComponent = () => {
                                             boxShadow: 4,
                                             p: 3
                                         }}>
-                                            <Typography variant="h5" sx={{color: "primary.main"}}>
+                                            <Typography component={'span'} variant="h5" sx={{color: "primary.main"}}>
                                                 Bad Words Moderation Result:
                                             </Typography>
-                                            <Typography variant="body2" sx={{
+                                            <Typography component={'span'} variant="body2" sx={{
                                                 marginTop: 1,
                                                 backgroundColor: "info.main",
                                                 fontWeight: "bold",
@@ -590,6 +600,7 @@ export const Home: React.FunctionComponent = () => {
                                         backgroundColor: "background.paper"
                                     }}>
                                     <Typography
+                                        component={'span'}
                                         sx={{
                                             display: 'flex',
                                             alignItems: 'center',
@@ -605,36 +616,40 @@ export const Home: React.FunctionComponent = () => {
                                             justifyContent: 'flex-end',
                                             paddingRight: 1.65,
                                         }}>
-                                            {unclassifiableAIStep && showManualStep && !manuallyModerated &&(
+                                            {unclassifiableAIStep && showManualStep && !manuallyModerated && (
                                                 <Box style={{textAlign: 'center'}}>
                                                     <CancelIcon style={{height: 60, width: 60, color: "orange"}}/>
-                                                    <Typography sx={{fontSize: "small", marginTop: -1, paddingBottom: 1}}>
+                                                    <Typography
+                                                        sx={{fontSize: "small", marginTop: -1, paddingBottom: 1}}>
                                                         unclassifiable
                                                     </Typography>
                                                 </Box>
                                             )}
-                                            {manuallyModerated &&(
+                                            {manuallyModerated && (
                                                 <Box style={{textAlign: 'center'}}>
                                                     <CancelIcon style={{height: 60, width: 60, color: "orange"}}/>
-                                                    <Typography sx={{fontSize: "small", marginTop: -1, paddingBottom: 1}}>
+                                                    <Typography
+                                                        sx={{fontSize: "small", marginTop: -1, paddingBottom: 1}}>
                                                         unclassifiable
                                                     </Typography>
                                                 </Box>
                                             )}
                                             {loadingAIStep && (
                                                 <Box style={{textAlign: 'center', paddingRight: 5,}}>
-                                                    <CircularProgress style={{width: 60, height: 60, paddingBottom: 1}}/>
+                                                    <CircularProgress
+                                                        style={{width: 60, height: 60, paddingBottom: 1}}/>
                                                 </Box>
                                             )}
-                                            {approvedAIStep && !manuallyModerated &&(
+                                            {approvedAIStep && !manuallyModerated && (
                                                 <Box style={{textAlign: 'center', marginRight: 12}}>
                                                     <CheckCircleIcon sx={{height: 60, width: 60, color: "green"}}/>
-                                                    <Typography sx={{fontSize: "small", marginTop: -1, paddingBottom: 1}}>
+                                                    <Typography
+                                                        sx={{fontSize: "small", marginTop: -1, paddingBottom: 1}}>
                                                         approved
                                                     </Typography>
                                                 </Box>
                                             )}
-                                            {showAIStep && !showManualStep && !approvedAIStep && !loadingAIStep &&(
+                                            {showAIStep && !showManualStep && !approvedAIStep && !loadingAIStep && (
                                                 <Box style={{textAlign: 'center'}}>
                                                     <CancelIcon
                                                         sx={{
@@ -644,21 +659,28 @@ export const Home: React.FunctionComponent = () => {
                                                             marginRight: 1.5
                                                         }}/>
                                                     <Typography
-                                                        sx={{fontSize: "small", marginTop: -1, marginRight: 1.5, paddingBottom: 1}}>
+                                                        sx={{
+                                                            fontSize: "small",
+                                                            marginTop: -1,
+                                                            marginRight: 1.5,
+                                                            paddingBottom: 1
+                                                        }}>
                                                         rejected
                                                     </Typography>
                                                 </Box>
                                             )}
                                         </Box>
                                     </Typography>
-                                    {showAIStep && !approvedAIStep && !pendingManualModeration && !showManualStep &&(
-                                        <Typography sx={{
-                                            display: "flex",
-                                            justifyContent: "flex-end",
-                                            paddingTop: 1,
-                                            paddingRight: 2.05,
-                                            paddingBottom: 1.5
-                                        }}>
+                                    {showAIStep && !approvedAIStep && !pendingManualModeration && !showManualStep && (
+                                        <Typography
+                                            component={'span'}
+                                            sx={{
+                                                display: "flex",
+                                                justifyContent: "flex-end",
+                                                paddingTop: 1,
+                                                paddingRight: 2.05,
+                                                paddingBottom: 1.5
+                                            }}>
                                             <IconButton
                                                 sx={{
                                                     color: "primary.main",
@@ -678,17 +700,19 @@ export const Home: React.FunctionComponent = () => {
                                     )}
 
                                     <Collapse in={manualExpanded} timeout="auto" unmountOnExit>
-                                        {showAIStep && !approvedAIStep && !pendingManualModeration && !showManualStep &&(
+                                        {showAIStep && !approvedAIStep && !pendingManualModeration && !showManualStep && (
                                             <CardContent sx={{
                                                 backgroundColor: "secondary.main",
                                                 borderRadius: 1,
                                                 boxShadow: 4,
                                                 p: 3
                                             }}>
-                                                <Typography variant="h5" sx={{color: "primary.main"}}>
+                                                <Typography component={'span'} variant="h5" sx={{color: "primary.main"}}>
                                                     (Moderation Tags) AI Moderation Result:
                                                 </Typography>
-                                                <Typography variant="body2" sx={{
+                                                <Typography
+                                                    component={'span'}
+                                                    variant="body2" sx={{
                                                     marginTop: 1,
                                                     backgroundColor: "info.main",
                                                     fontWeight: "bold",
@@ -717,6 +741,7 @@ export const Home: React.FunctionComponent = () => {
                                         }}
                                     >
                                         <Typography
+                                            component={'span'}
                                             sx={{
                                                 display: 'flex',
                                                 alignItems: 'center',
@@ -735,7 +760,7 @@ export const Home: React.FunctionComponent = () => {
                                                     <Box style={{textAlign: 'center'}}>
                                                         <AccessTimeFilledIcon
                                                             sx={{height: 60, width: 60, color: "orange"}}/>
-                                                        <Typography sx={{fontSize: "small", marginTop: -1}}>
+                                                        <Typography  sx={{fontSize: "small", marginTop: -1}}>
                                                             pending
                                                         </Typography>
                                                     </Box>
@@ -762,7 +787,9 @@ export const Home: React.FunctionComponent = () => {
                                             </Box>
                                         </Typography>
 
-                                        <Typography sx={{
+                                        <Typography
+                                            component={'span'}
+                                            sx={{
                                             display: "flex",
                                             justifyContent: "flex-end",
                                             paddingTop: 1,
@@ -793,10 +820,11 @@ export const Home: React.FunctionComponent = () => {
                                                 boxShadow: 4,
                                                 p: 3
                                             }}>
-                                                <Typography variant="h5" sx={{color: "primary.main"}}>
+                                                <Typography component={'span'} variant="h5" sx={{color: "primary.main"}}>
                                                     Manual Moderation Result:
                                                 </Typography>
-                                                <Typography variant="body2" sx={{
+                                                <Typography
+                                                    variant="body2" sx={{
                                                     marginTop: 1,
                                                     backgroundColor: "info.main",
                                                     fontWeight: "bold",
@@ -812,7 +840,7 @@ export const Home: React.FunctionComponent = () => {
                                             </CardContent>)}
                                             {showManualStepForm && (
                                                 <CardContent sx={{backgroundColor: "secondary.main"}}>
-                                                    <Typography variant="h6" sx={{paddingLeft: 1, paddingTop: 1}}>
+                                                    <Typography component={'span'} variant="h6" sx={{paddingLeft: 1, paddingTop: 1}}>
                                                         Text is unclassifiable - Approve/Reject manually</Typography>
                                                     <FormGroup
                                                         sx={{
@@ -897,13 +925,13 @@ export const Home: React.FunctionComponent = () => {
                             {showErrorMessage && (
                                 <Fade in timeout={1800}>
                                     <Box justifyContent="center" textAlign="center">
-                                        <Typography variant="h4"><ReportGmailerrorredIcon sx={{
+                                        <Typography component={'span'} variant="h4"><ReportGmailerrorredIcon sx={{
                                             color: "error.main",
                                             width: 120,
                                             height: 120
                                         }}/></Typography>
                                         <Typography variant="h4">ERROR!</Typography>
-                                        <Typography variant="body1" className={"heading"}>
+                                        <Typography component={'span'} variant="body1" className={"heading"}>
                                             {errorMessage} {/* Display the error message */}
                                         </Typography>
                                     </Box>

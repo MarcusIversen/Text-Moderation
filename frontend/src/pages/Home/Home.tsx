@@ -569,10 +569,10 @@ export const Home: React.FunctionComponent = () => {
                                             boxShadow: 4,
                                             p: 3
                                         }}>
-                                            <Typography component={'span'} variant="h5" sx={{color: "primary.main"}}>
+                                            <Typography variant="h5" sx={{color: "primary.main"}}>
                                                 Bad Words Moderation Result:
                                             </Typography>
-                                            <Typography component={'span'} variant="body2" sx={{
+                                            <Typography variant="body2" sx={{
                                                 marginTop: 1,
                                                 backgroundColor: "info.main",
                                                 fontWeight: "bold",
@@ -707,11 +707,10 @@ export const Home: React.FunctionComponent = () => {
                                                 boxShadow: 4,
                                                 p: 3
                                             }}>
-                                                <Typography component={'span'} variant="h5" sx={{color: "primary.main"}}>
+                                                <Typography variant="h5" sx={{color: "primary.main"}}>
                                                     (Moderation Tags) AI Moderation Result:
                                                 </Typography>
                                                 <Typography
-                                                    component={'span'}
                                                     variant="body2" sx={{
                                                     marginTop: 1,
                                                     backgroundColor: "info.main",

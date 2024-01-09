@@ -293,7 +293,13 @@ export class ModerationService {
                 return undefined;
             }
 
-            if (distilbertNegativeScore > 0.9 && nsfwScore > 0.9 || nsfwScore > 0.95 || contactInfoScore > 0.9) {
+            if (
+                (distilbertNegativeScore > 0.9 && nsfwScore > 0.9) ||
+                nsfwScore > 0.95 ||
+                contactInfoScore > 0.9 ||
+                distilbertNegativeScore > 0.99 ||
+                nsfwScore > 0.99
+            ) {
                 return {
                     distilbertNegativeScore: distilbertNegativeScore,
                     nsfwScore: nsfwScore,
@@ -302,57 +308,25 @@ export class ModerationService {
                 };
             }
 
-            if(distilbertNegativeScore < 0.75 && nsfwScore < 0.75 && contactInfoScore < 0.2) {
-                return {
-                    distilbertNegativeScore: distilbertNegativeScore,
-                    nsfwScore: nsfwScore,
-                    contactInfoScore: contactInfoScore,
-                    status: "approved",
-                };
-            }
-
-
-            // if ((nsfwScore > 0.95 && distilbertNegativeScore <= 0.2)) {
-            //     return {
-            //         distilbertNegativeScore: distilbertNegativeScore,
-            //         nsfwScore: nsfwScore,
-            //         contactInfoScore: contactInfoScore,
-            //         status: "unclassifiable",
-            //     };
-            // }
-
-            if (distilbertNegativeScore > 0.99 && nsfwScore < 0.8) {
-                console.log("nNOWWWWWW!")
-                return {
-                    distilbertNegativeScore: distilbertNegativeScore,
-                    nsfwScore: nsfwScore,
-                    contactInfoScore: contactInfoScore,
-                    status: "unclassifiable",
-                };
-            }
-
-
             if (
-                (distilbertNegativeScore >= 0.5 && distilbertNegativeScore < 0.9) ||
-                (nsfwScore >= 0.5 && nsfwScore < 0.9) ||
-                (nsfwScore >= 0.5 && nsfwScore < 0.9) && (contactInfoScore >= 0.5 && contactInfoScore < 0.9)
+                distilbertNegativeScore < 0.75 &&
+                nsfwScore < 0.75 &&
+                contactInfoScore < 0.2
             ) {
                 return {
                     distilbertNegativeScore: distilbertNegativeScore,
                     nsfwScore: nsfwScore,
                     contactInfoScore: contactInfoScore,
-                    status: "unclassifiable",
-                };
-            }
-
-            if (distilbertPositiveScore > 0.9 && sfwScore > 0.9 || contactInfoOtherScore > 0.9) {
-                return {
-                    distilbertNegativeScore: distilbertNegativeScore,
-                    nsfwScore: nsfwScore,
-                    contactInfoScore: contactInfoScore,
                     status: "approved",
                 };
             }
+
+            return {
+                distilbertNegativeScore: distilbertNegativeScore,
+                nsfwScore: nsfwScore,
+                contactInfoScore: contactInfoScore,
+                status: "unclassifiable",
+            };
 
 
         } catch (error) {
@@ -365,7 +339,6 @@ export class ModerationService {
         const moderation = await this.moderation(textInputData.textInput);
 
         const labelScores: { [key: string]: number | undefined } = {
-            "OK": moderation.find((item: ScoreItem) => item.label === "OK")?.score,
             "Sexual": moderation.find((item: ScoreItem) => item.label === "S")?.score,
             "Hateful": moderation.find((item: ScoreItem) => item.label === "H")?.score,
             "Violence": moderation.find((item: ScoreItem) => item.label === "V")?.score,

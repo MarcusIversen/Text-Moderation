@@ -57,8 +57,6 @@ It should look somewhat like this:
 HF_ACCESS_TOKEN=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
 SECRET_KEY=verysecretkey
 ```
-<br>
-<br>
 
 ### How to run program: 
 1. Go to `/Text-Moderation/frontend` and do following command
